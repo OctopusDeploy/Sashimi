@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Sashimi.Aws</AssemblyName>
+        <RootNamespace>Sashimi.Aws</RootNamespace>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <OutputPath>bin\</OutputPath>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\..\artifacts\Calamari.Aws.zip" LinkBase="tools" Pack="true" PackagePath="tools/" />
+        <EmbeddedResource Include="**\*.ps1" />
+        <EmbeddedResource Include="**\*.sh" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
+    </ItemGroup>
+
+</Project>
