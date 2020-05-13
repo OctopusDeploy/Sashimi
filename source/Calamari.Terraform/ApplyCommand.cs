@@ -52,11 +52,11 @@ namespace Calamari.Terraform
                     }
 
                     log.Info(
-                        $"Saving {(isSensitive ? "sensitive" : String.Empty)}variable 'Octopus.Action[\"{deployment.Variables["Octopus.Action.StepName"]}\"].Output.TerraformJsonOutputs[\"{name}\"]' with the JSON value only of '{json}'");
+                        $"Saving {(isSensitive ? "sensitive" : String.Empty)}variable 'Octopus.Action[{deployment.Variables["Octopus.Action.StepName"]}].Output.TerraformJsonOutputs[{name}]' with the JSON value only of '{json}'");
                     if (value != null)
                     {
                         log.Info(
-                            $"Saving {(isSensitive ? "sensitive" : String.Empty)}variable 'Octopus.Action[\"{deployment.Variables["Octopus.Action.StepName"]}\"].Output.TerraformValueOutputs[\"{name}\"]' with the value only of '{value}'");
+                            $"Saving {(isSensitive ? "sensitive" : String.Empty)}variable 'Octopus.Action[{deployment.Variables["Octopus.Action.StepName"]}].Output.TerraformValueOutputs[{name}]' with the value only of '{value}'");
                     }
                 }
             }

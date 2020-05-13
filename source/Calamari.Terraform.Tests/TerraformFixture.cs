@@ -215,9 +215,9 @@ namespace Calamari.Terraform.Tests
                     _.Set("Should_Be_Substituted_in_txt", "Hello World from text");
                 }, "WithVariablesSubstitution")
                 .Should()
-                .Contain("Octopus.Action[\"Step Name\"].Output.TerraformValueOutputs[\"my_output\"]' with the value only of 'Hello World'")
+                .Contain("Octopus.Action[Step Name].Output.TerraformValueOutputs[my_output]' with the value only of 'Hello World'")
                 .And
-                .Contain("Octopus.Action[\"Step Name\"].Output.TerraformValueOutputs[\"my_output_from_txt_file\"]' with the value only of 'Hello World from text'");
+                .Contain("Octopus.Action[Step Name].Output.TerraformValueOutputs[my_output_from_txt_file]' with the value only of 'Hello World from text'");
         }
         
         [Test]
@@ -273,7 +273,7 @@ namespace Calamari.Terraform.Tests
         public void TerraformPlanOutput(Type commandType)
         {
             ExecuteAndReturnLogOutput(commandType, _ => { _.Set("Octopus.Action.StepName", "Step Name"); }, "Simple")
-                .Should().Contain("Octopus.Action[\"Step Name\"].Output.TerraformPlanOutput");
+                .Should().Contain("Octopus.Action[Step Name].Output.TerraformPlanOutput");
         }
 
         [Test]
@@ -313,11 +313,11 @@ namespace Calamari.Terraform.Tests
             {
                 outputs.MoveNext();
                 outputs.Current.Should()
-                    .Contain("Octopus.Action[\"\"].Output.TerraformPlanOutput");
+                    .Contain("Octopus.Action[].Output.TerraformPlanOutput");
 
                 outputs.MoveNext();
                 outputs.Current.Should()
-                    .Contain($"Saving variable 'Octopus.Action[\"\"].Output.TerraformValueOutputs[\"url\"]' with the value only of '{appName}.azurewebsites.net'");
+                    .Contain($"Saving variable 'Octopus.Action[].Output.TerraformValueOutputs[url]' with the value only of '{appName}.azurewebsites.net'");
 
                 using (var client = new HttpClient())
                 {
@@ -355,11 +355,11 @@ namespace Calamari.Terraform.Tests
             {
                 outputs.MoveNext();
                 outputs.Current.Should()
-                    .Contain("Octopus.Action[\"\"].Output.TerraformPlanOutput");
+                    .Contain("Octopus.Action[].Output.TerraformPlanOutput");
 
                 outputs.MoveNext();
                 outputs.Current.Should()
-                    .Contain($"Saving variable 'Octopus.Action[\"\"].Output.TerraformValueOutputs[\"url\"]' with the value only of 'https://{bucketName}.s3.amazonaws.com/test.txt'");
+                    .Contain($"Saving variable 'Octopus.Action[].Output.TerraformValueOutputs[url]' with the value only of 'https://{bucketName}.s3.amazonaws.com/test.txt'");
 
                 string fileData;
                 using (var client = new HttpClient())
@@ -382,7 +382,7 @@ namespace Calamari.Terraform.Tests
             {
                 outputs.MoveNext();
                 outputs.Current.Should()
-                    .Contain("Saving variable 'Octopus.Action[\"\"].Output.TerraformPlanDetailedExitCode' with the detailed exit code of the plan, with value '2'");
+                    .Contain("Saving variable 'Octopus.Action[].Output.TerraformPlanDetailedExitCode' with the detailed exit code of the plan, with value '2'");
 
                 outputs.MoveNext();
                 outputs.Current.Should()
@@ -390,7 +390,7 @@ namespace Calamari.Terraform.Tests
 
                 outputs.MoveNext();
                 outputs.Current.Should()
-                    .Contain("Saving variable 'Octopus.Action[\"\"].Output.TerraformPlanDetailedExitCode' with the detailed exit code of the plan, with value '0'");
+                    .Contain("Saving variable 'Octopus.Action[].Output.TerraformPlanDetailedExitCode' with the detailed exit code of the plan, with value '0'");
             }
         }
 
