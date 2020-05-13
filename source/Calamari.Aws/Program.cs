@@ -1,12 +1,15 @@
-﻿using System;
-
-namespace Calamari.Aws
+﻿namespace Calamari.Aws
 {
-    class Program
+    public class Program : CalamariFlavourProgram
     {
-        static void Main(string[] args)
+
+        Program() : base(ConsoleLog.Instance)
         {
-            Console.WriteLine("Hello World!");
+        }
+        
+        public static int Main(string[] args)
+        {
+            return new Program().Run(args);
         }
     }
 }
