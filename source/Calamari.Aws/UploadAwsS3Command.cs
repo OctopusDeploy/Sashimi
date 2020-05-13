@@ -10,7 +10,6 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SecurityToken;
-using Calamari.Aws.Commands;
 using Calamari.Aws.Deployment;
 using Calamari.Aws.Deployment.Conventions;
 using Calamari.Aws.Exceptions;
