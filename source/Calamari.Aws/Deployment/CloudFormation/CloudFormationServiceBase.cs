@@ -7,25 +7,24 @@ using Amazon.CloudFormation.Model;
 using Amazon.Runtime;
 using Calamari.Aws.Exceptions;
 using Calamari.Aws.Integration.CloudFormation;
-using Calamari.Deployment;
-using Calamari.Deployment.Conventions;
-using Calamari.Integration.Processes;
 using Octopus.CoreUtilities;
 using Octopus.CoreUtilities.Extensions;
 
-namespace Calamari.Aws.Deployment.Conventions
+namespace Calamari.Aws.Deployment.CloudFormation
 {
-    public abstract class CloudFormationInstallationConventionBase: IInstallConvention
+    public abstract class CloudFormationServiceBase
     {
-        protected readonly StackEventLogger Logger;
+        readonly StackEventLogger stackEventLogger;
 
-        public CloudFormationInstallationConventionBase(StackEventLogger logger)
+        protected readonly ILog log;
+
+        protected CloudFormationServiceBase(ILog log)
         {
-            Logger = logger;
+            this.log = log;
+
+            stackEventLogger = new StackEventLogger(log);
         }
-        
-        public abstract void Install(RunningDeployment deployment);
-        
+
         /// <summary>
         /// The AmazonServiceException can hold additional information that is useful to include in
         /// the log.
@@ -60,10 +59,10 @@ namespace Calamari.Aws.Deployment.Conventions
         /// <param name="action">The action to invoke</param>
         protected void WithAmazonServiceExceptionHandling(Action action)
         {
-            WithAmazonServiceExceptionHandling<ValueTuple>(() => default(ValueTuple).Tee(x=> action()));
+            WithAmazonServiceExceptionHandling<ValueTuple>(() => default(ValueTuple).Tee(x => action()));
         }
-        
-        
+
+
         /// <summary>
         /// Display an warning message to the user (without duplicates)
         /// </summary>
@@ -72,9 +71,9 @@ namespace Calamari.Aws.Deployment.Conventions
         /// <returns>true if it was displayed, and false otherwise</returns>
         protected bool DisplayWarning(string errorCode, string message)
         {
-            return Logger.Warn(errorCode, message);
+            return stackEventLogger.Warn(errorCode, message);
         }
-        
+
         /// <summary>
         /// Creates a handler which will log stack events and throw on common rollback events
         /// </summary>
@@ -84,15 +83,15 @@ namespace Calamari.Aws.Deployment.Conventions
         /// <param name="expectSuccess">Whether we expected a success</param>
         /// <param name="missingIsFailure"></param>
         /// <returns>Stack event handler</returns>
-        protected Action<Maybe<StackEvent>> LogAndThrowRollbacks(Func<IAmazonCloudFormation> clientFactory, StackArn stack, bool expectSuccess = true, bool missingIsFailure = true, Func<StackEvent, bool> filter = null) 
+        protected Action<Maybe<StackEvent>> LogAndThrowRollbacks(IAmazonCloudFormation client, StackArn stack, bool expectSuccess = true, bool missingIsFailure = true, Func<StackEvent, bool> filter = null)
         {
             return @event =>
             {
                 try
                 {
-                    Logger.Log(@event);
-                    Logger.LogRollbackError(@event, x =>
-                            WithAmazonServiceExceptionHandling(() => clientFactory().GetLastStackEvent(stack, x).GetAwaiter().GetResult()),
+                    stackEventLogger.Log(@event);
+                    stackEventLogger.LogRollbackError(@event, x =>
+                            WithAmazonServiceExceptionHandling(() => client.GetLastStackEvent(stack, x).GetAwaiter().GetResult()),
                         expectSuccess,
                         missingIsFailure);
                 }
@@ -103,7 +102,7 @@ namespace Calamari.Aws.Deployment.Conventions
             };
         }
 
-        public static (IList<string> valid, IList<string> excluded) ExcludeUnknownIamCapabilities(
+        static (IList<string> valid, IList<string> excluded) ExcludeUnknownIamCapabilities(
             IEnumerable<string> capabilities)
         {
             return capabilities.Aggregate((new List<string>(), new List<string>()), (prev, current) =>
@@ -119,7 +118,7 @@ namespace Calamari.Aws.Deployment.Conventions
             });
         }
 
-        public static (IList<string> valid, IList<string> excluded) ExcludeAndLogUnknownIamCapabilities(IEnumerable<string> values)
+        protected static (IList<string> valid, IList<string> excluded) ExcludeAndLogUnknownIamCapabilities(IEnumerable<string> values)
         {
             var (valid, excluded) = ExcludeUnknownIamCapabilities(values);
             if (excluded.Count > 0)
@@ -135,11 +134,11 @@ namespace Calamari.Aws.Deployment.Conventions
             Log.Info($"Saving variable \"Octopus.Action[{variables["Octopus.Action.Name"]}].Output.AwsOutputs[{name}]\"");
         }
 
-        protected Task<Stack> QueryStackAsync(Func<IAmazonCloudFormation> clientFactory, StackArn stack)
+        protected Task<Stack> QueryStackAsync(IAmazonCloudFormation client, StackArn stack)
         {
             try
             {
-                return clientFactory().DescribeStackAsync(stack);
+                return client.DescribeStackAsync(stack);
             }
             catch (AmazonServiceException ex) when (ex.ErrorCode == "AccessDenied")
             {
