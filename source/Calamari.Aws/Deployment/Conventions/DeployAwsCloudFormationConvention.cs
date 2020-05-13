@@ -89,7 +89,7 @@ namespace Calamari.Aws.Deployment.Conventions
         {
             Guard.NotNull(deployment, "deployment can not be null");
            
-            await clientFactory.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack, false));
+            await clientFactory().WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack, false));
             await DeployStack(deployment, stack, template);
         }
 
@@ -111,7 +111,7 @@ namespace Calamari.Aws.Deployment.Conventions
 
             if (waitForComplete)
             {
-                await clientFactory.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack));
+                await clientFactory().WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack));
             }
 
             // Take the stack ID returned by the create or update events, and save it as an output variable
@@ -129,7 +129,7 @@ namespace Calamari.Aws.Deployment.Conventions
         private Task<Maybe<StackEvent>> StackEvent(StackArn stack, Func<StackEvent, bool> predicate = null)
         {
             return WithAmazonServiceExceptionHandling(
-               async () => await clientFactory.GetLastStackEvent(stack, predicate));
+               async () => await clientFactory().GetLastStackEvent(stack, predicate));
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Calamari.Aws.Deployment.Conventions
         /// <returns>The current status of the stack</returns>
         private Task<StackStatus> StackExists(StackArn stack, StackStatus defaultValue)
         {
-            return WithAmazonServiceExceptionHandling(() => clientFactory.StackExistsAsync(stack, defaultValue));
+            return WithAmazonServiceExceptionHandling(() => clientFactory().StackExistsAsync(stack, defaultValue));
         }
         
         /// <summary>
@@ -175,7 +175,7 @@ namespace Calamari.Aws.Deployment.Conventions
         {
             return WithAmazonServiceExceptionHandling(async () =>
             {
-                await clientFactory.DeleteStackAsync(stack);
+                await clientFactory().DeleteStackAsync(stack);
                 Log.Info($"Deleted stack called {stackName} in region {awsEnvironmentGeneration.AwsRegion.SystemName}");
             });
         }
@@ -228,7 +228,7 @@ namespace Calamari.Aws.Deployment.Conventions
                 // created in the first place, we can end up here. In this case we try to create
                 // the stack from scratch.
                 await DeleteCloudFormation(stack);
-                await clientFactory.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack, false));
+                await clientFactory().WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack, false));
                 return await CreateCloudFormation(deployment, template);
             }
             catch (AmazonServiceException ex)
