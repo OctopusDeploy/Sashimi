@@ -63,7 +63,6 @@ namespace Calamari.Aws
             isMd5HashSupported = HashCalculator.IsAvailableHashingAlgorithm(MD5.Create);
         }
 
-
         //TODO: Further refactor is necessary if we have the capacity
         protected override void Execute(RunningDeployment deployment)
         {
