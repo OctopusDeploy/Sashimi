@@ -6,6 +6,8 @@ using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Commands.Support;
 using Calamari.Deployment;
+using Octostache;
+
 namespace Calamari.Aws
 {
     [Command(AwsKnownVariables.Commands.DeleteAwsCloudformation, Description = "Destroy an existing AWS CloudFormation stack")]
@@ -27,7 +29,7 @@ namespace Calamari.Aws
         protected override void Execute(RunningDeployment deployment)
         {
             var stackArn = new StackArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.StackName));
-            var waitForCompletion = !bool.FalseString.Equals(variables.Get("waitForCompletion"), StringComparison.OrdinalIgnoreCase);
+            var waitForCompletion = new VariableDictionary().EvaluateTruthy(variables.Get("waitForCompletion"));
 
             cloudFormationService.DeleteByStackArn(stackArn, waitForCompletion).GetAwaiter().GetResult();
         }

@@ -51,7 +51,7 @@ namespace Calamari.Aws.Deployment.Conventions
 
             try
             {
-                var response = await clientFactory.DescribeChangeSetAsync(stack, changeSet);
+                var response = await clientFactory().DescribeChangeSetAsync(stack, changeSet);
                 SetOutputVariable(variables, "ChangeCount", response.Changes.Count.ToString());
                 SetOutputVariable(variables, "Changes",
                     JsonConvert.SerializeObject(response.Changes, Formatting.Indented));

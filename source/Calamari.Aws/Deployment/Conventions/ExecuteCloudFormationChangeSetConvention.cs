@@ -51,7 +51,7 @@ namespace Calamari.Aws.Deployment.Conventions
             Guard.NotNull(stack, "The provided stack identifer or name may not be null");
             Guard.NotNull(changeSet, "The provided change set identifier or name may not be null");
             
-            var response = await clientFactory.DescribeChangeSetAsync(stack, changeSet);
+            var response = await clientFactory().DescribeChangeSetAsync(stack, changeSet);
             if (response.Changes.Count == 0)
             {
                 await clientFactory().DeleteChangeSetAsync(new DeleteChangeSetRequest
@@ -79,7 +79,7 @@ namespace Calamari.Aws.Deployment.Conventions
         {
             try
             {
-                var changes = await factory.WaitForChangeSetCompletion(CloudFormationDefaults.StatusWaitPeriod,
+                var changes = await factory().WaitForChangeSetCompletion(CloudFormationDefaults.StatusWaitPeriod,
                     new RunningChangeSet(stack, changeSet));
 
 
