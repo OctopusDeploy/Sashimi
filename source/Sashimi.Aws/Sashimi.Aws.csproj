@@ -7,7 +7,7 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <OutputPath>bin\</OutputPath>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\artifacts\Calamari.Aws.zip" LinkBase="tools" Pack="true" PackagePath="tools/" />
@@ -16,6 +16,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
+        <PackageReference Include="YamlDotNet" Version="6.1.2" />
     </ItemGroup>
 
 </Project>

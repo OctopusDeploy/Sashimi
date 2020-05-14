@@ -3,7 +3,7 @@
     public static class KnownVariables
     {
         public static readonly string UseRawScript = "OctopusUseRawScript";
-        
+
         public static class Project
         {
              public static readonly string Id = "Octopus.Project.Id";
@@ -71,6 +71,7 @@
         {
             public static readonly string Id = "Octopus.Action.Id";
             public static readonly string EnabledFeatures = "Octopus.Action.EnabledFeatures";
+            public static readonly string UseBundledTooling = "OctopusUseBundledTooling";
             
             public static readonly string UseBundledTooling = "OctopusUseBundledTooling";
 
