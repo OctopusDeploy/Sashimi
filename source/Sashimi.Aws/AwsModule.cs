@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Sashimi.Aws.ActionHandler;
 using Sashimi.Aws.CloudTemplates;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.CloudTemplates;
@@ -18,11 +19,11 @@ namespace Sashimi.Aws
             builder.RegisterType<CloudFormationJsonCloudTemplateHandler>().As<ICloudTemplateHandler>().SingleInstance();
             builder.RegisterType<CloudFormationYamlCloudTemplateHandler>().As<ICloudTemplateHandler>().SingleInstance();
 
-            builder.RegisterAssemblyTypes(ThisAssembly)
-                .AssignableTo<IActionHandler>()
-                .As<IActionHandler>()
-                .AsSelf()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<AwsUploadS3ActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<AwsRunScriptActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<AwsRunCloudFormationActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<AwsDeleteCloudFormationActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<AwsApplyCloudFormationChangeSetActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
         }
     }
 }
