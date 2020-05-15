@@ -26,8 +26,8 @@ using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws
 {
-    [Command("upload-aws-s3", Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
-    public class UploadAwsS3Command : AwsCommand
+    [Command(KnownAwsCalamariCommands.UploadAwsS3, Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
+    public class UploadAwsS3Command : Command
     {
         readonly IAmazonS3 amazonS3Client;
         readonly IProvideS3TargetOptions optionsProvider;

@@ -1,4 +1,5 @@
-﻿using Sashimi.Aws.CloudFormation.Presets;
+﻿using Calamari.Aws.Commands;
+using Sashimi.Aws.CloudFormation.Presets;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
@@ -24,7 +25,7 @@ namespace Sashimi.Aws.ActionHandler
 
         public IActionHandlerResult Execute(IActionHandlerContext context)
         {
-            var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, "deploy-aws-cloudformation");
+            var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.DeployAwsCloudformation);
 
             CloudFormationCalamariPresets.TemplatesAndParameters(context.Variables, builder);
 

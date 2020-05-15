@@ -16,7 +16,7 @@ using Calamari.Integration.Processes;
 
 namespace Calamari.Aws.Commands
 {
-    [Command("delete-aws-cloudformation", Description = "Destroy an existing AWS CloudFormation stack")]
+    [Command(KnownAwsCalamariCommands.DeleteAwsCloudformation, Description = "Destroy an existing AWS CloudFormation stack")]
     public class DeleteCloudFormationCommand : Command
     {
         readonly ILog log;

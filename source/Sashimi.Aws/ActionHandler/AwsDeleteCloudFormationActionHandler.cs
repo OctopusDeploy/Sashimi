@@ -1,4 +1,5 @@
-﻿using Sashimi.Server.Contracts;
+﻿using Calamari.Aws.Commands;
+using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
 
@@ -23,7 +24,7 @@ namespace Sashimi.Aws.ActionHandler
 
         public IActionHandlerResult Execute(IActionHandlerContext context)
         {
-            var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, "delete-aws-cloudformation");
+            var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.DeleteAwsCloudformation);
 
             builder.WithArgument("waitForCompletion", context.Variables.GetFlag(AwsSpecialVariables.Action.Aws.WaitForCompletion, false).ToString());
             builder.WithArgument("stackName", context.Variables.Get(AwsSpecialVariables.Action.Aws.CloudFormation.StackName, ""));
