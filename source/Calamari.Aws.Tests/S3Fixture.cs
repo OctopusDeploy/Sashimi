@@ -1,4 +1,7 @@
 ﻿using System.Linq;
+using Amazon.IdentityManagement;
+using Amazon.SecurityToken;
+using Calamari.Aws.Util;
 using Calamari.Deployment.Conventions;
 using Calamari.Integration.Packages;
 using Calamari.Integration.Substitutions;
@@ -17,6 +20,7 @@ using Calamari.Aws.Deployment;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Serialization;
 using Calamari.Aws.Tests.Utils;
+using Calamari.CloudAccounts;
 using Calamari.Integration.FileSystem;
 using Calamari.Serialization;
 using FluentAssertions;
@@ -224,6 +228,7 @@ namespace Calamari.Aws.Tests
             variables.Set("Octopus.Action.Aws.Region", RegionEndpoint.APSoutheast1.SystemName);
             variables.Set(AwsSpecialVariables.S3.FileSelections,
                 JsonConvert.SerializeObject(fileSelections, GetEnrichedSerializerSettings()));
+
             variables.Save(variablesFile);
 
             var packageDirectory = TestEnvironment.GetTestPath("S3", packageName);
@@ -231,20 +236,27 @@ namespace Calamari.Aws.Tests
                 new TemporaryFile(PackageBuilder.BuildSimpleZip(packageName, "1.0.0", packageDirectory)))
             using (new TemporaryFile(variablesFile))
             {
+                variables.Set("package", package.FilePath);
+                variables.Set("variables", variablesFile);
+                variables.Set("bucket", BucketName);
+                variables.Set("targetMode", S3TargetMode.FileSelections.ToString());
+
                 var log = new InMemoryLog();
                 var fileSystem = CalamariPhysicalFileSystem.GetPhysicalFileSystem();
+                var environment = AwsEnvironmentGeneration.Create(log, variables).GetAwaiter().GetResult();
                 var command = new UploadAwsS3Command(
                     log,
                     variables,
+                    new AmazonS3Client(environment.AwsCredentials, environment.AsClientConfig<AmazonS3Config>()),  
+                    new AmazonSecurityTokenServiceClient(environment.AwsCredentials, environment.AsClientConfig<AmazonSecurityTokenServiceConfig>()),
+                    new AmazonIdentityManagementServiceClient(environment.AwsCredentials, environment.AsClientConfig<AmazonIdentityManagementServiceConfig>()),
+                    new VariableS3TargetOptionsProvider(variables),
                     fileSystem,
                     new SubstituteInFiles(log, fileSystem, new FileSubstituter(log, fileSystem), variables),
                     new ExtractPackage(new CombinedPackageExtractor(log), fileSystem, variables, log)
                 );
-                var result = command.Execute(new[] { 
-                    "--package", $"{package.FilePath}", 
-                    "--variables", $"{variablesFile}", 
-                    "--bucket", BucketName, 
-                    "--targetMode", S3TargetMode.FileSelections.ToString()});
+
+                var result = command.Execute();
 
                 result.Should().Be(0);
             }

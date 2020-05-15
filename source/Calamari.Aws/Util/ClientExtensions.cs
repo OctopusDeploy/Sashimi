@@ -1,9 +1,7 @@
 ﻿using Amazon.CloudFormation;
 using Amazon.IdentityManagement;
 using Amazon.Runtime;
-using Amazon.S3;
 using Amazon.SecurityToken;
-using Calamari.Aws.Integration;
 using Calamari.CloudAccounts;
 using Octopus.CoreUtilities.Extensions;
 
@@ -33,10 +31,6 @@ namespace Calamari.Aws.Util
             AwsEnvironmentGeneration environment)
         {
             return new AmazonSecurityTokenServiceClient(environment.AwsCredentials, environment.AsClientConfig<AmazonSecurityTokenServiceConfig>());
-        }
-        public static AmazonS3Client CreateS3Client(AwsEnvironmentGeneration environment)
-        {
-            return new AmazonS3Client(environment.AwsCredentials, environment.AsClientConfig<AmazonS3Config>());
         }
 
         public static IAmazonCloudFormation CreateCloudFormationClient(AwsEnvironmentGeneration environment)
