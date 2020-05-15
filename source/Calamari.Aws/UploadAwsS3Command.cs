@@ -18,7 +18,7 @@ using Calamari.Integration.Substitutions;
 
 namespace Calamari.Aws.Commands
 {
-    [Command("upload-aws-s3", Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
+    [Command(KnownAwsCalamariCommands.UploadAwsS3, Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
     public class UploadAwsS3Command : Command
     {
         readonly ILog log;

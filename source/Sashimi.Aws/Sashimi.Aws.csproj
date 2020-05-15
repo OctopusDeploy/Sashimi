@@ -18,5 +18,10 @@
         <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
         <PackageReference Include="YamlDotNet" Version="6.1.2" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Include="..\Calamari.Aws\KnownAwsCalamariCommands.cs">
+        <Link>KnownAwsCalamariCommands.cs</Link>
+      </Compile>
+    </ItemGroup>
 
 </Project>

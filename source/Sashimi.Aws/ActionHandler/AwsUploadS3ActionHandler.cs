@@ -1,4 +1,5 @@
-﻿using Sashimi.Server.Contracts;
+﻿using Calamari.Aws.Commands;
+using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
 
@@ -16,7 +17,7 @@ namespace Sashimi.Aws.ActionHandler
         public ActionHandlerCategory[] Categories => new[] { ActionHandlerCategory.BuiltInStep, AwsConstants.AwsActionHandlerCategory, ActionHandlerCategory.Package };
 
         public IActionHandlerResult Execute(IActionHandlerContext context)
-            => context.CalamariCommand(CalamariFlavour.CalamariAws, "upload-aws-s3")
+            => context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.UploadAwsS3)
                 .WithArgument("bucket", context.Variables.Get(AwsSpecialVariables.Action.Aws.S3.BucketName))
                 .WithArgument("targetMode", context.Variables.Get(AwsSpecialVariables.Action.Aws.S3.TargetMode))
                 .WithStagedPackageArgument()
