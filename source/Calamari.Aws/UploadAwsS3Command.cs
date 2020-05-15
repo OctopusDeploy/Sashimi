@@ -10,6 +10,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SecurityToken;
+using Calamari.Aws.Commands;
 using Calamari.Aws.Deployment;
 using Calamari.Aws.Deployment.Conventions;
 using Calamari.Aws.Exceptions;
@@ -27,7 +28,7 @@ using Octopus.CoreUtilities.Extensions;
 namespace Calamari.Aws
 {
     [Command(KnownAwsCalamariCommands.UploadAwsS3, Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
-    public class UploadAwsS3Command : Command
+    public class UploadAwsS3Command : AwsCommand
     {
         readonly IAmazonS3 amazonS3Client;
         readonly IProvideS3TargetOptions optionsProvider;
