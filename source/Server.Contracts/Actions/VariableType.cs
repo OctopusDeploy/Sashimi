@@ -11,7 +11,7 @@ namespace Sashimi.Server.Contracts.Actions
         public static VariableType AmazonWebServicesAccount = new VariableType("AmazonWebServicesAccount", ControlType.AmazonWebServicesAccount, ReferencesOtherDocuments.Yes);
         public static VariableType AzureAccount = new VariableType("AzureAccount", ControlType.AzureAccount, ReferencesOtherDocuments.Yes);
 
-        public VariableType(string name, ControlType controlType = null, ReferencesOtherDocuments referencesOtherDocuments = ReferencesOtherDocuments.No)
+        public VariableType(string name, ControlType? controlType = null, ReferencesOtherDocuments referencesOtherDocuments = ReferencesOtherDocuments.No)
         {
             Name = name;
             ControlType = controlType;
@@ -19,7 +19,7 @@ namespace Sashimi.Server.Contracts.Actions
         }
 
         public string Name { get; }
-        public ControlType ControlType { get; }
+        public ControlType? ControlType { get; }
         public ReferencesOtherDocuments ReferencesOtherDocuments { get; }
     }
 }
