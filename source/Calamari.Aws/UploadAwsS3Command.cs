@@ -27,7 +27,7 @@ using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws
 {
-    [Command(KnownAwsCalamariCommands.UploadAwsS3, Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
+    [Command(AwsKnownVariables.Commands.UploadAwsS3, Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
     public class UploadAwsS3Command : AwsCommand
     {
         readonly IAmazonS3 amazonS3Client;
@@ -58,8 +58,9 @@ namespace Calamari.Aws
             this.substituteInFiles = substituteInFiles;
             this.extractPackage = extractPackage;
 
-            bucketName = variables.Get("bucket")?.Trim();
-            s3TargetMode = GetS3TargetMode(variables.Get("targetMode"));
+            // TODO: these variable names need to be shared with Sashimi.Aws, but how?
+            bucketName = variables.Get("Octopus.Action.Aws.S3.BucketName")?.Trim();
+            s3TargetMode = GetS3TargetMode(variables.Get("Octopus.Action.Aws.S3.TargetMode"));
             isMd5HashSupported = HashCalculator.IsAvailableHashingAlgorithm(MD5.Create);
         }
 

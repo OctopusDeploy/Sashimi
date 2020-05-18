@@ -1,14 +1,10 @@
 ﻿using System;
 using Calamari.Aws.Deployment.Conventions;
-using Calamari.Aws.Integration;
 using Calamari.Commands.Support;
 using Calamari.Deployment;
 using Calamari.Deployment.Conventions;
 using Calamari.Integration.FileSystem;
-using Calamari.Integration.Packages;
-using Calamari.Integration.Processes;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Amazon.CloudFormation;
 using Calamari.Aws.Deployment;
@@ -19,13 +15,11 @@ using Calamari.CloudAccounts;
 using Calamari.Commands;
 using Calamari.Util;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Octopus.CoreUtilities;
-using Octostache;
 
 namespace Calamari.Aws.Commands
 {
-    [Command(KnownAwsCalamariCommands.DeployAwsCloudformation, Description = "Creates a new AWS CloudFormation deployment")]
+    [Command(AwsKnownVariables.Commands.DeployAwsCloudformation, Description = "Creates a new AWS CloudFormation deployment")]
     public class DeployCloudFormationCommand : Command
     {
         readonly ILog log;
