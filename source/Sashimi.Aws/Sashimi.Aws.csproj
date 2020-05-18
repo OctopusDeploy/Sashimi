@@ -19,7 +19,7 @@
         <PackageReference Include="YamlDotNet" Version="6.1.2" />
     </ItemGroup>
     <ItemGroup>
-      <Compile Include="..\Calamari.Aws\KnownAwsCalamariCommands.cs">
+      <Compile Include="..\Calamari.Aws\KnownAwsCalamari.cs">
         <Link>KnownAwsCalamariCommands.cs</Link>
       </Compile>
     </ItemGroup>

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Calamari.Aws;
 using FluentValidation;
 using Sashimi.Server.Contracts.ActionHandlers.Validation;
 using Sashimi.Server.Contracts.Validation;

@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Amazon.CloudFormation;
 using Calamari.Aws.Deployment;
 using Calamari.Aws.Deployment.Conventions;
-using Calamari.Aws.Integration;
 using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Util;
 using Calamari.CloudAccounts;
 using Calamari.Commands.Support;
 using Calamari.Deployment;
 using Calamari.Deployment.Conventions;
-using Calamari.Integration.Processes;
 
 namespace Calamari.Aws.Commands
 {
-    [Command(KnownAwsCalamariCommands.DeleteAwsCloudformation, Description = "Destroy an existing AWS CloudFormation stack")]
+    [Command(AwsKnownVariables.Commands.DeleteAwsCloudformation, Description = "Destroy an existing AWS CloudFormation stack")]
     public class DeleteCloudFormationCommand : Command
     {
         readonly ILog log;
