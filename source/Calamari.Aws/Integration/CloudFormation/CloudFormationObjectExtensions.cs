@@ -107,13 +107,13 @@ namespace Calamari.Aws.Integration.CloudFormation
         /// </summary>
         /// <param name="predicate">The optional predicate used to filter events</param>
         /// <returns>The stack event</returns>
-        public static async Task<Maybe<StackEvent>> GetLastStackEvent(this Func<IAmazonCloudFormation> clientFactory,
+        public static async Task<Maybe<StackEvent>> GetLastStackEvent(this IAmazonCloudFormation client,
             StackArn stack,
             Func<StackEvent, bool> predicate = null)
         {
             try
             {
-                var response = await clientFactory().DescribeStackEventsAsync(new DescribeStackEventsRequest {StackName = stack.Value});
+                var response = await client.DescribeStackEventsAsync(new DescribeStackEventsRequest {StackName = stack.Value});
                 
                 return response?
                     .StackEvents.OrderByDescending(stackEvent => stackEvent.Timestamp)
@@ -140,9 +140,9 @@ namespace Calamari.Aws.Integration.CloudFormation
         /// <param name="clientFactory"></param>
         /// <param name="stack"></param>
         /// <returns></returns>
-        public static async Task<Stack> DescribeStackAsync(this Func<IAmazonCloudFormation> clientFactory, StackArn stack)
+        public static async Task<Stack> DescribeStackAsync(this IAmazonCloudFormation client, StackArn stack)
         {
-            var response = await clientFactory().DescribeStacksAsync(new DescribeStacksRequest {StackName = stack.Value});
+            var response = await client.DescribeStacksAsync(new DescribeStacksRequest {StackName = stack.Value});
             return response.Stacks.FirstOrDefault();
         }
 
@@ -154,12 +154,12 @@ namespace Calamari.Aws.Integration.CloudFormation
         /// <param name="stackArn">The stack name or id</param>
         /// <param name="defaultValue">The default value to return given no permission to query the stack</param>
         /// <returns>The current status of the stack</returns>
-        public static async Task<StackStatus> StackExistsAsync(this Func<IAmazonCloudFormation> clientFactory, StackArn stackArn,
+        public static async Task<StackStatus> StackExistsAsync(this IAmazonCloudFormation client, StackArn stackArn,
             StackStatus defaultValue)
         {
             try
             {
-                var result = await clientFactory.DescribeStackAsync(stackArn);
+                var result = await client.DescribeStackAsync(stackArn);
                 
                 if (result == null)
                 {
@@ -208,13 +208,13 @@ namespace Calamari.Aws.Integration.CloudFormation
         /// <param name="stack">The stack name or id to query</param>
         /// param name="action">Callback for each event while waiting
         /// <param name="filter">The predicate for filtering the stack events</param>
-        public static async Task WaitForStackToComplete(this Func<IAmazonCloudFormation> clientFactory,
+        public static async Task WaitForStackToComplete(this IAmazonCloudFormation client,
             TimeSpan waitPeriod, StackArn stack, Action<Maybe<StackEvent>> action = null, Func<StackEvent, bool> filter= null)
         {
             Guard.NotNull(stack, "Stack should not be null");
-            Guard.NotNull(clientFactory, "Client factory should not be null");
+            Guard.NotNull(client, "Client should not be null");
             
-            var status = await clientFactory.StackExistsAsync(stack, StackStatus.DoesNotExist);
+            var status = await client.StackExistsAsync(stack, StackStatus.DoesNotExist);
             if (status == StackStatus.DoesNotExist || status == StackStatus.Completed)
             {
                 return;
@@ -223,9 +223,9 @@ namespace Calamari.Aws.Integration.CloudFormation
             do
             {
                 await Task.Delay(waitPeriod);
-                var @event = await clientFactory.GetLastStackEvent(stack, filter);
+                var @event = await client.GetLastStackEvent(stack, filter);
                 action?.Invoke(@event);
-            } while (await clientFactory.StackExistsAsync(stack, StackStatus.Completed) == StackStatus.InProgress);
+            } while (await client.StackExistsAsync(stack, StackStatus.Completed) == StackStatus.InProgress);
         }
                 
         /// <summary>
@@ -245,14 +245,14 @@ namespace Calamari.Aws.Integration.CloudFormation
             return UnrecoverableStackStatuses.Contains(status.ResourceStatus.Value);
         }
 
-        public static Task<DeleteStackResponse> DeleteStackAsync(this Func<IAmazonCloudFormation> clientFactory, StackArn stack)
+        public static Task<DeleteStackResponse> DeleteStackAsync(this IAmazonCloudFormation client, StackArn stack)
         {
-            Guard.NotNull(clientFactory, "clientFactory should not be null");
+            Guard.NotNull(client, "client should not be null");
             Guard.NotNull(stack, "Stack should not be null");
 
             try
             {
-                return clientFactory().DeleteStackAsync(new DeleteStackRequest {StackName = stack.Value});
+                return client.DeleteStackAsync(new DeleteStackRequest {StackName = stack.Value});
             }
             catch (AmazonCloudFormationException ex) when (ex.ErrorCode == "AccessDenied")
             {

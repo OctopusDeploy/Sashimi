@@ -64,7 +64,7 @@ namespace Calamari.Aws.Deployment.Conventions
 
             try
             {
-                var status = await clientFactory.StackExistsAsync(stack, StackStatus.DoesNotExist);
+                var status = await clientFactory().StackExistsAsync(stack, StackStatus.DoesNotExist);
                 var changeset = await CreateChangeSet(
                     CreateChangesetRequest(
                         status,
