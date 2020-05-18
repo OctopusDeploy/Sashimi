@@ -73,6 +73,8 @@
             public static readonly string EnabledFeatures = "Octopus.Action.EnabledFeatures";
             public static readonly string UseBundledTooling = "OctopusUseBundledTooling";
             
+            public static readonly string UseBundledTooling = "OctopusUseBundledTooling";
+
             public static class Script
             {
                 public static readonly string Syntax = "Octopus.Action.Script.Syntax";
@@ -95,6 +97,8 @@
 
             public static class Packages
             {
+                public static readonly string PackageId = "Octopus.Action.Package.PackageId";
+                
                 public static string FeedId(string name)
                 {
                     return $"Octopus.Action.Package[{name}].FeedId";
