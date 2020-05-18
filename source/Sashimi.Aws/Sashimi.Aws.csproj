@@ -8,6 +8,8 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <OutputPath>bin\</OutputPath>
         <Nullable>disable</Nullable>
+        <PackageProjectUrl>https://github.com/OctopusDeploy/Sashimi/</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/OctopusDeploy/Sashimi/blob/master/LICENSE.txt</PackageLicenseUrl>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\artifacts\Calamari.Aws.zip" LinkBase="tools" Pack="true" PackagePath="tools/" />
