@@ -15,7 +15,6 @@ using System.Net;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
-using Calamari.Aws.Commands;
 using Calamari.Aws.Deployment;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Serialization;
@@ -236,10 +235,10 @@ namespace Calamari.Aws.Tests
                 new TemporaryFile(PackageBuilder.BuildSimpleZip(packageName, "1.0.0", packageDirectory)))
             using (new TemporaryFile(variablesFile))
             {
-                variables.Set("package", package.FilePath);
+                variables.Set("Octopus.Action.Package.PackageId", package.FilePath);
                 variables.Set("variables", variablesFile);
-                variables.Set("bucket", BucketName);
-                variables.Set("targetMode", S3TargetMode.FileSelections.ToString());
+                variables.Set("Octopus.Action.Aws.S3.BucketName", BucketName);
+                variables.Set("Octopus.Action.Aws.S3.TargetMode", S3TargetMode.FileSelections.ToString());
 
                 var log = new InMemoryLog();
                 var fileSystem = CalamariPhysicalFileSystem.GetPhysicalFileSystem();

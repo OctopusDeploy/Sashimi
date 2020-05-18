@@ -38,7 +38,7 @@ namespace Calamari.Aws
         {
             LogAwsUserInfo().ConfigureAwait(false).GetAwaiter().GetResult();
 
-            var pathToPackage = new PathToPackage(Path.GetFullPath(variables.Get("package")));
+            var pathToPackage = new PathToPackage(Path.GetFullPath(variables.Get("Octopus.Action.Package.PackageId")));
 
             Execute(new RunningDeployment(pathToPackage, variables));
 

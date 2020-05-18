@@ -1,4 +1,5 @@
-﻿using Amazon.IdentityManagement;
+﻿using System;
+using Amazon.IdentityManagement;
 using Amazon.S3;
 using Amazon.SecurityToken;
 using Autofac;
@@ -11,7 +12,7 @@ namespace Calamari.Aws
     public class Program : CalamariFlavourProgram
     {
 
-        Program(ILog log) : base(log)
+        public Program(ILog log) : base(log)
         {
         }
         
@@ -19,7 +20,7 @@ namespace Calamari.Aws
         {
             return new Program(ConsoleLog.Instance).Run(args);
         }
-        
+
         protected override void ConfigureContainer(ContainerBuilder builder, CommonOptions options)
         {
             builder.Register(
