@@ -2,12 +2,10 @@
 using NSubstitute.Extensions;
 using NUnit.Framework;
 using Octopus.Diagnostics;
-using Octostache;
 using Sashimi.Aws.ActionHandler;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.CommandBuilders;
 using Sashimi.Server.Contracts.DeploymentTools;
-using Sashimi.Server.Contracts.Variables;
 using Sashimi.Tests.Shared.Server;
 
 namespace Sashimi.Aws.Tests.RunScript
