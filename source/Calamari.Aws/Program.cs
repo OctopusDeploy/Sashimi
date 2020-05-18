@@ -11,10 +11,15 @@ namespace Calamari.Aws
     public class Program : CalamariFlavourProgram
     {
 
-        Program() : base(ConsoleLog.Instance)
+        Program(ILog log) : base(log)
         {
         }
-
+        
+        public static int Main(string[] args)
+        {
+            return new Program(ConsoleLog.Instance).Run(args);
+        }
+        
         protected override void ConfigureContainer(ContainerBuilder builder, CommonOptions options)
         {
             builder.Register(
@@ -51,11 +56,6 @@ namespace Calamari.Aws
                 .SingleInstance();
 
             base.ConfigureContainer(builder, options);
-        }
-
-        public static int Main(string[] args)
-        {
-            return new Program().Run(args);
         }
     }
 }
