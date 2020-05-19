@@ -19,7 +19,7 @@ using Octopus.CoreUtilities;
 
 namespace Calamari.Aws.Commands
 {
-    [Command(AwsKnownVariables.Commands.DeployAwsCloudformation, Description = "Creates a new AWS CloudFormation deployment")]
+    [Command(KnownAwsCalamariCommands.Commands.DeployAwsCloudformation, Description = "Creates a new AWS CloudFormation deployment")]
     public class DeployCloudFormationCommand : Command
     {
         readonly ILog log;
