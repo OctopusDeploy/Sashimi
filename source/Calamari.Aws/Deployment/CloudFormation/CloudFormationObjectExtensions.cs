@@ -8,11 +8,11 @@ using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using Amazon.Runtime;
 using Calamari.Aws.Exceptions;
+using Calamari.Aws.Integration.CloudFormation;
 using Octopus.CoreUtilities;
 using Octopus.CoreUtilities.Extensions;
-using StackStatus = Calamari.Aws.Deployment.Conventions.StackStatus;
 
-namespace Calamari.Aws.Integration.CloudFormation
+namespace Calamari.Aws.Deployment.CloudFormation
 {
     public static class CloudFormationObjectExtensions
     {
@@ -264,12 +264,13 @@ namespace Calamari.Aws.Integration.CloudFormation
             }
         }
 
-        public static async Task<string> CreateStackAsync(this Func<IAmazonCloudFormation> clientFactory,
+        public static async Task<string> CreateStackAsync(this IAmazonCloudFormation client,
             CreateStackRequest request)
         {
             try
             {
-                var response =  await clientFactory().CreateStackAsync(request);
+                var response =  await client.CreateStackAsync(request);
+
                 return response.StackId;
             }
             catch (AmazonCloudFormationException ex) when (ex.ErrorCode == "AccessDenied")

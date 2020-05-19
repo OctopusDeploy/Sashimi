@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using Amazon.IdentityManagement;
-using Amazon.SecurityToken;
+using System.Threading.Tasks;
 using Calamari.Aws.Util;
+using Calamari.CloudAccounts;
 using Calamari.Deployment.Conventions;
 using Calamari.Integration.Packages;
 using Calamari.Integration.Substitutions;
@@ -15,13 +15,9 @@ using System.Net;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
-using Calamari.Aws.Deployment;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Serialization;
-using Calamari.Aws.Tests.Utils;
-using Calamari.CloudAccounts;
 using Calamari.Integration.FileSystem;
-using Calamari.Serialization;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -225,7 +221,7 @@ namespace Calamari.Aws.Tests
             variables.Set("AWSAccount.AccessKey", Environment.GetEnvironmentVariable("AWS_Calamari_Access"));
             variables.Set("AWSAccount.SecretKey", Environment.GetEnvironmentVariable("AWS_Calamari_Secret"));
             variables.Set("Octopus.Action.Aws.Region", RegionEndpoint.APSoutheast1.SystemName);
-            variables.Set(AwsSpecialVariables.S3.FileSelections,
+            variables.Set(SpecialVariableNames.Aws.S3.FileSelections,
                 JsonConvert.SerializeObject(fileSelections, GetEnrichedSerializerSettings()));
 
             variables.Save(variablesFile);
@@ -235,20 +231,19 @@ namespace Calamari.Aws.Tests
                 new TemporaryFile(PackageBuilder.BuildSimpleZip(packageName, "1.0.0", packageDirectory)))
             using (new TemporaryFile(variablesFile))
             {
+
                 variables.Set("Octopus.Action.Package.PackageId", package.FilePath);
                 variables.Set("variables", variablesFile);
-                variables.Set("Octopus.Action.Aws.S3.BucketName", BucketName);
-                variables.Set("Octopus.Action.Aws.S3.TargetMode", S3TargetMode.FileSelections.ToString());
+                variables.Set(SpecialVariableNames.Aws.S3.BucketName, BucketName);
+                variables.Set(SpecialVariableNames.Aws.S3.TargetMode, S3TargetMode.FileSelections.ToString());
 
                 var log = new InMemoryLog();
                 var fileSystem = CalamariPhysicalFileSystem.GetPhysicalFileSystem();
-                var environment = AwsEnvironmentGeneration.Create(log, variables).GetAwaiter().GetResult();
+                var awsClientFactory = new AmazonClientFactory(new Lazy<Task<AwsEnvironmentGeneration>>(() => AwsEnvironmentGeneration.Create(log, variables)));
                 var command = new UploadAwsS3Command(
                     log,
                     variables,
-                    new AmazonS3Client(environment.AwsCredentials, environment.AsClientConfig<AmazonS3Config>()),  
-                    new AmazonSecurityTokenServiceClient(environment.AwsCredentials, environment.AsClientConfig<AmazonSecurityTokenServiceConfig>()),
-                    new AmazonIdentityManagementServiceClient(environment.AwsCredentials, environment.AsClientConfig<AmazonIdentityManagementServiceConfig>()),
+                    awsClientFactory,
                     new VariableS3TargetOptionsProvider(variables),
                     fileSystem,
                     new SubstituteInFiles(log, fileSystem, new FileSubstituter(log, fileSystem), variables),

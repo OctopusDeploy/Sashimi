@@ -5,20 +5,19 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Amazon.IdentityManagement;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.SecurityToken;
-using Calamari.Aws.Deployment;
-using Calamari.Aws.Deployment.Conventions;
+using Calamari.Aws.Deployment.S3;
 using Calamari.Aws.Exceptions;
+using Calamari.Aws.Integration;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Util;
 using Calamari.Commands.Support;
 using Calamari.Common.Variables;
 using Calamari.Deployment;
 using Calamari.Deployment.Conventions;
+using Calamari.Extensions;
 using Calamari.Integration.FileSystem;
 using Calamari.Util;
 using Octopus.CoreUtilities;
@@ -29,68 +28,76 @@ namespace Calamari.Aws
     [Command(KnownAwsCalamariCommands.Commands.UploadAwsS3, Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
     public class UploadAwsS3Command : AwsCommand
     {
-        readonly IAmazonS3 amazonS3Client;
         readonly IProvideS3TargetOptions optionsProvider;
         readonly ICalamariFileSystem fileSystem;
         readonly ISubstituteInFiles substituteInFiles;
         readonly IExtractPackage extractPackage;
-        readonly string bucketName;
-        readonly S3TargetMode s3TargetMode;
-        readonly bool isMd5HashSupported;
+        readonly Lazy<Task<IAmazonS3>> amazonS3Cleint;
 
         static readonly HashSet<S3CannedACL> S3CannedAcls = new HashSet<S3CannedACL>(ConstantHelpers.GetConstantValues<S3CannedACL>());
+
+        string bucketName;
+        S3TargetMode s3TargetMode;
+        bool isMd5HashSupported;
+        PathToPackage pathToPackage;
 
         public UploadAwsS3Command(
             ILog log,
             IVariables variables,
-            IAmazonS3 amazonS3Client,
-            IAmazonSecurityTokenService amazonSecurityTokenService,
-            IAmazonIdentityManagementService amazonIdentityManagementService,
+            IAmazonClientFactory amazonClientFactory,
             IProvideS3TargetOptions optionsProvider,
             ICalamariFileSystem fileSystem,
             ISubstituteInFiles substituteInFiles,
-            IExtractPackage extractPackage) : base(log, variables, amazonSecurityTokenService, amazonIdentityManagementService)
+            IExtractPackage extractPackage) : base(log, variables, amazonClientFactory)
         {
-            this.amazonS3Client = amazonS3Client;
             this.optionsProvider = optionsProvider;
             this.fileSystem = fileSystem;
             this.substituteInFiles = substituteInFiles;
             this.extractPackage = extractPackage;
 
-            // TODO: these variable names need to be shared with Sashimi.Aws, but how?
-            bucketName = variables.Get("Octopus.Action.Aws.S3.BucketName")?.Trim();
-            s3TargetMode = GetS3TargetMode(variables.Get("Octopus.Action.Aws.S3.TargetMode"));
-            isMd5HashSupported = HashCalculator.IsAvailableHashingAlgorithm(MD5.Create);
+            amazonS3Cleint = new Lazy<Task<IAmazonS3>>(amazonClientFactory.GetS3Client);
+        }
+
+        public override void Dispose()
+        {
+            if (amazonS3Cleint.IsValueCreated) amazonS3Cleint.Value.Dispose();
+
+            base.Dispose();
         }
 
         //TODO: Further refactor is necessary if we have the capacity
-        protected override void Execute(RunningDeployment deployment)
+        protected override async Task ExecuteCore()
         {
-            if (!fileSystem.FileExists(deployment.PackageFilePath))
-                throw new CommandException("Could not find package file: " + deployment.PackageFilePath);
-
+            // TODO: these variable names need to be shared with Sashimi.Aws, but how?
+            bucketName = variables.Get(SpecialVariableNames.Aws.S3.BucketName)?.Trim();
             Guard.NotNullOrWhiteSpace(bucketName, "Bucket name should not be null or empty");
 
+            pathToPackage = variables.GetPathToPrimaryPackage(fileSystem, true);
+            s3TargetMode = GetS3TargetMode(variables.Get(SpecialVariableNames.Aws.S3.TargetMode));
+            isMd5HashSupported = HashCalculator.IsAvailableHashingAlgorithm(MD5.Create);
+            
             if (s3TargetMode == S3TargetMode.FileSelections)
             {
-                extractPackage.ExtractToStagingDirectory(deployment.PackageFilePath);
+                extractPackage.ExtractToStagingDirectory(pathToPackage);
             }
 
-            EnsureS3BucketExists().GetAwaiter().GetResult();
-            UploadToS3Async(deployment).GetAwaiter().GetResult();
+            await EnsureS3BucketExists();
+            await UploadToS3Async(new RunningDeployment(pathToPackage, variables));
         }
 
         async Task EnsureS3BucketExists()
         {
-            if (await Amazon.S3.Util.AmazonS3Util.DoesS3BucketExistV2Async(amazonS3Client, bucketName))
+            var client = await amazonS3Cleint.Value;
+            
+            if (await Amazon.S3.Util.AmazonS3Util.DoesS3BucketExistV2Async(client, bucketName))
             {
-                log.Verbose($"Bucket {bucketName} exists in region {amazonS3Client.Config.RegionEndpoint}. Skipping creation.");
+                log.Verbose($"Bucket {bucketName} exists in region {client.Config.RegionEndpoint}. Skipping creation.");
                 return;
             }
 
             log.Info($"Creating {bucketName}.");
 
-            await amazonS3Client.PutBucketAsync(new PutBucketRequest
+            await client.PutBucketAsync(new PutBucketRequest
             {
                 BucketName = bucketName,
                 UseClientRegion = true
@@ -236,12 +243,14 @@ namespace Calamari.Aws
             if (substitutionPatterns.Any())
                 substituteInFiles.Substitute(deployment, substitutionPatterns);
 
+            var client = await amazonS3Cleint.Value;
+
             foreach (var matchedFile in files)
             {
                 var request = CreateRequest(matchedFile.FilePath, $"{selection.BucketKeyPrefix}{matchedFile.MappedRelativePath}", selection);
                 LogPutObjectRequest(matchedFile.FilePath, request);
 
-                results.Add(await HandleUploadRequest(amazonS3Client, request, WarnAndIgnoreException));
+                results.Add(await HandleUploadRequest(client, request, WarnAndIgnoreException));
             }
 
             return results;
@@ -252,7 +261,7 @@ namespace Calamari.Aws
         /// </summary>
         /// <param name="deployment"></param>
         /// <param name="selection"></param>
-        Task<S3UploadResult> UploadSingleFileSelection(RunningDeployment deployment, S3SingleFileSelectionProperties selection)
+        async Task<S3UploadResult> UploadSingleFileSelection(RunningDeployment deployment, S3SingleFileSelectionProperties selection)
         {
             Guard.NotNull(deployment, "Deployment may not be null");
             Guard.NotNull(selection, "Single file selection properties may not be null");
@@ -267,9 +276,11 @@ namespace Calamari.Aws
             if (selection.PerformVariableSubstitution)
                 substituteInFiles.Substitute(deployment, new List<string> { filePath });
 
-            return CreateRequest(filePath, GetBucketKey(filePath.AsRelativePathFrom(deployment.StagingDirectory), selection), selection)
+            var client = await amazonS3Cleint.Value;
+
+            return await CreateRequest(filePath, GetBucketKey(filePath.AsRelativePathFrom(deployment.StagingDirectory), selection), selection)
                     .Tee(x => LogPutObjectRequest(filePath, x))
-                    .Map(x => HandleUploadRequest(amazonS3Client, x, ThrowInvalidFileUpload));
+                    .Map(x => HandleUploadRequest(client, x, ThrowInvalidFileUpload));
         }
 
         /// <summary>
@@ -277,20 +288,21 @@ namespace Calamari.Aws
         /// </summary>
         /// <param name="deployment"></param>
         /// <param name="options"></param>
-        Task<S3UploadResult> UploadUsingPackage(RunningDeployment deployment, S3PackageOptions options)
+        async Task<S3UploadResult> UploadUsingPackage(RunningDeployment deployment, S3PackageOptions options)
         {
             Guard.NotNull(deployment, "Deployment may not be null");
             Guard.NotNull(options, "Package options may not be null");
 
             var filename = GetNormalizedPackageFilename(deployment);
+            var client = await amazonS3Cleint.Value;
 
-            return CreateRequest(deployment.PackageFilePath,
+            return await CreateRequest(deployment.PackageFilePath,
                     GetBucketKey(filename, options), options)
                 .Tee(x => LogPutObjectRequest("entire package", x))
-                .Map(x => HandleUploadRequest(amazonS3Client, x, ThrowInvalidFileUpload));
+                .Map(x => HandleUploadRequest(client, x, ThrowInvalidFileUpload));
         }
 
-        string GetNormalizedPackageFilename(RunningDeployment deployment)
+        static string GetNormalizedPackageFilename(RunningDeployment deployment)
         {
             var id = deployment.Variables.Get(PackageVariables.IndexedPackageId(null));
             var version = deployment.Variables.Get(PackageVariables.IndexedPackageVersion(null));

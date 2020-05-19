@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Calamari.Aws.Deployment;
 using Calamari.Aws.Serialization;
-using Calamari.Integration.Processes;
-using Calamari.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Octopus.CoreUtilities.Extensions;
@@ -12,7 +9,7 @@ namespace Calamari.Aws.Integration.S3
 {
     public class VariableS3TargetOptionsProvider : IProvideS3TargetOptions
     {
-        private readonly IVariables variables;
+        readonly IVariables variables;
 
 
         public VariableS3TargetOptionsProvider(IVariables variables)
@@ -20,19 +17,19 @@ namespace Calamari.Aws.Integration.S3
             this.variables = variables;
         }
 
-        private IEnumerable<S3FileSelectionProperties> GetFileSelections()
+        IEnumerable<S3FileSelectionProperties> GetFileSelections()
         {
-            return variables.Get(AwsSpecialVariables.S3.FileSelections)
+            return variables.Get(SpecialVariableNames.Aws.S3.FileSelections)
                 ?.Map(Deserialize<List<S3FileSelectionProperties>>);
         }
 
-        private S3PackageOptions GetPackageOptions()
+        S3PackageOptions GetPackageOptions()
         {
-            return variables.Get(AwsSpecialVariables.S3.PackageOptions)
+            return variables.Get(SpecialVariableNames.Aws.S3.PackageOptions)
                 ?.Map(Deserialize<S3PackageOptions>);
         }
 
-        private static JsonSerializerSettings GetEnrichedSerializerSettings()
+        static JsonSerializerSettings GetEnrichedSerializerSettings()
         {
             return JsonSerialization.GetDefaultSerializerSettings()
                 .Tee(x =>
@@ -42,7 +39,7 @@ namespace Calamari.Aws.Integration.S3
                 });
         }
 
-        private static T Deserialize<T>(string value)
+        static T Deserialize<T>(string value)
         {
             return JsonConvert.DeserializeObject<T>(value, GetEnrichedSerializerSettings());
         }

@@ -2,7 +2,7 @@
 using System.IO.Compression;
 using NUnit.Framework;
 
-namespace Calamari.Aws.Tests.Utils
+namespace Calamari.Aws.Tests
 {
     public class PackageBuilder
     {

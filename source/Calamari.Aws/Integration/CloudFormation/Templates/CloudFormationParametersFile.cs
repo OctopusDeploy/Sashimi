@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using Amazon.CloudFormation.Model;
 using Calamari.Integration.FileSystem;
-using Calamari.Integration.Processes;
-using Calamari.Util;
 using Newtonsoft.Json;
 using Octopus.CoreUtilities;
+using Calamari.Common.Util;
 
 namespace Calamari.Aws.Integration.CloudFormation.Templates
 {
     public class CloudFormationParametersFile : ITemplate, ITemplateInputs<Parameter>
     {
-        private readonly Func<Maybe<string>> content;
-        private readonly Func<string, List<Parameter>> parse;
+        readonly Func<Maybe<string>> content;
+        readonly Func<string, List<Parameter>> parse;
 
         public static CloudFormationParametersFile Create(Maybe<ResolvedTemplatePath> path, ICalamariFileSystem fileSystem, IVariables variables)
         {

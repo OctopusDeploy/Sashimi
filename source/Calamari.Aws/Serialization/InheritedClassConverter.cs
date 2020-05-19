@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-namespace Calamari.Serialization
+namespace Calamari.Aws.Serialization
 {
     public abstract class InheritedClassConverter<TBaseResource, TEnumType> : JsonConverter
     {

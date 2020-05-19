@@ -4,7 +4,7 @@ namespace Calamari.Aws.Integration.S3
 {
     public class ETag
     {
-        private static readonly Regex EtagRegex = new Regex("(?<=\")(?<etag>\\w+)(?=\")");
+        static readonly Regex EtagRegex = new Regex("(?<=\")(?<etag>\\w+)(?=\")");
    
         public ETag(string value)
         {
