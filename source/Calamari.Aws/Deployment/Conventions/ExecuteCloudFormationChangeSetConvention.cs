@@ -69,7 +69,7 @@ namespace Calamari.Aws.Deployment.Conventions
             if (waitForComplete)
             {
                 await WithAmazonServiceExceptionHandling(() =>
-                    clientFactory.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack))
+                    clientFactory().WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stack, LogAndThrowRollbacks(clientFactory, stack))
                 );
             }
         }
