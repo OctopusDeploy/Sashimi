@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Amazon.CloudFormation.Model;
+using Calamari.Common.Util;
 using Calamari.Integration.FileSystem;
-using Calamari.Integration.Processes;
-using Calamari.Util;
 using Newtonsoft.Json;
 using Octopus.CoreUtilities.Extensions;
 
@@ -12,10 +11,10 @@ namespace Calamari.Aws.Integration.CloudFormation.Templates
 {
     public class CloudFormationTemplate: ITemplate, ITemplateInputs<Parameter>, ITemplateOutputs<StackFormationNamedOutput>
     {
-        private readonly Func<string> content;
-        private readonly Func<string, List<StackFormationNamedOutput>> parse;
-        private ITemplateInputs<Parameter> parameters;
-        private static readonly Regex OutputsRe = new Regex("\"?Outputs\"?\\s*:");
+        readonly Func<string> content;
+        readonly Func<string, List<StackFormationNamedOutput>> parse;
+        ITemplateInputs<Parameter> parameters;
+        static readonly Regex OutputsRe = new Regex("\"?Outputs\"?\\s*:");
         
         public CloudFormationTemplate(Func<string> content, ITemplateInputs<Parameter> parameters, Func<string, List<StackFormationNamedOutput>> parse)
         {

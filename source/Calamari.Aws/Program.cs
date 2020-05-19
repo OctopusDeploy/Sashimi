@@ -1,8 +1,4 @@
-﻿using Amazon.CloudFormation;
-using Amazon.IdentityManagement;
-using Amazon.S3;
-using Amazon.SecurityToken;
-using Autofac;
+﻿using Autofac;
 using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Util;
@@ -12,49 +8,19 @@ namespace Calamari.Aws
 {
     public class Program : CalamariFlavourProgram
     {
-
         public Program(ILog log) : base(log)
         {
         }
 
         protected override void ConfigureContainer(ContainerBuilder builder, CommonOptions options)
         {
-            builder.Register(
-                    c => AwsEnvironmentGeneration.Create(log, c.Resolve<IVariables>()).GetAwaiter().GetResult())
+            builder.Register(c => AwsEnvironmentGeneration.Create(c.Resolve<ILog>(), c.Resolve<IVariables>()))
                 .AsSelf()
                 .SingleInstance();
 
-            builder.Register(c =>
-            {
-                var environment = c.Resolve<AwsEnvironmentGeneration>();
-
-                return new AmazonS3Client(environment.AwsCredentials,
-                    environment.AsClientConfig<AmazonS3Config>());
-            }).As<IAmazonS3>();
-
-            builder.Register(c =>
-            {
-                var environment = c.Resolve<AwsEnvironmentGeneration>();
-
-                return new AmazonIdentityManagementServiceClient(environment.AwsCredentials,
-                    environment.AsClientConfig<AmazonIdentityManagementServiceConfig>());
-            }).As<IAmazonIdentityManagementService>();
-
-            builder.Register(c =>
-            {
-                var environment = c.Resolve<AwsEnvironmentGeneration>();
-
-                return new AmazonSecurityTokenServiceClient(environment.AwsCredentials,
-                    environment.AsClientConfig<AmazonSecurityTokenServiceConfig>());
-            }).As<IAmazonSecurityTokenService>();
-
-            builder.Register(c =>
-            {
-                var environment = c.Resolve<AwsEnvironmentGeneration>();
-
-                return new AmazonCloudFormationClient(environment.AwsCredentials,
-                    environment.AsClientConfig<AmazonCloudFormationConfig>());
-            }).As<IAmazonCloudFormation>();
+            builder.RegisterType<AmazonClientFactory>()
+                .As<IAmazonClientFactory>()
+                .SingleInstance();
 
             builder.RegisterType<CloudFormationService>()
                 .As<ICloudFormationService>();

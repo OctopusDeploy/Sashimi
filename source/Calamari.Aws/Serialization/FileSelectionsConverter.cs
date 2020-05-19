@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Calamari.Aws.Deployment.Conventions;
 using Calamari.Aws.Integration.S3;
-using Calamari.Serialization;
 
 namespace Calamari.Aws.Serialization
 {

@@ -1,4 +1,3 @@
-
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Amazon.S3.Model;
@@ -15,7 +14,7 @@ namespace Calamari.Aws.Integration.S3
     public static class S3ObjectExtensions
     {
         //Special headers as per AWS docs - https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html
-        private static readonly IDictionary<string, Func<HeadersCollection, string>> SupportedSpecialHeaders =
+        static readonly IDictionary<string, Func<HeadersCollection, string>> SupportedSpecialHeaders =
             new Dictionary<string, Func<HeadersCollection, string>>(StringComparer.OrdinalIgnoreCase)
                 .WithHeaderFrom("Cache-Control", headers => headers.CacheControl)
                 .WithHeaderFrom("Content-Disposition", headers => headers.ContentDisposition)
@@ -27,13 +26,13 @@ namespace Calamari.Aws.Integration.S3
                 .WithHeaderFrom("x-amz-object-lock-legal-hold")
                 .WithHeaderFrom("x-amz-object-lock-mode");
         
-        private static T WithHeaderFrom<T>(this T values, string key) where T : IDictionary<string, Func<HeadersCollection, string>>
+        static T WithHeaderFrom<T>(this T values, string key) where T : IDictionary<string, Func<HeadersCollection, string>>
         {
             values.Add(key, (headers) => headers[key]);
             return values;
         }
 
-        private static T WithHeaderFrom<T>(this T values, string key, Func<HeadersCollection, string> accessor) where T : IDictionary<string, Func<HeadersCollection, string>>
+        static T WithHeaderFrom<T>(this T values, string key, Func<HeadersCollection, string> accessor) where T : IDictionary<string, Func<HeadersCollection, string>>
         {
             values.Add(key, accessor);
             return values;
@@ -125,7 +124,7 @@ namespace Calamari.Aws.Integration.S3
             return request.Tee(x => x.TagSet = source.Tags.ToTagSet());
         }
 
-        private static Maybe<byte[]> GetMd5Checksum(ICalamariFileSystem fileSystem, string path)
+        static Maybe<byte[]> GetMd5Checksum(ICalamariFileSystem fileSystem, string path)
         {
             return !fileSystem.FileExists(path) ? Maybe<byte[]>.None : Maybe<byte[]>.Some(HashCalculator.Hash(path, MD5.Create));
         }

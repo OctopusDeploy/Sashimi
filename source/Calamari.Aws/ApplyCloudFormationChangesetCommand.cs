@@ -1,38 +1,36 @@
-﻿using Amazon.IdentityManagement;
-using Amazon.SecurityToken;
-using Calamari.Aws.Deployment;
+﻿using System.Threading.Tasks;
 using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
+using Calamari.Aws.Util;
 using Calamari.Commands.Support;
-using Calamari.Deployment;
 using Octostache;
 
 namespace Calamari.Aws
 {
-    [Command(KnownAwsCalamariCommands.Commands.ApplyAwsCloudformationChangeset, Description = "Apply an existing AWS CloudFormation changeset")]
-    public class ApplyCloudFormationChangeSetCommand: AwsCommand
+    [Command(KnownAwsCalamariCommands.Commands.ApplyAwsCloudFormationChangeSet, Description = "Apply an existing AWS CloudFormation changeset")]
+    public class ApplyCloudFormationChangeSetCommand : AwsCommand
     {
         readonly ICloudFormationService cloudFormationService;
 
         public ApplyCloudFormationChangeSetCommand(
             ILog log,
             IVariables variables,
-            IAmazonSecurityTokenService amazonSecurityTokenService,
-            IAmazonIdentityManagementService amazonIdentityManagementService,
+            IAmazonClientFactory amazonClientFactory,
             ICloudFormationService cloudFormationService)
-            : base (log, variables, amazonSecurityTokenService, amazonIdentityManagementService)
+            : base(log, variables, amazonClientFactory)
         {
             this.cloudFormationService = cloudFormationService;
         }
 
-        protected override void Execute(RunningDeployment deployment)
+        protected override async Task ExecuteCore()
         {
-            var stackArn = new StackArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.StackName));
-            var changeSetArn = new ChangeSetArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.Changesets.Arn));
-            var waitForCompletion = variables.GetFlag(AwsSpecialVariables.CloudFormation.WaitForCompletion, true);
-            
-            cloudFormationService.ExecuteChangeSet(stackArn, changeSetArn, waitForCompletion).GetAwaiter().GetResult();
-            cloudFormationService.OutputVariables(variables).GetAwaiter().GetResult();
+            var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
+            var changeSetArn = new ChangeSetArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Arn));
+            var waitForCompletion = ((VariableDictionary) variables).EvaluateTruthy(variables.Get(SpecialVariableNames.Action.WaitForCompletion));
+
+            await cloudFormationService.ExecuteChangeSet(stackArn, changeSetArn, waitForCompletion);
+
+            SetOutputVariables(await cloudFormationService.GetOutputVariablesByStackArn(stackArn));
         }
     }
 }

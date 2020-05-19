@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Calamari.Aws.Deployment
+namespace Calamari.Aws.Deployment.CloudFormation
 {
     public static class CloudFormationDefaults
     {

@@ -1,4 +1,4 @@
-using Calamari.Aws.Deployment.Conventions;
+using Calamari.Aws.Deployment.S3;
 using Calamari.Aws.Integration.S3;
 using FluentAssertions;
 using NUnit.Framework;

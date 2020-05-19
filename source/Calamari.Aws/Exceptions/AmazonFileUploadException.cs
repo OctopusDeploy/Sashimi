@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Calamari.Aws.Deployment
+namespace Calamari.Aws.Exceptions
 {
     public class AmazonFileUploadException : Exception
     {

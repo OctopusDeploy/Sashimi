@@ -2,7 +2,6 @@
 
 namespace Calamari.Aws.Integration.S3
 {
-
     public interface IHaveMetadata
     {
         List<KeyValuePair<string, string>> Metadata { get; }

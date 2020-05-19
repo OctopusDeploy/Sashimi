@@ -1,17 +1,13 @@
-﻿using System;
-using Amazon.IdentityManagement;
-using Amazon.SecurityToken;
-using Calamari.Aws.Deployment;
+﻿using System.Threading.Tasks;
 using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
+using Calamari.Aws.Util;
 using Calamari.Commands.Support;
-using Calamari.Deployment;
 using Octostache;
-using Octostache.Templates;
 
 namespace Calamari.Aws
 {
-    [Command(KnownAwsCalamariCommands.Commands.DeleteAwsCloudformation, Description = "Destroy an existing AWS CloudFormation stack")]
+    [Command(KnownAwsCalamariCommands.Commands.DeleteAwsCloudFormation, Description = "Destroy an existing AWS CloudFormation stack")]
     public class DeleteCloudFormationCommand : AwsCommand
     {
         readonly ICloudFormationService cloudFormationService;
@@ -19,20 +15,19 @@ namespace Calamari.Aws
         public DeleteCloudFormationCommand(
             ILog log,
             IVariables variables,
-            IAmazonSecurityTokenService amazonSecurityTokenService,
-            IAmazonIdentityManagementService amazonIdentityManagementService,
+            IAmazonClientFactory amazonClientFactory,
             ICloudFormationService cloudFormationService)
-            : base(log, variables, amazonSecurityTokenService, amazonIdentityManagementService)
+            : base(log, variables, amazonClientFactory)
         {
             this.cloudFormationService = cloudFormationService;
         }
 
-        protected override void Execute(RunningDeployment deployment)
+        protected override async Task ExecuteCore()
         {
-            var stackArn = new StackArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.StackName));
-            var waitForCompletion = variables.GetFlag(AwsSpecialVariables.CloudFormation.WaitForCompletion, true);
+            var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
+            var waitForCompletion = ((VariableDictionary) variables).EvaluateTruthy(variables.Get(SpecialVariableNames.Action.WaitForCompletion));
 
-            cloudFormationService.DeleteByStackArn(stackArn, waitForCompletion).GetAwaiter().GetResult();
+            await cloudFormationService.DeleteByStackArn(stackArn, waitForCompletion);
         }
     }
 }
