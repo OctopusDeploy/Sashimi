@@ -16,7 +16,7 @@ using Calamari.Integration.Processes;
 namespace Calamari.Aws.Commands
 {
     [Command(KnownAwsCalamariCommands.Commands.ApplyAwsCloudformationChangeset, Description = "Apply an existing AWS CloudFormation changeset")]
-    public class ApplyCloudFormationChangesetCommand: Command
+    public class ApplyCloudFormationChangeSetCommand: AwsCommand
     {
         
         readonly ILog log;
