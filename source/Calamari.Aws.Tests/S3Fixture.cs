@@ -74,7 +74,7 @@ namespace Calamari.Aws.Tests
             {
                 client.GetObject(BucketName, $"{prefix}Resources/TextFile.txt");
                 client.GetObject(BucketName, $"{prefix}root/Page.html");
-                client.GetObject(BucketName, $"{prefix}JavaScript.js");
+                client.GetObject(BucketName, $"{prefix}Extra/JavaScript.js");
             });
         }
 
@@ -162,7 +162,7 @@ namespace Calamari.Aws.Tests
 
             Validate(client =>
             {
-                var response = client.GetObject(BucketName, $"{prefix}JavaScript.js");
+                var response = client.GetObject(BucketName, $"{prefix}Extra/JavaScript.js");
                 var headers = response.Headers;
                 var metadata = response.Metadata;
 
