@@ -4,6 +4,7 @@ using Amazon.SecurityToken;
 using Calamari.Aws.Deployment;
 using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
+using Calamari.Aws.Util;
 using Calamari.Commands.Support;
 using Calamari.Deployment;
 namespace Calamari.Aws
@@ -16,10 +17,9 @@ namespace Calamari.Aws
         public DeleteCloudFormationCommand(
             ILog log,
             IVariables variables,
-            IAmazonSecurityTokenService amazonSecurityTokenService,
-            IAmazonIdentityManagementService amazonIdentityManagementService,
+            IAmazonClientFactory amazonClientFactory,
             ICloudFormationService cloudFormationService)
-            : base(log, variables, amazonSecurityTokenService, amazonIdentityManagementService)
+            : base(log, variables, amazonClientFactory)
         {
             this.cloudFormationService = cloudFormationService;
         }

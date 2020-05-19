@@ -29,7 +29,7 @@ namespace Calamari.Aws
     [Command(AwsKnownVariables.Commands.UploadAwsS3, Description = "Uploads a package or package file(s) to an AWS s3 bucket")]
     public class UploadAwsS3Command : AwsCommand
     {
-        readonly IAmazonS3 amazonS3Client;
+        readonly IAmazonClientFactory _amazonClientFactory;
         readonly IProvideS3TargetOptions optionsProvider;
         readonly ICalamariFileSystem fileSystem;
         readonly ISubstituteInFiles substituteInFiles;
@@ -43,15 +43,13 @@ namespace Calamari.Aws
         public UploadAwsS3Command(
             ILog log,
             IVariables variables,
-            IAmazonS3 amazonS3Client,
-            IAmazonSecurityTokenService amazonSecurityTokenService,
-            IAmazonIdentityManagementService amazonIdentityManagementService,
+            IAmazonClientFactory amazonClientFactory,
             IProvideS3TargetOptions optionsProvider,
             ICalamariFileSystem fileSystem,
             ISubstituteInFiles substituteInFiles,
-            IExtractPackage extractPackage) : base(log, variables, amazonSecurityTokenService, amazonIdentityManagementService)
+            IExtractPackage extractPackage) : base(log, variables, amazonClientFactory)
         {
-            this.amazonS3Client = amazonS3Client;
+            this._amazonClientFactory = amazonClientFactory;
             this.optionsProvider = optionsProvider;
             this.fileSystem = fileSystem;
             this.substituteInFiles = substituteInFiles;
@@ -62,7 +60,6 @@ namespace Calamari.Aws
             s3TargetMode = GetS3TargetMode(variables.Get("Octopus.Action.Aws.S3.TargetMode"));
             isMd5HashSupported = HashCalculator.IsAvailableHashingAlgorithm(MD5.Create);
         }
-
 
         //TODO: Further refactor is necessary if we have the capacity
         protected override void Execute(RunningDeployment deployment)
@@ -77,11 +74,12 @@ namespace Calamari.Aws
                 extractPackage.ExtractToStagingDirectory(deployment.PackageFilePath);
             }
 
-            EnsureS3BucketExists().GetAwaiter().GetResult();
-            UploadToS3Async(deployment).GetAwaiter().GetResult();
+            var amazonS3Client = _amazonClientFactory.CreateS3Client().GetAwaiter().GetResult();
+            EnsureS3BucketExists(amazonS3Client).GetAwaiter().GetResult();
+            UploadToS3Async(amazonS3Client, deployment).GetAwaiter().GetResult();
         }
 
-        async Task EnsureS3BucketExists()
+        async Task EnsureS3BucketExists(IAmazonS3 amazonS3Client)
         {
             if (await Amazon.S3.Util.AmazonS3Util.DoesS3BucketExistV2Async(amazonS3Client, bucketName))
             {
@@ -130,9 +128,10 @@ namespace Calamari.Aws
             { "InvalidTag", ExceptionMessageWithFilePath }
         };
 
-        async Task UploadToS3Async(RunningDeployment deployment)
+        async Task UploadToS3Async(IAmazonS3 amazonS3Client, RunningDeployment deployment)
         {
             //The bucket should exist at this point
+            Guard.NotNull(amazonS3Client, "amazonS3Client != null");
             Guard.NotNull(deployment, "deployment can not be null");
 
             if (!isMd5HashSupported)
@@ -144,7 +143,7 @@ namespace Calamari.Aws
 
             try
             {
-                (await UploadAll(options, deployment)).Tee(responses =>
+                (await UploadAll(amazonS3Client, options, deployment)).Tee(responses =>
                 {
                     SetOutputVariables(deployment, responses);
                 });
@@ -190,7 +189,7 @@ namespace Calamari.Aws
             log.Warn(message);
         }
 
-        async Task<IEnumerable<S3UploadResult>> UploadAll(IEnumerable<S3TargetPropertiesBase> options, RunningDeployment deployment)
+        async Task<IEnumerable<S3UploadResult>> UploadAll(IAmazonS3 amazonS3Client, IEnumerable<S3TargetPropertiesBase> options, RunningDeployment deployment)
         {
             var result = new List<S3UploadResult>();
             foreach (var option in options)
@@ -198,13 +197,13 @@ namespace Calamari.Aws
                 switch (option)
                 {
                     case S3PackageOptions package:
-                        result.Add(await UploadUsingPackage(deployment, package));
+                        result.Add(await UploadUsingPackage(amazonS3Client, deployment, package));
                         break;
                     case S3SingleFileSelectionProperties selection:
-                        result.Add(await UploadSingleFileSelection(deployment, selection));
+                        result.Add(await UploadSingleFileSelection(amazonS3Client, deployment, selection));
                         break;
                     case S3MultiFileSelectionProperties selection:
-                        result.AddRange(await UploadMultiFileSelection(deployment, selection));
+                        result.AddRange(await UploadMultiFileSelection(amazonS3Client, deployment, selection));
                         break;
                 }
             }
@@ -217,8 +216,9 @@ namespace Calamari.Aws
         /// </summary>
         /// <param name="deployment"></param>
         /// <param name="selection"></param>
-        async Task<IEnumerable<S3UploadResult>> UploadMultiFileSelection(RunningDeployment deployment, S3MultiFileSelectionProperties selection)
+        async Task<IEnumerable<S3UploadResult>> UploadMultiFileSelection(IAmazonS3 amazonS3Client, RunningDeployment deployment, S3MultiFileSelectionProperties selection)
         {
+            Guard.NotNull(amazonS3Client, "amazonS3Client != null");
             Guard.NotNull(deployment, "Deployment may not be null");
             Guard.NotNull(selection, "Multi file selection properties may not be null");
             var results = new List<S3UploadResult>();
@@ -253,8 +253,9 @@ namespace Calamari.Aws
         /// </summary>
         /// <param name="deployment"></param>
         /// <param name="selection"></param>
-        Task<S3UploadResult> UploadSingleFileSelection(RunningDeployment deployment, S3SingleFileSelectionProperties selection)
+        Task<S3UploadResult> UploadSingleFileSelection(IAmazonS3 amazonS3Client, RunningDeployment deployment, S3SingleFileSelectionProperties selection)
         {
+            Guard.NotNull(amazonS3Client, "amazonS3Client != null");
             Guard.NotNull(deployment, "Deployment may not be null");
             Guard.NotNull(selection, "Single file selection properties may not be null");
 
@@ -276,10 +277,12 @@ namespace Calamari.Aws
         /// <summary>
         /// Uploads the given package file with the provided package options
         /// </summary>
+        /// <param name="amazonS3Client"></param>
         /// <param name="deployment"></param>
         /// <param name="options"></param>
-        Task<S3UploadResult> UploadUsingPackage(RunningDeployment deployment, S3PackageOptions options)
+        Task<S3UploadResult> UploadUsingPackage(IAmazonS3 amazonS3Client, RunningDeployment deployment, S3PackageOptions options)
         {
+            Guard.NotNull(amazonS3Client, "amazonS3Client != null");
             Guard.NotNull(deployment, "Deployment may not be null");
             Guard.NotNull(options, "Package options may not be null");
 

@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using Amazon.IdentityManagement;
-using Amazon.SecurityToken;
 using Calamari.Aws.Util;
 using Calamari.Deployment.Conventions;
 using Calamari.Integration.Packages;
@@ -243,12 +241,12 @@ namespace Calamari.Aws.Tests
                 var log = new InMemoryLog();
                 var fileSystem = CalamariPhysicalFileSystem.GetPhysicalFileSystem();
                 var environment = AwsEnvironmentGeneration.Create(log, variables).GetAwaiter().GetResult();
+                var awsEnvironmentFactory = new AwsEnvironmentFactory(log, variables);
+                var amazonClientFactory = new AmazonClientFactory(awsEnvironmentFactory);
                 var command = new UploadAwsS3Command(
                     log,
                     variables,
-                    new AmazonS3Client(environment.AwsCredentials, environment.AsClientConfig<AmazonS3Config>()),  
-                    new AmazonSecurityTokenServiceClient(environment.AwsCredentials, environment.AsClientConfig<AmazonSecurityTokenServiceConfig>()),
-                    new AmazonIdentityManagementServiceClient(environment.AwsCredentials, environment.AsClientConfig<AmazonIdentityManagementServiceConfig>()),
+                    amazonClientFactory,
                     new VariableS3TargetOptionsProvider(variables),
                     fileSystem,
                     new SubstituteInFiles(log, fileSystem, new FileSubstituter(log, fileSystem), variables),

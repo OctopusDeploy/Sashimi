@@ -1,11 +1,10 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.Runtime;
-using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
+using Calamari.Aws.Util;
 using Calamari.Commands.Support;
 using Calamari.Deployment;
 using Octopus.CoreUtilities.Extensions;
@@ -18,20 +17,16 @@ namespace Calamari.Aws
 
         protected readonly ILog log;
         protected readonly IVariables variables;
-
-        readonly IAmazonSecurityTokenService amazonSecurityTokenService;
-        readonly IAmazonIdentityManagementService amazonIdentityManagementService;
+        readonly IAmazonClientFactory amazonClientFactory;
 
         protected AwsCommand(
             ILog log,
             IVariables variables,
-            IAmazonSecurityTokenService amazonSecurityTokenService,
-            IAmazonIdentityManagementService amazonIdentityManagementService)
+            IAmazonClientFactory amazonClientFactory)
         {
             this.log = log;
             this.variables = variables;
-            this.amazonSecurityTokenService = amazonSecurityTokenService;
-            this.amazonIdentityManagementService = amazonIdentityManagementService;
+            this.amazonClientFactory = amazonClientFactory;
         }
 
         public int Execute()
@@ -66,6 +61,7 @@ namespace Calamari.Aws
         {
             try
             {
+                var amazonIdentityManagementService = await amazonClientFactory.CreateIdentityManagementService(); 
                 var result = await amazonIdentityManagementService.GetUserAsync(new GetUserRequest());
 
                 log.Info($"Running the step as the AWS user {result.User.UserName}");
@@ -80,6 +76,7 @@ namespace Calamari.Aws
         {
             try
             {
+                var amazonSecurityTokenService = await amazonClientFactory.CreateSecurityTokenService();
                 (await amazonSecurityTokenService.GetCallerIdentityAsync(new GetCallerIdentityRequest()))
                     // The response is narrowed to the Aen
                     .Map(response => response.Arn)
