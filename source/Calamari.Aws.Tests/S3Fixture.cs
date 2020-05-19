@@ -240,7 +240,6 @@ namespace Calamari.Aws.Tests
 
                 var log = new InMemoryLog();
                 var fileSystem = CalamariPhysicalFileSystem.GetPhysicalFileSystem();
-                var environment = AwsEnvironmentGeneration.Create(log, variables).GetAwaiter().GetResult();
                 var awsEnvironmentFactory = new AwsEnvironmentFactory(log, variables);
                 var amazonClientFactory = new AmazonClientFactory(awsEnvironmentFactory);
                 var command = new UploadAwsS3Command(
