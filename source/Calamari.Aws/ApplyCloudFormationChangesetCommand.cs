@@ -1,61 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using Amazon.CloudFormation;
+﻿using Amazon.IdentityManagement;
+using Amazon.SecurityToken;
 using Calamari.Aws.Deployment;
-using Calamari.Aws.Deployment.Conventions;
-using Calamari.Aws.Integration;
+using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
-using Calamari.Aws.Util;
-using Calamari.CloudAccounts;
 using Calamari.Commands.Support;
 using Calamari.Deployment;
-using Calamari.Deployment.Conventions;
-using Calamari.Integration.Processes;
+using Octostache;
 
-namespace Calamari.Aws.Commands
+namespace Calamari.Aws
 {
     [Command(KnownAwsCalamariCommands.Commands.ApplyAwsCloudformationChangeset, Description = "Apply an existing AWS CloudFormation changeset")]
-    public class ApplyCloudFormationChangesetCommand: Command
+    public class ApplyCloudFormationChangeSetCommand: AwsCommand
     {
-        
-        readonly ILog log;
-        readonly IVariables variables;
-        private string packageFile;
-        private bool waitForComplete;
-        
-        public ApplyCloudFormationChangesetCommand(ILog log, IVariables variables)
+        readonly ICloudFormationService cloudFormationService;
+
+        public ApplyCloudFormationChangeSetCommand(
+            ILog log,
+            IVariables variables,
+            IAmazonSecurityTokenService amazonSecurityTokenService,
+            IAmazonIdentityManagementService amazonIdentityManagementService,
+            ICloudFormationService cloudFormationService)
+            : base (log, variables, amazonSecurityTokenService, amazonIdentityManagementService)
         {
-            this.log = log;
-            this.variables = variables;
-            Options.Add("package=", "Path to the NuGet package to install.", v => packageFile = Path.GetFullPath(v));
-            Options.Add("waitForCompletion=", "True if the deployment process should wait for the stack to complete, and False otherwise.", v => waitForComplete =  
-                !bool.FalseString.Equals(v, StringComparison.OrdinalIgnoreCase)); //True by default
+            this.cloudFormationService = cloudFormationService;
         }
 
-        public override int Execute(string[] commandLineArguments)
+        protected override void Execute(RunningDeployment deployment)
         {
-            Options.Parse(commandLineArguments);
-
-            var environment = AwsEnvironmentGeneration.Create(log, variables).GetAwaiter().GetResult();
-            var stackEventLogger = new StackEventLogger(log);
-
-            IAmazonCloudFormation ClientFactory () => ClientHelpers.CreateCloudFormationClient(environment);
-            StackArn StackProvider (RunningDeployment x) => new StackArn(x.Variables.Get(AwsSpecialVariables.CloudFormation.StackName));
-            ChangeSetArn ChangesetProvider (RunningDeployment x) => new ChangeSetArn(x.Variables[AwsSpecialVariables.CloudFormation.Changesets.Arn]);
-
-            var conventions = new List<IConvention>
-            {
-                new LogAwsUserInfoConvention(environment),
-                new ExecuteCloudFormationChangeSetConvention(ClientFactory, stackEventLogger, StackProvider, ChangesetProvider, waitForComplete),
-                new CloudFormationOutputsAsVariablesConvention(ClientFactory, stackEventLogger, StackProvider)
-            };
+            var stackArn = new StackArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.StackName));
+            var changeSetArn = new ChangeSetArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.Changesets.Arn));
+            var waitForCompletion = new VariableDictionary().EvaluateTruthy(variables.Get("waitForCompletion"));
             
-            var deployment = new RunningDeployment(packageFile, variables);
-            var conventionRunner = new ConventionProcessor(deployment, conventions);
-            
-            conventionRunner.RunConventions();
-            return 0;
+            cloudFormationService.ExecuteChangeSet(stackArn, changeSetArn, waitForCompletion).GetAwaiter().GetResult();
+            cloudFormationService.OutputVariables(variables).GetAwaiter().GetResult();
         }
     }
 }

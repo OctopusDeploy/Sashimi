@@ -87,7 +87,7 @@ namespace Calamari.Aws.Deployment.Conventions
 
         private Task WaitForChangesetCompletion(RunningChangeSet result)
         {
-            return clientFactory.WaitForChangeSetCompletion(CloudFormationDefaults.StatusWaitPeriod, result);
+            return clientFactory().WaitForChangeSetCompletion(CloudFormationDefaults.StatusWaitPeriod, result);
         }
 
         private Action<RunningChangeSet> ApplyVariables(IVariables variables)
@@ -118,7 +118,7 @@ namespace Calamari.Aws.Deployment.Conventions
         {
             try
             {
-                return (await clientFactory.CreateChangeSetAsync(request))
+                return (await clientFactory().CreateChangeSetAsync(request))
                     .Map(x => new RunningChangeSet(new StackArn(x.StackId), new ChangeSetArn(x.Id)));
             }
             catch (AmazonCloudFormationException ex) when(ex.ErrorCode == "AccessDenied")

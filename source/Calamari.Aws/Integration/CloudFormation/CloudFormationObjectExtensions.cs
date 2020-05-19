@@ -66,23 +66,23 @@ namespace Calamari.Aws.Integration.CloudFormation
                 "UPDATE_ROLLBACK_FAILED"
             };
 
-        public static Task<DescribeChangeSetResponse> DescribeChangeSetAsync(this Func<IAmazonCloudFormation> factory,
+        public static Task<DescribeChangeSetResponse> DescribeChangeSetAsync(this IAmazonCloudFormation client,
             StackArn stack, ChangeSetArn changeSet)
         {
-            return factory().DescribeChangeSetAsync(new DescribeChangeSetRequest
+            return client.DescribeChangeSetAsync(new DescribeChangeSetRequest
             {
                 ChangeSetName = changeSet.Value,
                 StackName = stack.Value
             });
         }
 
-        public static Task<CreateChangeSetResponse> CreateChangeSetAsync(this Func<IAmazonCloudFormation> factory, CreateChangeSetRequest request)
+        public static Task<CreateChangeSetResponse> CreateChangeSetAsync(this IAmazonCloudFormation client, CreateChangeSetRequest request)
         {
-            return factory().CreateChangeSetAsync(request);
+            return client.CreateChangeSetAsync(request);
         }
 
         public static async Task<DescribeChangeSetResponse> WaitForChangeSetCompletion(
-            this Func<IAmazonCloudFormation> clientFactory, TimeSpan waitPeriod, RunningChangeSet runningChangeSet)
+            this IAmazonCloudFormation client, TimeSpan waitPeriod, RunningChangeSet runningChangeSet)
         {
             var completion = new HashSet<ChangeSetStatus>
             {
@@ -92,7 +92,7 @@ namespace Calamari.Aws.Integration.CloudFormation
             };
             while (true)
             {
-                var result = await clientFactory.DescribeChangeSetAsync(runningChangeSet.Stack, runningChangeSet.ChangeSet);
+                var result = await client.DescribeChangeSetAsync(runningChangeSet.Stack, runningChangeSet.ChangeSet);
                 if (completion.Contains(result.Status))
                 {
                     return result;

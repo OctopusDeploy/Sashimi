@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Amazon.CloudFormation;
 using Amazon.IdentityManagement;
 using Amazon.S3;
 using Amazon.SecurityToken;
 using Autofac;
+using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Util;
 using Calamari.CloudAccounts;
@@ -14,11 +15,6 @@ namespace Calamari.Aws
 
         public Program(ILog log) : base(log)
         {
-        }
-        
-        public static int Main(string[] args)
-        {
-            return new Program(ConsoleLog.Instance).Run(args);
         }
 
         protected override void ConfigureContainer(ContainerBuilder builder, CommonOptions options)
@@ -52,11 +48,27 @@ namespace Calamari.Aws
                     environment.AsClientConfig<AmazonSecurityTokenServiceConfig>());
             }).As<IAmazonSecurityTokenService>();
 
+            builder.Register(c =>
+            {
+                var environment = c.Resolve<AwsEnvironmentGeneration>();
+
+                return new AmazonCloudFormationClient(environment.AwsCredentials,
+                    environment.AsClientConfig<AmazonCloudFormationConfig>());
+            }).As<IAmazonCloudFormation>();
+
+            builder.RegisterType<CloudFormationService>()
+                .As<ICloudFormationService>();
+
             builder.RegisterType<VariableS3TargetOptionsProvider>()
                 .As<IProvideS3TargetOptions>()
                 .SingleInstance();
 
             base.ConfigureContainer(builder, options);
+        }
+
+        public static int Main(string[] args)
+        {
+            return new Program(ConsoleLog.Instance).Run(args);
         }
     }
 }
