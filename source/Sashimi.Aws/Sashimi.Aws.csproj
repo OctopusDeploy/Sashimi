@@ -8,6 +8,8 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <OutputPath>bin\</OutputPath>
         <Nullable>disable</Nullable>
+        <PackageProjectUrl>https://github.com/OctopusDeploy/Sashimi/</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/OctopusDeploy/Sashimi/blob/master/LICENSE.txt</PackageLicenseUrl>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\artifacts\Calamari.Aws.zip" LinkBase="tools" Pack="true" PackagePath="tools/" />
@@ -19,7 +21,7 @@
         <PackageReference Include="YamlDotNet" Version="6.1.2" />
     </ItemGroup>
     <ItemGroup>
-      <Compile Include="..\Calamari.Aws\KnownAwsCalamari.cs">
+      <Compile Include="..\Calamari.Aws\KnownAwsCalamariCommands.cs">
         <Link>KnownAwsCalamariCommands.cs</Link>
       </Compile>
     </ItemGroup>

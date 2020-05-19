@@ -9,8 +9,8 @@ using Octostache;
 
 namespace Calamari.Aws
 {
-    [Command(AwsKnownVariables.Commands.ApplyAwsCloudformationChangeset, Description = "Apply an existing AWS CloudFormation changeset")]
-    public class ApplyCloudFormationChangeSetCommand : AwsCommand
+    [Command(KnownAwsCalamariCommands.Commands.ApplyAwsCloudformationChangeset, Description = "Apply an existing AWS CloudFormation changeset")]
+    public class ApplyCloudFormationChangesetCommand: Command
     {
         readonly ICloudFormationService cloudFormationService;
 

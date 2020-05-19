@@ -24,7 +24,7 @@ using Sashimi.Tests.Shared.Server;
 namespace Sashimi.Terraform.Tests
 {
     [TestFixture]
-    public class ActionHandlersFixture : BaseTest
+    public class ActionHandlersFixture
     {
         string? customTerraformExecutable;
 
@@ -446,7 +446,8 @@ namespace Sashimi.Terraform.Tests
             foreach (var commandType in commandTypes)
             {
                 var output = String.Empty;
-                TestActionHandler<Program>(commandType, context =>
+                ActionHandlerTestBuilder.Create<Program>(commandType)
+                    .WithArrange(context =>
                     {
                         context.Variables.Add(KnownVariables.Action.Script.ScriptSource,
                             KnownVariables.Action.Script.ScriptSourceOptions.Package);
@@ -457,13 +458,14 @@ namespace Sashimi.Terraform.Tests
                             customTerraformExecutable);
 
                         populateVariables(context);
-                    }, result =>
+                    })
+                    .WithAssert(result =>
                     {
                         Assert.IsTrue(result.WasSuccessful);
                         assertResult(result);
                         output = result.FullLog;
-                    }
-                );
+                    })
+                    .Execute();
 
                 Console.WriteLine(output);
 

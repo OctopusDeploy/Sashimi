@@ -10,7 +10,7 @@ using Octostache;
 
 namespace Calamari.Aws
 {
-    [Command(AwsKnownVariables.Commands.DeleteAwsCloudformation, Description = "Destroy an existing AWS CloudFormation stack")]
+    [Command(KnownAwsCalamariCommands.Commands.DeleteAwsCloudformation, Description = "Destroy an existing AWS CloudFormation stack")]
     public class DeleteCloudFormationCommand : AwsCommand
     {
         readonly ICloudFormationService cloudFormationService;
