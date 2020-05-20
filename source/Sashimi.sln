@@ -28,6 +28,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calamari.Tests.Shared", "Ca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calamari.Terraform.Tests", "Calamari.Terraform.Tests\Calamari.Terraform.Tests.csproj", "{66067CC8-9D74-494E-A5F1-5641B1D07C17}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure.CloudServices", "Azure.CloudServices", "{F0802018-8CD9-4D3E-A93F-7D1CA09F90C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calamari.Azure.CloudServices", "Calamari.Azure.CloudServices\Calamari.Azure.CloudServices.csproj", "{F4999206-8C1D-4203-89BE-2FAD40666A59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,11 +66,16 @@ Global
 		{66067CC8-9D74-494E-A5F1-5641B1D07C17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66067CC8-9D74-494E-A5F1-5641B1D07C17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66067CC8-9D74-494E-A5F1-5641B1D07C17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4999206-8C1D-4203-89BE-2FAD40666A59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4999206-8C1D-4203-89BE-2FAD40666A59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4999206-8C1D-4203-89BE-2FAD40666A59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4999206-8C1D-4203-89BE-2FAD40666A59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{44851CEC-89D0-4D76-8BBA-2206308974D1} = {06CB7580-EC1B-44C3-93BC-0F58E6582EA1}
 		{C25C8D0B-7203-4BC4-A86F-7558FF890089} = {06CB7580-EC1B-44C3-93BC-0F58E6582EA1}
 		{107D9B9C-7EAD-4256-AEF1-F7EF402C150B} = {06CB7580-EC1B-44C3-93BC-0F58E6582EA1}
 		{66067CC8-9D74-494E-A5F1-5641B1D07C17} = {06CB7580-EC1B-44C3-93BC-0F58E6582EA1}
+		{F4999206-8C1D-4203-89BE-2FAD40666A59} = {F0802018-8CD9-4D3E-A93F-7D1CA09F90C4}
 	EndGlobalSection
 EndGlobal
