@@ -30,7 +30,7 @@ namespace Calamari.Aws
         protected override void Execute(RunningDeployment deployment)
         {
             var stackArn = new StackArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.StackName));
-            var waitForCompletion = ((VariableDictionary)deployment.Variables).EvaluateTruthy(variables.Get("waitForCompletion"));
+            var waitForCompletion = variables.GetFlag(AwsSpecialVariables.CloudFormation.WaitForCompletion, true);
 
             cloudFormationService.DeleteByStackArn(stackArn, waitForCompletion).GetAwaiter().GetResult();
         }

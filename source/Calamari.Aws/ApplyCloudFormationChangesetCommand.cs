@@ -29,7 +29,7 @@ namespace Calamari.Aws
         {
             var stackArn = new StackArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.StackName));
             var changeSetArn = new ChangeSetArn(deployment.Variables.Get(AwsSpecialVariables.CloudFormation.Changesets.Arn));
-            var waitForCompletion = new VariableDictionary().EvaluateTruthy(variables.Get("waitForCompletion"));
+            var waitForCompletion = variables.GetFlag(AwsSpecialVariables.CloudFormation.WaitForCompletion, true);
             
             cloudFormationService.ExecuteChangeSet(stackArn, changeSetArn, waitForCompletion).GetAwaiter().GetResult();
             cloudFormationService.OutputVariables(variables).GetAwaiter().GetResult();

@@ -25,11 +25,6 @@ namespace Sashimi.Aws.ActionHandler
         public IActionHandlerResult Execute(IActionHandlerContext context)
         {
             var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.Commands.ApplyAwsCloudformationChangeset);
-
-            builder.WithArgument("waitForCompletion", context.Variables.GetFlag(AwsSpecialVariables.Action.Aws.WaitForCompletion, true).ToString());
-            builder.WithArgument("stackName", context.Variables.Get(AwsSpecialVariables.Action.Aws.CloudFormation.StackName, ""));
-            builder.WithArgument("extensions", CalamariExtensions.Aws);
-
             return builder.Execute();
         }
     }

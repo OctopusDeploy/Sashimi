@@ -18,6 +18,7 @@ namespace Calamari.Aws.Deployment
 
         public static class CloudFormation
         {
+            public const string WaitForCompletion = "Octopus.Action.Aws.WaitForCompletion";
             public const string Action = "Octopus.Action.Aws.CloudFormationAction";
             public const string StackName = "Octopus.Action.Aws.CloudFormationStackName";
             public const string Template = "Octopus.Action.Aws.CloudFormationTemplate";
