@@ -36,7 +36,6 @@ namespace Sashimi.Aws.ActionHandler
 
             var builder = context
                 .CalamariCommand(CalamariFlavour.CalamariAws, KnownCalamariCommands.RunScript)
-                .WithArgument("extensions", CalamariExtensions.Aws)
                 .WithVariable(KnownVariables.Action.Script.Syntax, context.Variables.Get(KnownVariables.Action.Script.Syntax, ScriptSyntax.PowerShell.ToString()))
                 .WithAwsTools(context, log);
 

@@ -37,20 +37,7 @@ namespace Sashimi.Tests.Shared.Server
             this.actionHandlerType = actionHandlerType;
             arrangeActions = new List<Action<TestActionHandlerContext<TCalamariProgram>>>();
         }
-        
-        public static ActionHandlerTestBuilder<TCalamari> Create<TActionHandler, TCalamari>() 
-            where TActionHandler : IActionHandler
-            where TCalamari : CalamariFlavourProgram
-        {
-            return new ActionHandlerTestBuilder<TCalamari>(typeof(TActionHandler));
-        }
-        
-        public static ActionHandlerTestBuilder<TCalamari> Create<TCalamari>(Type actionHandlerType) 
-            where TCalamari : CalamariFlavourProgram
-        {
-            return new ActionHandlerTestBuilder<TCalamari>(actionHandlerType);
-        }
-        
+
         public ActionHandlerTestBuilder<TCalamariProgram> WithArrange(Action<TestActionHandlerContext<TCalamariProgram>> arrange)
         {
             arrangeActions!.Add(arrange);

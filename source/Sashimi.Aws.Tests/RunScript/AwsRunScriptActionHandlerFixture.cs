@@ -1,8 +1,13 @@
-﻿using NSubstitute;
+﻿using System.Collections.Generic;
+using Calamari.Deployment;
+using FluentAssertions;
+using NSubstitute;
 using NSubstitute.Extensions;
 using NUnit.Framework;
 using Octopus.Diagnostics;
+using Octopus.Server.Extensibility.Metadata;
 using Sashimi.Aws.ActionHandler;
+using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.CommandBuilders;
 using Sashimi.Server.Contracts.DeploymentTools;
@@ -58,5 +63,43 @@ namespace Sashimi.Aws.Tests.RunScript
             else
                 builder.DidNotReceive().WithTool(AwsTools.AwsCli);
         }
+
+        [Test]
+        [Ignore("waiting on aws script refactor")]
+        public void AwsCli_Basic() =>
+            ActionHandlerTestBuilder.Create<AwsRunScriptActionHandler, Calamari.Aws.Program>()
+                .WithArrange(context =>
+                {
+                    context.Variables.Add(KnownVariables.Action.Script.ScriptSource, "Inline");
+                    context.Variables.Add(KnownVariables.Action.Script.Syntax, ScriptSyntax.PowerShell.ToString());
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.AssumeRole, bool.FalseString);
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.UseInstanceRole, bool.FalseString);
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.AwsRegion, "us-east-1");
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.AccountId, "AWS Account Variable");
+                    context.Variables.Add(KnownVariables.Action.Script.ScriptBody, "aws sts get-caller-identity");
+                })
+                .WithAwsAccount()
+                .WithAssert(result =>
+                {
+                    result.FullLog.Should().NotBeNull();
+                })
+                .Execute();
+
+        [Test]
+        [Ignore("waiting on aws script refactor")]
+        public void AwsCli_PowerShell() =>
+            ActionHandlerTestBuilder.Create<AwsRunScriptActionHandler, Calamari.Aws.Program>()
+                .WithArrange(context =>
+                    {
+                        context.Variables.Add(KnownVariables.Action.Script.ScriptSource, "Inline");
+                        context.Variables.Add(KnownVariables.Action.Script.Syntax, ScriptSyntax.PowerShell.ToString());
+                        context.Variables.Add(AwsSpecialVariables.Action.Aws.AssumeRole, bool.FalseString);
+                        context.Variables.Add(AwsSpecialVariables.Action.Aws.UseInstanceRole, bool.FalseString);
+                        context.Variables.Add(AwsSpecialVariables.Action.Aws.AwsRegion, "us-east-1");
+                        context.Variables.Add(AwsSpecialVariables.Action.Aws.AccountId, "AWS Account Variable");
+                        context.Variables.Add(KnownVariables.Action.Script.ScriptBody, "Get-STSCallerIdentity | Select-Object -Property *");
+                })
+                .WithAwsAccount()
+                .Execute();
     }
 }
