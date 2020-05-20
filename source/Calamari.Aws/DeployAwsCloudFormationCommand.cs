@@ -13,7 +13,6 @@ using Calamari.Common.Util;
 using Calamari.Extensions;
 using Newtonsoft.Json;
 using Octopus.CoreUtilities;
-using Octostache;
 
 namespace Calamari.Aws
 {
@@ -38,7 +37,7 @@ namespace Calamari.Aws
             this.extractPackage = extractPackage;
         }
 
-        protected override async Task ExecuteCore()
+        protected override async Task ExecuteCoreAsync()
         {
             var packageFilePath = variables.GetPathToPrimaryPackage(fileSystem, true);
             var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
@@ -46,7 +45,7 @@ namespace Calamari.Aws
             var iamCapabilities = GetValidIamCapabilities();
             var cloudFormationTemplate = GetCloudFormationTemplate(packageFilePath);
 
-            var waitForCompletion = ((VariableDictionary) variables).EvaluateTruthy(variables.Get(SpecialVariableNames.Action.WaitForCompletion));
+            var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion, true);
 
             extractPackage.ExtractToStagingDirectory(packageFilePath);
 
@@ -71,7 +70,7 @@ namespace Calamari.Aws
             }
             else
             {
-                var isRollbackDisabled = ((VariableDictionary) variables).EvaluateTruthy(variables.Get(SpecialVariableNames.Action.DisableRollBack));
+                var isRollbackDisabled = variables.GetFlag(SpecialVariableNames.Action.DisableRollBack);
 
                 var stackId = await cloudFormationService.Deploy(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled, waitForCompletion);
                 // Take the stackArn ID returned by the create or update events, and save it as an output variable
@@ -102,7 +101,7 @@ namespace Calamari.Aws
 
         bool IsImmediateChangeSetExecution()
         {
-            return !((VariableDictionary) variables).EvaluateTruthy(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Defer));
+            return !variables.GetFlag(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Defer);
         }
 
         bool IsChangeSetsEnabled()
@@ -115,7 +114,7 @@ namespace Calamari.Aws
         {
             var name = $"octo-{Guid.NewGuid():N}";
 
-            if (((VariableDictionary)variables).EvaluateTruthy(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate)))
+            if (variables.GetFlag(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate))
             {
                 variables.Set(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Name, name);
             }
