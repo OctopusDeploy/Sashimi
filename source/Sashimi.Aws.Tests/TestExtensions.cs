@@ -14,8 +14,8 @@ namespace Sashimi.Aws.Tests
         {
             builder.WithArrange(context => 
             {
-                context.Variables.Add(AwsSpecialVariables.Account.AccessKey, ExternalVariables.Get(ExternalVariable.AwsAcessKey));
-                context.Variables.Add(AwsSpecialVariables.Account.SecretKey, ExternalVariables.Get(ExternalVariable.AwsSecretKey));    
+                context.Variables.Add(AwsSpecialVariables.Account.AccessKey, ExternalVariables.Get(ExternalVariable.AwsCloudFormationAndS3AccessKey));
+                context.Variables.Add(AwsSpecialVariables.Account.SecretKey, ExternalVariables.Get(ExternalVariable.AwsCloudFormationAndS3SecretKey));    
             });
 
             return builder;
