@@ -1,4 +1,6 @@
-﻿namespace Calamari.Aws
+﻿using System.Threading;
+
+namespace Calamari.Aws
 {
     public static class SpecialVariableNames
     {
@@ -6,6 +8,7 @@
         {
             public const string WaitForCompletion = "Octopus.Action.Aws.WaitForCompletion";
             public const string DisableRollBack = "Octopus.Action.Aws.DisableRollback";
+            public const string EnabledFeatures = "Octopus.Action.EnabledFeatures";
         }
 
         public static class Aws
@@ -47,7 +50,7 @@
 
         public static class Package
         {
-            public static readonly string EnabledFeatures = "Octopus.Action.EnabledFeatures";
+            public const string Id = "Octopus.Action.Package.PackageId";
         }
     }
 }
