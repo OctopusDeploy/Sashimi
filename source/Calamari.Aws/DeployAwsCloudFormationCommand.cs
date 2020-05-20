@@ -1,143 +1,156 @@
 ﻿using System;
-using Calamari.Aws.Deployment.Conventions;
 using Calamari.Commands.Support;
-using Calamari.Deployment;
 using Calamari.Deployment.Conventions;
 using Calamari.Integration.FileSystem;
 using System.Collections.Generic;
-using System.IO;
-using Amazon.CloudFormation;
-using Calamari.Aws.Deployment;
+using System.Linq;
+using System.Threading.Tasks;
+using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation.Templates;
 using Calamari.Aws.Util;
-using Calamari.CloudAccounts;
-using Calamari.Commands;
-using Calamari.Util;
+using Calamari.Common.Util;
+using Calamari.Extensions;
 using Newtonsoft.Json;
 using Octopus.CoreUtilities;
 
-namespace Calamari.Aws.Commands
+namespace Calamari.Aws
 {
-    [Command(KnownAwsCalamariCommands.Commands.DeployAwsCloudformation, Description = "Creates a new AWS CloudFormation deployment")]
-    public class DeployCloudFormationCommand : Command
+    [Command(KnownAwsCalamariCommands.Commands.DeployAwsCloudFormation, Description = "Creates a new AWS CloudFormation deployment")]
+    public class DeployCloudFormationCommand : AwsCommand
     {
-        readonly ILog log;
-        readonly IVariables variables;
         readonly ICalamariFileSystem fileSystem;
         readonly IExtractPackage extractPackage;
-        private PathToPackage pathToPackage;
-        private string templateFile;
-        private string templateParameterFile;
-        private bool waitForComplete;
-        private string stackName;
-        private bool disableRollback;
+        readonly ICloudFormationService cloudFormationService;
 
-        public DeployCloudFormationCommand(ILog log, IVariables variables, ICalamariFileSystem fileSystem, IExtractPackage extractPackage)
+        public DeployCloudFormationCommand(
+            ILog log,
+            IVariables variables,
+            ICloudFormationService cloudFormationService,
+            IAmazonClientFactory amazonClientFactory,
+            ICalamariFileSystem fileSystem,
+            IExtractPackage extractPackage)
+            : base(log, variables, amazonClientFactory)
         {
-            this.log = log;
-            this.variables = variables;
+            this.cloudFormationService = cloudFormationService;
             this.fileSystem = fileSystem;
             this.extractPackage = extractPackage;
-            Options.Add("package=", "Path to the NuGet package to install.", v => pathToPackage = new PathToPackage(Path.GetFullPath(v)));
-            Options.Add("template=", "Path to the JSON template file.", v => templateFile = v);
-            Options.Add("templateParameters=", "Path to the JSON template parameters file.", v => templateParameterFile = v);
-            Options.Add("waitForCompletion=", "True if the deployment process should wait for the stack to complete, and False otherwise.", 
-                v => waitForComplete = !bool.FalseString.Equals(v, StringComparison.OrdinalIgnoreCase)); //True by default
-            Options.Add("stackName=", "The name of the CloudFormation stack.", v => stackName = v);
-            Options.Add("disableRollback=", "True to disable the CloudFormation stack rollback on failure, and False otherwise.", 
-                v => disableRollback = bool.TrueString.Equals(v, StringComparison.OrdinalIgnoreCase)); //False by default
         }
 
-        public override int Execute(string[] commandLineArguments)
+        protected override async Task ExecuteCoreAsync()
         {
-            Options.Parse(commandLineArguments);
+            var packageFilePath = variables.GetPathToPrimaryPackage(fileSystem, true);
+            var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
+            var roleArn = variables.Get(SpecialVariableNames.Aws.CloudFormation.RoleArn);
+            var iamCapabilities = GetValidIamCapabilities();
+            var cloudFormationTemplate = GetCloudFormationTemplate(packageFilePath);
 
-            var filesInPackage = !string.IsNullOrWhiteSpace(pathToPackage);
-            var environment = AwsEnvironmentGeneration.Create(log, variables).GetAwaiter().GetResult();
+            var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion, true);
+
+            extractPackage.ExtractToStagingDirectory(packageFilePath);
+
+            if (IsChangeSetsEnabled())
+            {
+                var changeSetName = GenerateChangeSetName();
+                var result = await cloudFormationService.CreateChangeSet(changeSetName, cloudFormationTemplate, stackArn, roleArn, iamCapabilities);
+                SetOutputVariable("ChangesetId", result.ChangeSet.Value);
+                SetOutputVariable("StackId", result.Stack.Value);
+                variables.Set(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Arn, result.ChangeSet.Value);
+
+                var changes = await cloudFormationService.GetChangeSet(result.Stack, result.ChangeSet);
+                SetOutputVariable("ChangeCount", changes.Count.ToString());
+                SetOutputVariable("Changes", JsonConvert.SerializeObject(changes, Formatting.Indented));
+
+                if (IsImmediateChangeSetExecution())
+                {
+                    await cloudFormationService.ExecuteChangeSet(result.Stack, result.ChangeSet, waitForCompletion);
+
+                    SetOutputVariables(await cloudFormationService.GetOutputVariablesByStackArn(result.Stack));
+                }
+            }
+            else
+            {
+                var isRollbackDisabled = variables.GetFlag(SpecialVariableNames.Action.DisableRollBack);
+
+                var stackId = await cloudFormationService.Deploy(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled, waitForCompletion);
+                // Take the stackArn ID returned by the create or update events, and save it as an output variable
+                SetOutputVariable("StackId", stackId);
+
+                SetOutputVariables(await cloudFormationService.GetOutputVariablesByStackArn(stackArn));
+            }
+        }
+
+        CloudFormationTemplate GetCloudFormationTemplate(string pathToPackage)
+        {
+            var templateFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.Template);
+            var templateParameterFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParameters);
+            var isFileInPackage = !string.IsNullOrWhiteSpace(pathToPackage);
+
             var templateResolver = new TemplateResolver(fileSystem);
 
-            IAmazonCloudFormation ClientFactory () => ClientHelpers.CreateCloudFormationClient(environment);
-            StackArn StackProvider (RunningDeployment x) => new StackArn(stackName);
-            ChangeSetArn ChangesetProvider (RunningDeployment x) => new ChangeSetArn(x.Variables[AwsSpecialVariables.CloudFormation.Changesets.Arn]);
-            string RoleArnProvider (RunningDeployment x) => x.Variables[AwsSpecialVariables.CloudFormation.RoleArn];
-            var iamCapabilities = JsonConvert.DeserializeObject<List<string>>(variables.Get(AwsSpecialVariables.IamCapabilities, "[]"));
+            var resolvedTemplate = templateResolver.Resolve(templateFile, isFileInPackage, variables);
+            var resolvedParameters = templateResolver.MaybeResolve(templateParameterFile, isFileInPackage, variables);
 
-            CloudFormationTemplate TemplateFactory()
+            if (templateParameterFile != null && !resolvedParameters.Some())
+                throw new CommandException("Could not find template parameters file: " + templateParameterFile);
+
+            var parameters = CloudFormationParametersFile.Create(resolvedParameters, fileSystem, variables);
+
+            return CloudFormationTemplate.Create(resolvedTemplate, parameters, fileSystem, variables);
+        }
+
+        bool IsImmediateChangeSetExecution()
+        {
+            return !variables.GetFlag(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Defer);
+        }
+
+        bool IsChangeSetsEnabled()
+        {
+            return variables.Get(SpecialVariableNames.Package.EnabledFeatures)
+                       ?.Contains(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Feature) ?? false;
+        }
+
+        string GenerateChangeSetName()
+        {
+            var name = $"octo-{Guid.NewGuid():N}";
+
+            if (variables.GetFlag(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate))
             {
-                var resolvedTemplate = templateResolver.Resolve(templateFile, filesInPackage, variables);
-                var resolvedParameters = templateResolver.MaybeResolve(templateParameterFile, filesInPackage, variables);
-                
-                if (templateParameterFile != null && !resolvedParameters.Some())
-                    throw new CommandException("Could not find template parameters file: " + templateParameterFile);
-                
-                var parameters = CloudFormationParametersFile.Create(resolvedParameters, fileSystem, variables);
-                return CloudFormationTemplate.Create(resolvedTemplate, parameters, fileSystem, variables);
+                variables.Set(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Name, name);
             }
 
-            var stackEventLogger = new StackEventLogger(log);
-            
-            var conventions = new List<IConvention>
+            log.SetOutputVariableButDoNotAddToVariables("ChangesetName", name);
+
+            return name;
+        }
+
+        IReadOnlyCollection<string> GetValidIamCapabilities()
+        {
+            var iamCapabilities = JsonConvert.DeserializeObject<List<string>>(variables.Get(SpecialVariableNames.Aws.IamCapabilities, "[]"));
+
+            return ExcludeAndLogUnknownIamCapabilities(iamCapabilities);
+        }
+
+        IReadOnlyCollection<string> ExcludeAndLogUnknownIamCapabilities(IEnumerable<string> iamCapabilities)
+        {
+            var (validCapabilities, excludedCapabilities) = iamCapabilities.Aggregate((new List<string>(), new List<string>()), (prev, current) =>
             {
-                new LogAwsUserInfoConvention(environment),
-                new DelegateInstallConvention(d => extractPackage.ExtractToStagingDirectory(pathToPackage)),
-                
-                //Create or Update the stack using changesets
-                new AggregateInstallationConvention(
-                    new GenerateCloudFormationChangesetNameConvention(log),
-                    new CreateCloudFormationChangeSetConvention( ClientFactory, stackEventLogger, StackProvider, RoleArnProvider, TemplateFactory, iamCapabilities),
-                    new DescribeCloudFormationChangeSetConvention( ClientFactory, stackEventLogger, StackProvider, ChangesetProvider),
-                    new ExecuteCloudFormationChangeSetConvention(ClientFactory, stackEventLogger, StackProvider, ChangesetProvider, waitForComplete)
-                        .When(ImmediateChangesetExecution),
-                    new CloudFormationOutputsAsVariablesConvention(ClientFactory, stackEventLogger, StackProvider, () => TemplateFactory().HasOutputs)
-                        .When(ImmediateChangesetExecution)
-                ).When(ChangesetsEnabled),
-             
-                //Create or update stack using a template (no changesets)
-                new AggregateInstallationConvention(
-                        new  DeployAwsCloudFormationConvention(
-                            ClientFactory,
-                            TemplateFactory,
-                            stackEventLogger,
-                            StackProvider,
-                            RoleArnProvider,
-                            waitForComplete,
-                            stackName,
-                            iamCapabilities,
-                            disableRollback,
-                            environment),
-                        new CloudFormationOutputsAsVariablesConvention(ClientFactory, stackEventLogger,  StackProvider, () => TemplateFactory().HasOutputs)
-                )
-               .When(ChangesetsDisabled)
-            };
+                var (valid, excluded) = prev;
 
-            var deployment = new RunningDeployment(pathToPackage, variables);
-            var conventionRunner = new ConventionProcessor(deployment, conventions);
+                if (current.IsKnownIamCapability())
+                    valid.Add(current);
+                else
+                    excluded.Add(current);
 
-            conventionRunner.RunConventions();
-            return 0;
-        }
+                return prev;
+            });
 
-        private bool ChangesetsDeferred(RunningDeployment deployment)
-        {
-            return string.Compare(deployment.Variables[AwsSpecialVariables.CloudFormation.Changesets.Defer], bool.TrueString,
-                       StringComparison.OrdinalIgnoreCase) == 0;
-        }
+            if (excludedCapabilities.Any())
+            {
+                log.Warn($"The following unknown IAM Capabilities have been removed: {string.Join(", ", excludedCapabilities)}");
+            }
 
-        private bool ImmediateChangesetExecution(RunningDeployment deployment)
-        {
-            return !ChangesetsDeferred(deployment);
-        }
-        
-        private bool ChangesetsEnabled(RunningDeployment deployment)
-        {
-            return deployment.Variables.Get(SpecialVariables.Package.EnabledFeatures)
-                       ?.Contains(AwsSpecialVariables.CloudFormation.Changesets.Feature) ?? false;
-        }
-
-        private bool ChangesetsDisabled(RunningDeployment deployment)
-        {
-            return !ChangesetsEnabled(deployment);
+            return validCapabilities;
         }
     }
 }

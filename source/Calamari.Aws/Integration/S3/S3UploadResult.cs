@@ -5,8 +5,8 @@ namespace Calamari.Aws.Integration.S3
 {
     public class S3UploadResult
     {
-        private PutObjectRequest Request { get; }
-        private Maybe<PutObjectResponse> Response { get; }
+        PutObjectRequest Request { get; }
+        Maybe<PutObjectResponse> Response { get; }
 
         public S3UploadResult(PutObjectRequest request, Maybe<PutObjectResponse> response)
         {

@@ -41,8 +41,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calamari.Aws.Tests", "Calam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sashimi.Aws.Tests", "Sashimi.Aws.Tests\Sashimi.Aws.Tests.csproj", "{43FED2F0-11D1-4AE2-8172-6266B61B4121}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calamari.Shared", "Calamari.Shared\Calamari.Shared.csproj", "{61AC9D0E-D3B7-47B3-9331-4154F390215D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,10 +91,6 @@ Global
 		{43FED2F0-11D1-4AE2-8172-6266B61B4121}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43FED2F0-11D1-4AE2-8172-6266B61B4121}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43FED2F0-11D1-4AE2-8172-6266B61B4121}.Release|Any CPU.Build.0 = Release|Any CPU
-		{61AC9D0E-D3B7-47B3-9331-4154F390215D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{61AC9D0E-D3B7-47B3-9331-4154F390215D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{61AC9D0E-D3B7-47B3-9331-4154F390215D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{61AC9D0E-D3B7-47B3-9331-4154F390215D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,7 +104,6 @@ Global
 		{82BF1F99-67AA-492B-9E7F-2E015CB9DEC6} = {5B9A9DC5-F295-4303-A69E-03FAD5FB4A00}
 		{73F25271-555A-4249-85E8-3B6744291809} = {5B9A9DC5-F295-4303-A69E-03FAD5FB4A00}
 		{43FED2F0-11D1-4AE2-8172-6266B61B4121} = {5B9A9DC5-F295-4303-A69E-03FAD5FB4A00}
-		{61AC9D0E-D3B7-47B3-9331-4154F390215D} = {5B9A9DC5-F295-4303-A69E-03FAD5FB4A00}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F8108764-E787-43A4-A43A-2BB5540615E8}

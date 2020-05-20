@@ -1,6 +1,4 @@
-﻿using Calamari.Aws.Deployment.Conventions;
-
-namespace Calamari.Aws.Integration.CloudFormation
+﻿namespace Calamari.Aws.Integration.CloudFormation
 {
     public class RunningChangeSet
     {

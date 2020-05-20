@@ -25,7 +25,7 @@ namespace Sashimi.Aws.ActionHandler
 
         public IActionHandlerResult Execute(IActionHandlerContext context)
         {
-            var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.Commands.DeployAwsCloudformation);
+            var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.Commands.DeployAwsCloudFormation);
 
             CloudFormationCalamariPresets.TemplatesAndParameters(context.Variables, builder);
 

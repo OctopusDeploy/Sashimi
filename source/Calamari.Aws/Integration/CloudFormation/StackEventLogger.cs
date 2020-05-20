@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Amazon.CloudFormation.Model;
+using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Exceptions;
 using Octopus.CoreUtilities;
 
@@ -8,9 +9,9 @@ namespace Calamari.Aws.Integration.CloudFormation
 {
     public class StackEventLogger
     {
-        private readonly ILog log;
-        private string lastMessage;
-        private HashSet<string> warnings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        readonly ILog log;
+        string lastMessage;
+        HashSet<string> warnings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public StackEventLogger(ILog log)
         {

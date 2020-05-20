@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Calamari.Serialization
+namespace Calamari.Aws.Serialization
 {
 
     /// <summary>

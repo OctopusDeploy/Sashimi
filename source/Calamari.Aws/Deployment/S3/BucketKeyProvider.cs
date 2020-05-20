@@ -1,7 +1,7 @@
 using System;
 using Calamari.Aws.Integration.S3;
 
-namespace Calamari.Aws.Deployment.Conventions
+namespace Calamari.Aws.Deployment.S3
 {
     public interface IBucketKeyProvider
     {

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Amazon.IdentityManagement;
@@ -6,52 +8,67 @@ using Amazon.IdentityManagement.Model;
 using Amazon.Runtime;
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
+using Calamari.Aws.Integration.CloudFormation;
+using Calamari.Aws.Util;
 using Calamari.Commands.Support;
-using Calamari.Deployment;
 using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws
 {
-    public abstract class AwsCommand : ICommand
+    public abstract class AwsCommand : ICommand, IDisposable
     {
         static readonly Regex ArnNameRe = new Regex("^.*?/(.+)$");
 
         protected readonly ILog log;
         protected readonly IVariables variables;
 
-        readonly IAmazonSecurityTokenService amazonSecurityTokenService;
-        readonly IAmazonIdentityManagementService amazonIdentityManagementService;
+        readonly Lazy<Task<IAmazonIdentityManagementService>> amazonIdentityManagementClient;
+        readonly Lazy<Task<IAmazonSecurityTokenService>> amazonSecurityTokenClient;
 
         protected AwsCommand(
             ILog log,
             IVariables variables,
-            IAmazonSecurityTokenService amazonSecurityTokenService,
-            IAmazonIdentityManagementService amazonIdentityManagementService)
+            IAmazonClientFactory amazonClientFactory)
         {
             this.log = log;
             this.variables = variables;
-            this.amazonSecurityTokenService = amazonSecurityTokenService;
-            this.amazonIdentityManagementService = amazonIdentityManagementService;
+
+            amazonIdentityManagementClient = new Lazy<Task<IAmazonIdentityManagementService>>(amazonClientFactory.GetIdentityManagementClient);
+            amazonSecurityTokenClient = new Lazy<Task<IAmazonSecurityTokenService>>(amazonClientFactory.GetSecurityTokenClient);
         }
 
         public int Execute()
         {
             LogAwsUserInfo().ConfigureAwait(false).GetAwaiter().GetResult();
 
-            var pathToPackage = new PathToPackage(Path.GetFullPath(variables.Get("Octopus.Action.Package.PackageId")));
-
-            Execute(new RunningDeployment(pathToPackage, variables));
+            ExecuteCoreAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return 0;
         }
 
-        protected abstract void Execute(RunningDeployment deployment);
+        protected abstract Task ExecuteCoreAsync();
+
+        protected void SetOutputVariable(string name, string value)
+        {
+            log.SetOutputVariable($"AwsOutputs[{name}]", value ?? "", variables);
+            log.Info($"Saving variable \"Octopus.Action[{variables["Octopus.Action.Name"]}].Output.AwsOutputs[{name}]\"");
+        }
+
+        protected void SetOutputVariables(IReadOnlyCollection<VariableOutput> variableOutputs)
+        {
+            if (variableOutputs?.Any() != true) return;
+
+            foreach (var variableOutput in variableOutputs)
+            {
+                SetOutputVariable(variableOutput.Name, variableOutput.Value);
+            }
+        }
 
         async Task LogAwsUserInfo()
         {
-            if (variables.IsSet(SpecialVariables.Action.Aws.AssumeRoleARN) ||
-                !variables.IsSet(SpecialVariables.Action.Aws.AccountId) ||
-                !variables.IsSet(variables.Get(SpecialVariables.Action.Aws.AccountId) +
+            if (variables.IsSet(SpecialVariableNames.Aws.AssumeRoleARN) ||
+                !variables.IsSet(SpecialVariableNames.Aws.AccountId) ||
+                !variables.IsSet(variables.Get(SpecialVariableNames.Aws.AccountId) +
                                             ".AccessKey"))
             {
                 await TryLogAwsUserRole();
@@ -66,7 +83,9 @@ namespace Calamari.Aws
         {
             try
             {
-                var result = await amazonIdentityManagementService.GetUserAsync(new GetUserRequest());
+                var client = await amazonIdentityManagementClient.Value;
+
+                var result = await client.GetUserAsync(new GetUserRequest());
 
                 log.Info($"Running the step as the AWS user {result.User.UserName}");
             }
@@ -80,7 +99,9 @@ namespace Calamari.Aws
         {
             try
             {
-                (await amazonSecurityTokenService.GetCallerIdentityAsync(new GetCallerIdentityRequest()))
+                var client = await amazonSecurityTokenClient.Value;
+
+                (await client.GetCallerIdentityAsync(new GetCallerIdentityRequest()))
                     // The response is narrowed to the Aen
                     .Map(response => response.Arn)
                     // Try and match the response to get just the role
@@ -94,6 +115,13 @@ namespace Calamari.Aws
             {
                 // Ignore, we just won't add this to the logs
             }
+        }
+
+        public virtual void Dispose()
+        {
+            if (amazonIdentityManagementClient.IsValueCreated) amazonIdentityManagementClient.Value.Dispose();
+
+            if (amazonSecurityTokenClient.IsValueCreated) amazonSecurityTokenClient.Value.Dispose(); 
         }
     }
 }

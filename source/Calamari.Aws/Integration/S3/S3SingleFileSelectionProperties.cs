@@ -1,6 +1,5 @@
 ﻿namespace Calamari.Aws.Integration.S3
 {
-
     public class S3SingleFileSelectionProperties : S3FileSelectionProperties, IHaveBucketKeyBehaviour
     {
         public string BucketKey { get; set; }
