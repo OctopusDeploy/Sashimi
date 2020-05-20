@@ -16,7 +16,6 @@ using Calamari.Commands.Support;
 using Calamari.Common.Variables;
 using Calamari.Deployment;
 using Calamari.Deployment.Conventions;
-using Calamari.Extensions;
 using Calamari.Integration.FileSystem;
 using Calamari.Util;
 using Octopus.CoreUtilities;
@@ -71,7 +70,7 @@ namespace Calamari.Aws
             bucketName = variables.Get(SpecialVariableNames.Aws.S3.BucketName)?.Trim();
             Guard.NotNullOrWhiteSpace(bucketName, "Bucket name should not be null or empty");
 
-            pathToPackage = variables.GetPathToPrimaryPackage(fileSystem, true);
+            pathToPackage = new PathToPackage(Path.GetFullPath(variables.Get(SpecialVariableNames.Package.Id)));
             s3TargetMode = GetS3TargetMode(variables.Get(SpecialVariableNames.Aws.S3.TargetMode));
             isMd5HashSupported = HashCalculator.IsAvailableHashingAlgorithm(MD5.Create);
             

@@ -3,6 +3,7 @@ using Calamari.Commands.Support;
 using Calamari.Deployment.Conventions;
 using Calamari.Integration.FileSystem;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Calamari.Aws.Deployment.CloudFormation;
@@ -10,7 +11,7 @@ using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation.Templates;
 using Calamari.Aws.Util;
 using Calamari.Common.Util;
-using Calamari.Extensions;
+using Calamari.Deployment;
 using Newtonsoft.Json;
 using Octopus.CoreUtilities;
 
@@ -39,7 +40,7 @@ namespace Calamari.Aws
 
         protected override async Task ExecuteCoreAsync()
         {
-            var packageFilePath = variables.GetPathToPrimaryPackage(fileSystem, true);
+            var packageFilePath = new PathToPackage(Path.GetFullPath(variables.Get(SpecialVariableNames.Package.Id)));
             var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
             var roleArn = variables.Get(SpecialVariableNames.Aws.CloudFormation.RoleArn);
             var iamCapabilities = GetValidIamCapabilities();
@@ -106,7 +107,7 @@ namespace Calamari.Aws
 
         bool IsChangeSetsEnabled()
         {
-            return variables.Get(SpecialVariableNames.Package.EnabledFeatures)
+            return variables.Get(SpecialVariableNames.Action.EnabledFeatures)
                        ?.Contains(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Feature) ?? false;
         }
 
