@@ -3,7 +3,6 @@ using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Util;
 using Calamari.Commands.Support;
-using Octostache;
 
 namespace Calamari.Aws
 {
@@ -22,11 +21,11 @@ namespace Calamari.Aws
             this.cloudFormationService = cloudFormationService;
         }
 
-        protected override async Task ExecuteCore()
+        protected override async Task ExecuteCoreAsync()
         {
             var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
             var changeSetArn = new ChangeSetArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Arn));
-            var waitForCompletion = ((VariableDictionary) variables).EvaluateTruthy(variables.Get(SpecialVariableNames.Action.WaitForCompletion));
+            var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion, true);
 
             await cloudFormationService.ExecuteChangeSet(stackArn, changeSetArn, waitForCompletion);
 

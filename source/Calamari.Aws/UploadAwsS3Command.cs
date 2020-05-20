@@ -10,7 +10,6 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Calamari.Aws.Deployment.S3;
 using Calamari.Aws.Exceptions;
-using Calamari.Aws.Integration;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Util;
 using Calamari.Commands.Support;
@@ -32,7 +31,7 @@ namespace Calamari.Aws
         readonly ICalamariFileSystem fileSystem;
         readonly ISubstituteInFiles substituteInFiles;
         readonly IExtractPackage extractPackage;
-        readonly Lazy<Task<IAmazonS3>> amazonS3Cleint;
+        readonly Lazy<Task<IAmazonS3>> amazonS3Client;
 
         static readonly HashSet<S3CannedACL> S3CannedAcls = new HashSet<S3CannedACL>(ConstantHelpers.GetConstantValues<S3CannedACL>());
 
@@ -55,18 +54,18 @@ namespace Calamari.Aws
             this.substituteInFiles = substituteInFiles;
             this.extractPackage = extractPackage;
 
-            amazonS3Cleint = new Lazy<Task<IAmazonS3>>(amazonClientFactory.GetS3Client);
+            amazonS3Client = new Lazy<Task<IAmazonS3>>(amazonClientFactory.GetS3Client);
         }
 
         public override void Dispose()
         {
-            if (amazonS3Cleint.IsValueCreated) amazonS3Cleint.Value.Dispose();
+            if (amazonS3Client.IsValueCreated) amazonS3Client.Value.Dispose();
 
             base.Dispose();
         }
 
         //TODO: Further refactor is necessary if we have the capacity
-        protected override async Task ExecuteCore()
+        protected override async Task ExecuteCoreAsync()
         {
             // TODO: these variable names need to be shared with Sashimi.Aws, but how?
             bucketName = variables.Get(SpecialVariableNames.Aws.S3.BucketName)?.Trim();
@@ -87,7 +86,7 @@ namespace Calamari.Aws
 
         async Task EnsureS3BucketExists()
         {
-            var client = await amazonS3Cleint.Value;
+            var client = await amazonS3Client.Value;
             
             if (await Amazon.S3.Util.AmazonS3Util.DoesS3BucketExistV2Async(client, bucketName))
             {
@@ -243,7 +242,7 @@ namespace Calamari.Aws
             if (substitutionPatterns.Any())
                 substituteInFiles.Substitute(deployment, substitutionPatterns);
 
-            var client = await amazonS3Cleint.Value;
+            var client = await amazonS3Client.Value;
 
             foreach (var matchedFile in files)
             {
@@ -276,7 +275,7 @@ namespace Calamari.Aws
             if (selection.PerformVariableSubstitution)
                 substituteInFiles.Substitute(deployment, new List<string> { filePath });
 
-            var client = await amazonS3Cleint.Value;
+            var client = await amazonS3Client.Value;
 
             return await CreateRequest(filePath, GetBucketKey(filePath.AsRelativePathFrom(deployment.StagingDirectory), selection), selection)
                     .Tee(x => LogPutObjectRequest(filePath, x))
@@ -294,7 +293,7 @@ namespace Calamari.Aws
             Guard.NotNull(options, "Package options may not be null");
 
             var filename = GetNormalizedPackageFilename(deployment);
-            var client = await amazonS3Cleint.Value;
+            var client = await amazonS3Client.Value;
 
             return await CreateRequest(deployment.PackageFilePath,
                     GetBucketKey(filename, options), options)

@@ -41,12 +41,12 @@ namespace Calamari.Aws
         {
             LogAwsUserInfo().ConfigureAwait(false).GetAwaiter().GetResult();
 
-            ExecuteCore().ConfigureAwait(false).GetAwaiter().GetResult();
+            ExecuteCoreAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return 0;
         }
 
-        protected abstract Task ExecuteCore();
+        protected abstract Task ExecuteCoreAsync();
 
         protected void SetOutputVariable(string name, string value)
         {
@@ -85,7 +85,7 @@ namespace Calamari.Aws
             {
                 var client = await amazonIdentityManagementClient.Value;
 
-                var result = await client.GetUserAsync(new GetUserRequest()).ConfigureAwait(false);
+                var result = await client.GetUserAsync(new GetUserRequest());
 
                 log.Info($"Running the step as the AWS user {result.User.UserName}");
             }
