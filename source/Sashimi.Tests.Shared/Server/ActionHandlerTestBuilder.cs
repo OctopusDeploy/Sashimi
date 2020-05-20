@@ -87,7 +87,7 @@ namespace Sashimi.Tests.Shared.Server
 
             if (assertWasSuccess)
             {
-                result.WasSuccessful.Should().BeTrue();
+                result.WasSuccessful.Should().BeTrue($"{actionHandlerType} execute result was unsuccessful");
             }
             assertAction?.Invoke(result);
         }
