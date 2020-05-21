@@ -1,8 +1,10 @@
 using Octopus.Data.Model;
+using Sashimi.Server.Contracts.Accounts;
+using Sashimi.Server.Contracts.Accounts.Temp;
 
-namespace Sashimi.Server.Contracts.Accounts.Temp
+namespace Sashimi.Accounts
 {
-    public class AzureAccountDetails : IAccountDetails
+    public class AzureAccountDetails : IAccountDetails, IAzureAccountDetails
     {
         public AzureAccountDetails(string subscriptionNumber, string certificateThumbprint, string azureEnvironment, string serviceManagementEndpointBaseUri, string serviceManagementEndpointSuffix, SensitiveString certificateBytes)
         {
@@ -14,13 +16,13 @@ namespace Sashimi.Server.Contracts.Accounts.Temp
             CertificateBytes = certificateBytes;
         }
 
-        public string SubscriptionNumber { get; }
-        public string CertificateThumbprint { get; }
+        public string SubscriptionNumber { get; set;}
+        public string CertificateThumbprint { get; set;}
 
-        public string AzureEnvironment { get;  }
-        public string ServiceManagementEndpointBaseUri { get;  }
-        public string ServiceManagementEndpointSuffix { get;  }
+        public string AzureEnvironment { get; set; }
+        public string ServiceManagementEndpointBaseUri { get; set; }
+        public string ServiceManagementEndpointSuffix { get; set; }
 
-        public SensitiveString CertificateBytes { get; }
+        public SensitiveString CertificateBytes { get; set; }
     }
 }

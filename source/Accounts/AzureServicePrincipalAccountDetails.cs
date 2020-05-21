@@ -1,8 +1,10 @@
 using Octopus.Data.Model;
+using Sashimi.Server.Contracts.Accounts;
+using Sashimi.Server.Contracts.Accounts.Temp;
 
-namespace Sashimi.Server.Contracts.Accounts.Temp
+namespace Sashimi.Accounts
 {
-    public class AzureServicePrincipalAccountDetails : IAccountDetails
+    public class AzureServicePrincipalAccountDetails : IAccountDetails, IAzureServicePrincipalAccountDetails
     {
         public AzureServicePrincipalAccountDetails(string subscriptionNumber, string clientId, string tenantId, SensitiveString password, string azureEnvironment, string resourceManagementEndpointBaseUri, string activeDirectoryEndpointBaseUri)
         {
@@ -15,16 +17,16 @@ namespace Sashimi.Server.Contracts.Accounts.Temp
             ActiveDirectoryEndpointBaseUri = activeDirectoryEndpointBaseUri;
         }
 
-        public string SubscriptionNumber { get;  }
+        public string SubscriptionNumber { get;  set;}
 
-        public string ClientId { get;  }
+        public string ClientId { get;  set;}
 
-        public string TenantId { get;  }
+        public string TenantId { get;  set;}
 
-        public SensitiveString Password { get;  }
+        public SensitiveString Password { get; set; }
 
-        public string AzureEnvironment { get;  }
-        public string ResourceManagementEndpointBaseUri { get;  }
-        public string ActiveDirectoryEndpointBaseUri { get;  }
+        public string AzureEnvironment { get; set; }
+        public string ResourceManagementEndpointBaseUri { get;  set;}
+        public string ActiveDirectoryEndpointBaseUri { get; set; }
     }
 }
