@@ -29,6 +29,15 @@
         <None Update="AwsS3Sample\AwsS3Sample.1.0.0.nupkg">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="CloudFormation\package-withoutparameters\template.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="CloudFormation\package-withparameters\parameters.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="CloudFormation\package-withparameters\template.yaml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

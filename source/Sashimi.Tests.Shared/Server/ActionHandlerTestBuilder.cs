@@ -57,14 +57,14 @@ namespace Sashimi.Tests.Shared.Server
             return this;
         }
 
-        public void Execute(bool assertWasSuccess = true)
+        public TestActionHandlerResult Execute(bool assertWasSuccess = true)
         {
             var builder = new ContainerBuilder();
             builder.RegisterAssemblyModules(actionHandlerType.Assembly);
             builder.RegisterModule<ServerModule>();
-
+            var container = builder.Build();
             var commandBuilder = new TestCalamariCommandBuilder<TCalamariProgram>();
-            var context = new TestActionHandlerContext<TCalamariProgram>(commandBuilder);
+            var context = new TestActionHandlerContext<TCalamariProgram>(commandBuilder, container.Resolve<Octopus.Diagnostics.ILog>());
 
             foreach (var arrangeAction in arrangeActions!)
             {
@@ -72,7 +72,7 @@ namespace Sashimi.Tests.Shared.Server
             }
 
             TestActionHandlerResult result;
-            using (var container = builder.Build())
+            using (container)
             {
                 var actionHandler = (IActionHandler) container.Resolve(actionHandlerType);
 
@@ -86,6 +86,8 @@ namespace Sashimi.Tests.Shared.Server
                 result.WasSuccessful.Should().BeTrue($"{actionHandlerType} execute result was unsuccessful");
             }
             assertAction?.Invoke(result);
+
+            return result;
         }
     }
 }

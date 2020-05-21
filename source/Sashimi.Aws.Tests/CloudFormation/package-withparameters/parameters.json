@@ -1,0 +1,10 @@
+[
+  {
+    "ParameterKey": "NameVarParam",
+    "ParameterValue": "#{NameInVariable}"
+  },
+  {
+    "ParameterKey": "NamePlainParam",
+    "ParameterValue": "e2e-test-aws-cf-plain-@UNIQUEID"
+  }
+]
