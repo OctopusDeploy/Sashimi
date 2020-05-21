@@ -38,6 +38,9 @@
         <None Update="CloudFormation\package-withparameters\template.yaml">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Packages\CloudFormationS3.1.0.0.nupkg">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

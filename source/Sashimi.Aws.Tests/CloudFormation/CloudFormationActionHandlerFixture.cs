@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
@@ -14,6 +13,8 @@ namespace Sashimi.Aws.Tests.CloudFormation
         readonly string StackRole = "arn:aws:iam::968802670493:role/e2e_buckets";
         readonly string TransformIncludeLocation = "s3://octopus-e2e-tests/permanent/tags.json";
         readonly string Region = "us-east-1";
+        readonly string pathToPackage = TestEnvironment.GetTestPath(@"Packages\CloudFormationS3.1.0.0.nupkg");
+
         string StackName = string.Empty;
 
         [SetUp]
@@ -21,6 +22,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
         {
             StackName = $"E2ETestStack-{UniqueName.Generate()}";
         }
+
         [Test]
         public void RunCloudFormation_InlineSourceWithoutParameters()
         {
@@ -37,8 +39,6 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                     })
                     .Execute(assertWasSuccess:false);
-
-            DeleteStack(StackName);
 
             result.WasSuccessful.Should().BeTrue();
             
@@ -58,7 +58,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             string OctopusVariableName = "NameInVariable";
             string PlainParameterValue = "e2e-test-aws-cf-plain-" + UniqueName.Short();
             const string PlainParameterName = "NamePlainParam";
-            const string PlainParameterOutput = "OutputWithPlainParam";
+            //const string PlainParameterOutput = "OutputWithPlainParam";
             string template = File.ReadAllText(Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withparameters", "template.yaml"));
             var parameterValues = $"[{{\"ParameterKey\": \"{VariableParameterName}\", \"ParameterValue\": \"#{{{OctopusVariableName}}}\"}},"
                                   + $"{{\"ParameterKey\": \"{PlainParameterName}\", \"ParameterValue\": \"{PlainParameterValue}\"}}]";
@@ -73,8 +73,6 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.TemplateParameters, parameterValues);
                 })
                 .Execute(assertWasSuccess:false);
-            
-            DeleteStack(StackName);
             
             // TODO: validate output parameter values
             // result.OutputVariables.ContainsKey()
@@ -107,8 +105,6 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
                 .Execute(assertWasSuccess: false);
-            
-            DeleteStack(StackName);
             
             // TODO: validate output parameter values
             // result.OutputVariables.ContainsKey()
@@ -145,8 +141,6 @@ namespace Sashimi.Aws.Tests.CloudFormation
                 })
                 .Execute(assertWasSuccess: false);
             
-            DeleteStack(StackName);
-            
             // TODO: validate output parameter values
             // result.OutputVariables.ContainsKey()
             // RunInlineScript(VerifyOutputsStepName + "1",
@@ -164,31 +158,23 @@ namespace Sashimi.Aws.Tests.CloudFormation
         {
             var bucketName = $"cfe2e-{UniqueName.Generate()}";
 
-            try
-            {
-                // create bucket
-                CreateBucket(StackName, bucketName);
+            // create bucket
+            CreateBucket(StackName, bucketName);
 
-                // remove bucket tags
-                string stackId = null;
-                string changeSetId = null;
-                (changeSetId, stackId) = RemoveBucket(StackName, bucketName);
+            // remove bucket tags
+            var (changeSetId, stackId) = RemoveBucketTag(StackName, bucketName);
 
-                // apply remove bucket tags
-                ApplyChangeSet(changeSetId, stackId, bucketName);
+            // apply remove bucket tags
+            ApplyChangeSet(changeSetId, stackId, bucketName);
 
-                // create bucket again
-                CreateBucketAgain(StackName, bucketName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-                // delete cloud formation
-                DeleteStack(StackName);
-            }
+            // create bucket again
+            CreateBucketAgain(StackName, bucketName);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DeleteStack(StackName);
         }
 
         void DeleteStack(string stackName)
@@ -221,7 +207,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                     context.WithStackRole(StackRole);
                     context.WithCloudFormationChangeSets();
-                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
+                    context.WithPackage(pathToPackage);
                 })
                 .Execute();
         }
@@ -240,7 +226,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                 .Execute();
         }
 
-        (string changeSetId, string stackName) RemoveBucket(string stackName, string bucketName)
+        (string changeSetId, string stackName) RemoveBucketTag(string stackName, string bucketName)
         {
             string changeSetId = string.Empty;
             string stackId = string.Empty;
@@ -256,13 +242,13 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.WithStackRole(StackRole);
                     context.WithCloudFormationChangeSets(deferExecution: true);
                     context.WithIamCapabilities(new List<string> {"CAPABILITY_IAM"});
-                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
+                    context.WithPackage(pathToPackage);
                 })
                 .WithAssert(result =>
                 {
                     result.WasSuccessful.Should().BeTrue();
-                    changeSetId = result.OutputVariables["ChangeSetId"].Value;
-                    stackId = result.OutputVariables["StackId"].Value;
+                    changeSetId = result.OutputVariables["AwsOutputs[ChangesetId]"].Value;
+                    stackId = result.OutputVariables["AwsOutputs[StackId]"].Value;
                 })
                 .Execute();
             
@@ -283,7 +269,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.WithStackRole(StackRole);
                     context.WithCloudFormationChangeSets();
                     context.WithIamCapabilities(new List<string> {"CAPABILITY_IAM"});
-                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
+                    context.WithPackage(pathToPackage);
                     
                 })
                 .Execute();
