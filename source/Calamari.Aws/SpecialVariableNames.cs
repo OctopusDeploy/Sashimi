@@ -31,6 +31,7 @@ namespace Calamari.Aws
                 public const string StackName = "Octopus.Action.Aws.CloudFormationStackName";
                 public const string Template = "Octopus.Action.Aws.CloudFormationTemplate";
                 public const string TemplateParameters = "Octopus.Action.Aws.CloudFormationTemplateParameters";
+                public const string TemplateParametersRaw = "Octopus.Action.Aws.CloudFormationTemplateParametersRaw";
                 public const string Properties = "Octopus.Action.Aws.CloudFormationProperties";
                 public const string RoleArn = "Octopus.Action.Aws.CloudFormation.RoleArn";
 

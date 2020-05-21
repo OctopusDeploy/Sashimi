@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using Calamari.Deployment;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using NSubstitute.Extensions;
 using NUnit.Framework;
 using Octopus.Diagnostics;
-using Octopus.Server.Extensibility.Metadata;
 using Sashimi.Aws.ActionHandler;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;

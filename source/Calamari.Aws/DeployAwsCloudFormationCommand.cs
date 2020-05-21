@@ -84,7 +84,7 @@ namespace Calamari.Aws
         CloudFormationTemplate GetCloudFormationTemplate(string pathToPackage)
         {
             var templateFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.Template);
-            var templateParameterFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParameters);
+            var templateParameterFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParametersRaw);
             var isFileInPackage = !string.IsNullOrWhiteSpace(pathToPackage);
 
             var templateResolver = new TemplateResolver(fileSystem);
