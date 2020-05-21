@@ -1,6 +1,6 @@
 using Octopus.Data.Model;
 
-namespace Sashimi.Accounts.Accounts
+namespace Sashimi.Server.Contracts.Accounts.Temp
 {
     public class AzureServicePrincipalAccountDetails : IAccountDetails
     {
