@@ -52,8 +52,8 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         context.Variables.Add("Octopus.Action.Aws.Region", Region);
                         context.Variables.Add("Octopus.Action.Aws.CloudFormationStackName", stackName);
                         context.Variables.Add("Octopus.Action.Aws.WaitForCompletion", bool.TrueString);
+                        context.WithAwsAccount();
                     })
-                    .WithAwsAccount()
                     .Execute();
             }
         }
@@ -74,11 +74,11 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.Template, "bucket.json");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.TemplateParametersRaw, "bucket-parameters.json");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
+                    context.WithAwsAccount();
+                    context.WithStackRole(StackRole);
+                    context.WithCloudFormationChangeSets();
+                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
                 })
-                .WithAwsAccount()
-                .WithStackRole(StackRole)
-                .WithCloudFormationChangeSets()
-                .WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg")
                 .Execute();
         }
 
@@ -96,8 +96,8 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add("Octopus.Action.Aws.WaitForCompletion", bool.TrueString);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.Changesets.Arn, changeSetId);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.StackName, stackId);
+                    context.WithAwsAccount();
                 })
-                .WithAwsAccount()
                 .Execute();
         }
 
@@ -119,12 +119,12 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.Template, "bucket.json");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.TemplateParametersRaw, "bucket-parameters.json");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
+                    context.WithAwsAccount();
+                    context.WithStackRole(StackRole);
+                    context.WithCloudFormationChangeSets(deferExecution: true);
+                    context.WithIamCapabilities(new List<string> {"CAPABILITY_IAM"});
+                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
                 })
-                .WithAwsAccount()
-                .WithStackRole(StackRole)
-                .WithCloudFormationChangeSets(deferExecution: true)
-                .WithIamCapabilities(new List<string> {"CAPABILITY_IAM"})
-                .WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg")
                 .WithAssert(result =>
                 {
                     result.WasSuccessful.Should().BeTrue();
@@ -138,7 +138,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
 
         void CreateBucket(string stackName, string bucketName)
         {
-            var builder = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
+            ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
                     context.Variables.Add("BucketName", bucketName);
@@ -152,13 +152,13 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.Template, "bucket-transform.json");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.TemplateParametersRaw, "bucket-parameters.json");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
+                    context.WithAwsAccount();
+                    context.WithStackRole(StackRole);
+                    context.WithCloudFormationChangeSets();
+                    context.WithIamCapabilities(new List<string> {"CAPABILITY_IAM"});
+                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
                 })
-                .WithAwsAccount()
-                .WithStackRole(StackRole)
-                .WithCloudFormationChangeSets()
-                .WithIamCapabilities(new List<string> {"CAPABILITY_IAM"})
-                .WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
-                builder.Execute();
+                .Execute();
         }
     }
 }
