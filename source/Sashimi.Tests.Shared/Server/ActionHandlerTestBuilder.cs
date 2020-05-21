@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Autofac;
 using Calamari;
 using Calamari.Tests.Shared;
@@ -27,6 +28,7 @@ namespace Sashimi.Tests.Shared.Server
         public static void WithPackage<TCalamariProgram>(this TestActionHandlerContext<TCalamariProgram> context, string path)
             where TCalamariProgram : CalamariFlavourProgram
         {
+            context.Variables.Add(KnownVariables.OriginalPackageDirectoryPath, Path.GetDirectoryName(path));
             context.Variables.Add(KnownVariables.Action.Packages.PackageId, path);
             context.Variables.Add(KnownVariables.Action.Packages.FeedId, "FeedId");
         }

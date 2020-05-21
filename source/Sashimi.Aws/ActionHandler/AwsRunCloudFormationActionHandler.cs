@@ -27,13 +27,6 @@ namespace Sashimi.Aws.ActionHandler
         {
             var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.Commands.DeployAwsCloudFormation);
 
-            CloudFormationCalamariPresets.TemplatesAndParameters(context.Variables, builder);
-
-            // builder.WithArgument("waitForCompletion", context.Variables.GetFlag(AwsSpecialVariables.Action.Aws.WaitForCompletion, false).ToString());
-            // builder.WithArgument("stackName", context.Variables.Get(AwsSpecialVariables.Action.Aws.CloudFormation.StackName, ""));
-            // builder.WithArgument("disableRollback", context.Variables.GetFlag(AwsSpecialVariables.Action.Aws.DisableRollback, true).ToString());
-            // builder.WithArgument("extensions", CalamariExtensions.Aws);
-
             return builder.Execute();
         }
     }
