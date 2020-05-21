@@ -35,6 +35,7 @@ namespace Sashimi.Aws.Tests.RunScript
                     context.Variables.Add("Octopus.Action.Aws.Region", region);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.S3.BucketName, bucketName);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.S3.TargetMode, "EntirePackage");
+                    context.WithAwsAccount();
                     context.WithPackage(path);
                     context.Variables.Add(
                         AwsSpecialVariables.Action.Aws.S3.PackageOptions,
