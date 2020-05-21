@@ -4,7 +4,7 @@ using Sashimi.Server.Contracts.Accounts.Temp;
 
 namespace Sashimi.Accounts
 {
-    public class AmazonWebServicesAccountDetails : IAccountDetails, IAmazonWebServicesAccountDetails
+    public class AmazonWebServicesAccountDetails : IAmazonWebServicesAccountDetails
     {
         public AmazonWebServicesAccountDetails(string accessKey, SensitiveString secretKey)
         {

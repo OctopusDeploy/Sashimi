@@ -2,7 +2,7 @@ using Octopus.Data.Model;
 
 namespace Sashimi.Server.Contracts.Accounts.Temp
 {
-    public interface IAzureServicePrincipalAccountDetails
+    public interface IAzureServicePrincipalAccountDetails : IAccountDetails
     {
         string SubscriptionNumber { get; set; }
         string ClientId { get; set;}

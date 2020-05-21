@@ -4,7 +4,7 @@ using Sashimi.Server.Contracts.Accounts.Temp;
 
 namespace Sashimi.Accounts
 {
-    public class AzureAccountDetails : IAccountDetails, IAzureAccountDetails
+    public class AzureAccountDetails : IAzureAccountDetails
     {
         public AzureAccountDetails(string subscriptionNumber, string certificateThumbprint, string azureEnvironment, string serviceManagementEndpointBaseUri, string serviceManagementEndpointSuffix, SensitiveString certificateBytes)
         {
