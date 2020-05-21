@@ -7,6 +7,7 @@ using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using Sashimi.Aws.ActionHandler;
 using Sashimi.Aws.Validation;
+using Sashimi.Server.Contracts;
 using Sashimi.Tests.Shared;
 using Sashimi.Tests.Shared.Server;
 using BucketKeyBehaviourType = Sashimi.Aws.Validation.BucketKeyBehaviourType;
@@ -50,6 +51,8 @@ namespace Sashimi.Aws.Tests.RunScript
                         }, new JsonSerializerSettings {ContractResolver = new CamelCasePropertyNamesContractResolver()}));
                 })
                 .Execute();
+            
+            CleanUpS3Bucket(bucketName, folderPrefix, region);
         }
 
         [Test]
@@ -111,6 +114,25 @@ namespace Sashimi.Aws.Tests.RunScript
                                 }, new JsonSerializerSettings {ContractResolver = new CamelCasePropertyNamesContractResolver()}));
                 })
                 .Execute();
+            
+            CleanUpS3Bucket(bucketName, folderPrefix, region);
+        }
+
+        private void CleanUpS3Bucket(string bucketName, string folderPrefix, string region)
+        {
+            ActionHandlerTestBuilder.Create<AwsRunScriptActionHandler, Program>()
+                .WithArrange(context =>
+                {
+                    context.WithAwsAccount();
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.UseInstanceRole, bool.FalseString);
+                    context.Variables.Add(KnownVariables.Action.Script.ScriptSource, "Inline");
+                    context.Variables.Add(KnownVariables.Action.Script.ScriptBody, $"aws s3 rm s3://{bucketName}/{folderPrefix} --recursive");
+                    context.Variables.Add("Octopus.Action.Aws.AssumeRole", bool.FalseString);
+                    context.Variables.Add("Octopus.Action.Aws.AssumedRoleArn", string.Empty);
+                    context.Variables.Add("Octopus.Action.Aws.AssumedRoleSession", string.Empty);
+                    context.Variables.Add("Octopus.Action.Aws.Region", region);
+                })
+                .Execute(assertWasSuccess: false); // don't fail the test if the cleanup fails
         }
     }
 }
