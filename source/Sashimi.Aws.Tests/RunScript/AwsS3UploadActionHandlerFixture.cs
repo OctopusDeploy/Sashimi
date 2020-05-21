@@ -35,6 +35,7 @@ namespace Sashimi.Aws.Tests.RunScript
                     context.Variables.Add("Octopus.Action.Aws.Region", region);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.S3.BucketName, bucketName);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.S3.TargetMode, "EntirePackage");
+                    context.WithPackage(path);
                     context.Variables.Add(
                         AwsSpecialVariables.Action.Aws.S3.PackageOptions,
                         JsonConvert.SerializeObject(new S3PackageProperties
@@ -47,8 +48,6 @@ namespace Sashimi.Aws.Tests.RunScript
                             BucketKeyBehaviour = BucketKeyBehaviourType.Custom
                         }, new JsonSerializerSettings {ContractResolver = new CamelCasePropertyNamesContractResolver()}));
                 })
-                .WithPackage(path)
-                .WithAwsAccount()
                 .Execute();
         }
 
@@ -70,6 +69,8 @@ namespace Sashimi.Aws.Tests.RunScript
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.UseInstanceRole, bool.FalseString);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.S3.BucketName, bucketName);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.S3.TargetMode, S3TargetMode.FileSelections.ToString());
+                    context.WithPackage(path);
+                    context.WithAwsAccount();
                     context.Variables.Add(
                         AwsSpecialVariables.Action.Aws.S3.FileSelections,
                                 JsonConvert.SerializeObject(new List<S3FileSelectionProperties>
@@ -108,8 +109,6 @@ namespace Sashimi.Aws.Tests.RunScript
                                     }
                                 }, new JsonSerializerSettings {ContractResolver = new CamelCasePropertyNamesContractResolver()}));
                 })
-                .WithPackage(path)
-                .WithAwsAccount()
                 .Execute();
         }
     }

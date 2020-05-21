@@ -23,6 +23,13 @@ namespace Sashimi.Tests.Shared.Server
         {
             return new ActionHandlerTestBuilder<TCalamari>(actionHandlerType);
         }
+
+        public static void WithPackage<TCalamariProgram>(this TestActionHandlerContext<TCalamariProgram> context, string path)
+            where TCalamariProgram : CalamariFlavourProgram
+        {
+            context.Variables.Add(KnownVariables.Action.Packages.PackageId, path);
+            context.Variables.Add(KnownVariables.Action.Packages.FeedId, "FeedId");
+        }
     }
     
     public class ActionHandlerTestBuilder<TCalamariProgram> 
@@ -47,17 +54,6 @@ namespace Sashimi.Tests.Shared.Server
         public ActionHandlerTestBuilder<TCalamariProgram> WithAssert(Action<TestActionHandlerResult> assert)
         {
             assertAction = assert;
-            return this;
-        }
-
-        public ActionHandlerTestBuilder<TCalamariProgram> WithPackage(string path)
-        {
-            arrangeActions!.Add(context =>
-            {
-                context.Variables.Add(KnownVariables.Action.Packages.PackageId, path);
-                context.Variables.Add(KnownVariables.Action.Packages.FeedId, "FeedId");
-            });
-            
             return this;
         }
 

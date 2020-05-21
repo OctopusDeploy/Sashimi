@@ -77,8 +77,8 @@ namespace Sashimi.Aws.Tests.RunScript
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.AwsRegion, "us-east-1");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.AccountId, "AWS Account Variable");
                     context.Variables.Add(KnownVariables.Action.Script.ScriptBody, "aws sts get-caller-identity");
+                    context.WithAwsAccount();
                 })
-                .WithAwsAccount()
                 .WithAssert(result =>
                 {
                     result.FullLog.Should().NotBeNull();
@@ -90,16 +90,16 @@ namespace Sashimi.Aws.Tests.RunScript
         public void AwsCli_PowerShell() =>
             ActionHandlerTestBuilder.Create<AwsRunScriptActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
-                    {
-                        context.Variables.Add(KnownVariables.Action.Script.ScriptSource, "Inline");
-                        context.Variables.Add(KnownVariables.Action.Script.Syntax, ScriptSyntax.PowerShell.ToString());
-                        context.Variables.Add(AwsSpecialVariables.Action.Aws.AssumeRole, bool.FalseString);
-                        context.Variables.Add(AwsSpecialVariables.Action.Aws.UseInstanceRole, bool.FalseString);
-                        context.Variables.Add(AwsSpecialVariables.Action.Aws.AwsRegion, "us-east-1");
-                        context.Variables.Add(AwsSpecialVariables.Action.Aws.AccountId, "AWS Account Variable");
-                        context.Variables.Add(KnownVariables.Action.Script.ScriptBody, "Get-STSCallerIdentity | Select-Object -Property *");
+                {
+                    context.Variables.Add(KnownVariables.Action.Script.ScriptSource, "Inline");
+                    context.Variables.Add(KnownVariables.Action.Script.Syntax, ScriptSyntax.PowerShell.ToString());
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.AssumeRole, bool.FalseString);
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.UseInstanceRole, bool.FalseString);
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.AwsRegion, "us-east-1");
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.AccountId, "AWS Account Variable");
+                    context.Variables.Add(KnownVariables.Action.Script.ScriptBody, "Get-STSCallerIdentity | Select-Object -Property *");
+                    context.WithAwsAccount();
                 })
-                .WithAwsAccount()
                 .Execute();
     }
 }
