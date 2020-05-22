@@ -24,5 +24,9 @@ namespace Sashimi.Accounts
         public string ServiceManagementEndpointSuffix { get; set; }
 
         public SensitiveString CertificateBytes { get; set; }
+        public AccountType GetAccountType()
+        {
+            return AccountType.AzureSubscription;
+        }
     }
 }

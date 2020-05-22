@@ -14,5 +14,9 @@ namespace Sashimi.Accounts
 
         public string AccessKey { get; set; }
         public SensitiveString SecretKey { get; set; }
+        public AccountType GetAccountType()
+        {
+            return AccountType.AmazonWebServicesAccount;
+        }
     }
 }

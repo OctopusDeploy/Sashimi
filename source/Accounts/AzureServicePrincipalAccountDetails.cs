@@ -28,5 +28,9 @@ namespace Sashimi.Accounts
         public string AzureEnvironment { get; set; }
         public string ResourceManagementEndpointBaseUri { get;  set;}
         public string ActiveDirectoryEndpointBaseUri { get; set; }
+        public AccountType GetAccountType()
+        {
+            return AccountType.AzureServicePrincipal;
+        }
     }
 }
