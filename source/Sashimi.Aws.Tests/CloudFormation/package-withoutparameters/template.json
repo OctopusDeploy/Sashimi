@@ -4,7 +4,7 @@
     "TestBucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": "e2e-test-aws-cf-@UNIQUEID",
+        "BucketName": "#{BucketName}",
         "Tags" : [
           {
             "Key" : "Environment",

@@ -25,12 +25,14 @@ namespace Sashimi.Tests.Shared.Server
             return new ActionHandlerTestBuilder<TCalamari>(actionHandlerType);
         }
 
-        public static void WithPackage<TCalamariProgram>(this TestActionHandlerContext<TCalamariProgram> context, string path)
+        public static TestActionHandlerContext<TCalamariProgram> WithPackage<TCalamariProgram>(this TestActionHandlerContext<TCalamariProgram> context, string path)
             where TCalamariProgram : CalamariFlavourProgram
         {
             context.Variables.Add(KnownVariables.OriginalPackageDirectoryPath, Path.GetDirectoryName(path));
             context.Variables.Add(KnownVariables.Action.Packages.PackageId, path);
             context.Variables.Add(KnownVariables.Action.Packages.FeedId, "FeedId");
+
+            return context;
         }
     }
     

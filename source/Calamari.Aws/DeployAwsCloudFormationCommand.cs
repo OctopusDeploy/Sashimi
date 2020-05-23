@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.CloudFormation.Model;
 using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation.Templates;
@@ -40,15 +41,17 @@ namespace Calamari.Aws
 
         protected override async Task ExecuteCoreAsync()
         {
-            var packageFilePath = new PathToPackage(Path.GetFullPath(variables.Get(SpecialVariableNames.Package.Id)));
             var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
             var roleArn = variables.Get(SpecialVariableNames.Aws.CloudFormation.RoleArn);
             var iamCapabilities = GetValidIamCapabilities();
-            var cloudFormationTemplate = GetCloudFormationTemplate(packageFilePath);
+            var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion);
 
-            var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion, true);
-
+            var packageFilePath = variables.IsSet(SpecialVariableNames.Package.Id) ? 
+                new PathToPackage(Path.GetFullPath(variables.Get(SpecialVariableNames.Package.Id))) :
+                null;
             extractPackage.ExtractToStagingDirectory(packageFilePath);
+
+            var cloudFormationTemplate = GetCloudFormationTemplate();
 
             if (IsChangeSetsEnabled())
             {
@@ -71,38 +74,50 @@ namespace Calamari.Aws
             }
             else
             {
-                var isRollbackDisabled = variables.GetFlag(SpecialVariableNames.Action.DisableRollBack);
+                var isRollbackDisabled = variables.GetFlag(SpecialVariableNames.Action.DisableRollBack, true);
 
                 var stackId = await cloudFormationService.Deploy(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled, waitForCompletion);
                 // Take the stackArn ID returned by the create or update events, and save it as an output variable
                 SetOutputVariable("StackId", stackId);
-
                 SetOutputVariables(await cloudFormationService.GetOutputVariablesByStackArn(stackArn));
             }
         }
 
-        CloudFormationTemplate GetCloudFormationTemplate(string pathToPackage)
+        //TODO: Refactor ITemplateResolver in Calamari.Common to make it a generic ITemplateResolver<TypeTemplate> so it returns the template directly 
+        CloudFormationTemplate GetCloudFormationTemplate()
         {
-            var templateFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.Template);
-            var templateParameterFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParametersRaw);
-            var isFileInPackage = !string.IsNullOrWhiteSpace(pathToPackage);
+            var isTemplateFilesInPackage = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateSource).Equals(SpecialVariableValues.CloudFormation.TemplateSource.Package, StringComparison.InvariantCultureIgnoreCase);
 
-            var templateResolver = new TemplateResolver(fileSystem);
+            var template = variables.Get(SpecialVariableNames.Aws.CloudFormation.Template);
 
-            var resolvedTemplate = templateResolver.Resolve(templateFile, isFileInPackage, variables);
-            var resolvedParameters = templateResolver.MaybeResolve(templateParameterFile, isFileInPackage, variables);
+            if (isTemplateFilesInPackage)
+            {
+                var templateResolver = new TemplateResolver(fileSystem);
 
-            if (templateParameterFile != null && !resolvedParameters.Some())
-                throw new CommandException("Could not find template parameters file: " + templateParameterFile);
+                var resolvedTemplate = templateResolver.Resolve(template, true, variables);
 
-            var parameters = CloudFormationParametersFile.Create(resolvedParameters, fileSystem, variables);
+                var templateParameterFile = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParametersRaw);
+                var resolvedParameters = templateResolver.MaybeResolve(templateParameterFile, true, variables);
+                if (templateParameterFile != null && !resolvedParameters.Some())
+                    throw new CommandException("Could not find template parameters file: " + templateParameterFile);
 
-            return CloudFormationTemplate.Create(resolvedTemplate, parameters, fileSystem, variables);
+                var parameters = CloudFormationParametersFile.Create(resolvedParameters, fileSystem, variables);
+
+                return CloudFormationTemplate.Create(resolvedTemplate, parameters, fileSystem, variables);
+            }
+            else
+            {
+                var parameters = new CloudFormationParametersFile(
+                    () => Maybe<string>.Some(variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParameters) ?? string.Empty),
+                    JsonConvert.DeserializeObject<List<Parameter>>);
+
+                return new CloudFormationTemplate(() => template, parameters, JsonConvert.DeserializeObject<List<StackFormationNamedOutput>>);
+            }
         }
 
         bool IsImmediateChangeSetExecution()
         {
-            return !variables.GetFlag(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Defer);
+            return !bool.TrueString.Equals(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Defer), StringComparison.InvariantCultureIgnoreCase);
         }
 
         bool IsChangeSetsEnabled()
@@ -115,7 +130,8 @@ namespace Calamari.Aws
         {
             var name = $"octo-{Guid.NewGuid():N}";
 
-            if (variables.GetFlag(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate))
+            if (bool.TrueString.Equals(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate), 
+                StringComparison.InvariantCultureIgnoreCase))
             {
                 variables.Set(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Name, name);
             }
