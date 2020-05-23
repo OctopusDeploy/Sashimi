@@ -24,7 +24,7 @@ namespace Calamari.Aws
         protected override async Task ExecuteCoreAsync()
         {
             var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
-            var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion, true);
+            var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion);
 
             await cloudFormationService.DeleteByStackArn(stackArn, waitForCompletion);
         }

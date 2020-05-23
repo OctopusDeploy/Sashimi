@@ -334,7 +334,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
                     {
                         StackName = stackArn.Value,
                         TemplateBody = template.Content,
-                        Parameters = template.Inputs.ToList(),
+                        Parameters = template.Inputs?.ToList(),
                         Capabilities = iamCapabilities.ToList(),
                         DisableRollback = isRollbackDisabled,
                         RoleARN = roleArn

@@ -1,6 +1,4 @@
 ﻿using Calamari.Aws;
-using Sashimi.Aws.CloudFormation.Presets;
-using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
 
