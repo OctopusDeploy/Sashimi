@@ -22,7 +22,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws.Tests
 {
@@ -31,14 +30,14 @@ namespace Calamari.Aws.Tests
     {
         private const string BucketName = "octopus-e2e-tests";
 
-        private static JsonSerializerSettings GetEnrichedSerializerSettings()
+        static JsonSerializerSettings GetEnrichedSerializerSettings()
         {
-            return JsonSerialization.GetDefaultSerializerSettings()
-                .Tee(x =>
-                {
-                    x.Converters.Add(new FileSelectionsConverter());
-                    x.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                });
+            var settings = JsonSerialization.GetDefaultSerializerSettings();
+
+            settings.Converters.Add(new FileSelectionsConverter());
+            settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+            return settings;
         }
 
         [Test]
