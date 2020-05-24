@@ -94,8 +94,8 @@ namespace Sashimi.Terraform.Tests
                                 "https://checkpoint-api.hashicorp.com/v1/check/terraform");
                             var parsedJson = JObject.Parse(json);
 
-                            var downloadBaseUrl = parsedJson["current_download_url"]!.Value<string>();
-                            var currentVersion = parsedJson["current_version"]!.Value<string>();
+                            var downloadBaseUrl = parsedJson["current_download_url"].Value<string>();
+                            var currentVersion = parsedJson["current_version"].Value<string>();
                             var fileName = GetTerraformFileName(currentVersion);
 
                             if (!await TerraformFileAvailable(downloadBaseUrl, retry))
@@ -599,8 +599,7 @@ output ""config-map-aws-auth"" {{
             
             foreach (var commandType in commandTypes)
             {
-                TestActionHandlerResult outputResult = null!;
-                ActionHandlerTestBuilder.Create<Program>(commandType)
+                yield return ActionHandlerTestBuilder.Create<Program>(commandType)
                     .WithArrange(context =>
                     {
                         context.Variables.Add(KnownVariables.Action.Script.ScriptSource,
@@ -616,11 +615,8 @@ output ""config-map-aws-auth"" {{
                     .WithAssert(result =>
                     {
                         Assert.IsTrue(result.WasSuccessful);
-                        outputResult = result;
                     })
                     .Execute();
-
-                yield return outputResult;
             }
         }
     }
