@@ -599,8 +599,7 @@ output ""config-map-aws-auth"" {{
             
             foreach (var commandType in commandTypes)
             {
-                var output = String.Empty;
-                ActionHandlerTestBuilder.Create<Program>(commandType)
+                yield return ActionHandlerTestBuilder.Create<Program>(commandType)
                     .WithArrange(context =>
                     {
                         context.Variables.Add(KnownVariables.Action.Script.ScriptSource,
@@ -616,12 +615,8 @@ output ""config-map-aws-auth"" {{
                     .WithAssert(result =>
                     {
                         Assert.IsTrue(result.WasSuccessful);
-                        assertResult(result);
-                        output = result.FullLog;
                     })
                     .Execute();
-
-                yield return outputResult;
             }
         }
     }
