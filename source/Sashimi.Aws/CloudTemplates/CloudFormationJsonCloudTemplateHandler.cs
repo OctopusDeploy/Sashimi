@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using Octopus.CoreUtilities.Extensions;
 using Octopus.Server.Extensibility.Metadata;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.CloudTemplates;
@@ -24,30 +23,33 @@ namespace Sashimi.Aws.CloudTemplates
 
         public Metadata ParseTypes(string template)
         {
-            return template?
-                .Map(GetParameters)
-                .Map(parameters => parameters.Select(p => new PropertyMetadata
-                    {
-                        DisplayInfo = new DisplayInfo
-                        {
-                            Description = p.Value.SelectToken("Description")?.ToString(),
-                            Label = p.Key,
-                            Required = true,
-                            Options = GetOptions(p.Value)
-                        },
-                        Type = GetType(p.Value),
-                        Name = p.Key,
-                    }).ToList()
-                )
-                .Map(properties => new List<TypeMetadata>
+            if (template == null) return new Metadata();
+
+            var hclElements = GetParameters(template);
+            var properties = hclElements.Select(p => new PropertyMetadata
+            {
+                DisplayInfo = new DisplayInfo
+                {
+                    Description = p.Value.SelectToken("Description")?.ToString(),
+                    Label = p.Key,
+                    Required = true,
+                    Options = GetOptions(p.Value)
+                },
+                Type = GetType(p.Value),
+                Name = p.Key
+            }).ToList();
+
+            return new Metadata
+            {
+                Types = new List<TypeMetadata>
                 {
                     new TypeMetadata
                     {
                         Name = AwsDataTypes.CloudFormationTemplateTypeName,
                         Properties = properties
                     }
-                })
-                .Map(typeMetadata => new Metadata(){Types = typeMetadata}) ?? new Metadata();
+                }
+            };
         }
 
         public object ParseModel(string template)

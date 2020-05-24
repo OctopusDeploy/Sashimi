@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Calamari.Aws.Deployment.CloudFormation;
 using Calamari.Aws.Deployment.S3;
 using Calamari.Aws.Exceptions;
 using Calamari.Aws.Integration.S3;
@@ -19,7 +20,6 @@ using Calamari.Deployment.Conventions;
 using Calamari.Integration.FileSystem;
 using Calamari.Util;
 using Octopus.CoreUtilities;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws
 {
@@ -148,10 +148,9 @@ namespace Calamari.Aws
 
             try
             {
-                (await UploadAll(options, deployment)).Tee(responses =>
-                {
-                    SetOutputVariables(deployment, responses);
-                });
+                var results = await UploadAll(options, deployment);
+
+                SetOutputVariables(deployment, results);
             }
             catch (AmazonS3Exception exception)
             {
@@ -166,7 +165,8 @@ namespace Calamari.Aws
             }
             catch (AmazonServiceException exception)
             {
-                HandleAmazonServiceException(exception);
+                log.Warn(exception.GetWebExceptionMessage());
+
                 throw;
             }
         }
@@ -276,9 +276,10 @@ namespace Calamari.Aws
 
             var client = await amazonS3Client.Value;
 
-            return await CreateRequest(filePath, GetBucketKey(filePath.AsRelativePathFrom(deployment.StagingDirectory), selection), selection)
-                    .Tee(x => LogPutObjectRequest(filePath, x))
-                    .Map(x => HandleUploadRequest(client, x, ThrowInvalidFileUpload));
+            var request = CreateRequest(filePath, GetBucketKey(filePath.AsRelativePathFrom(deployment.StagingDirectory), selection), selection);
+            LogPutObjectRequest(filePath, request);
+            
+            return await HandleUploadRequest(client, request, ThrowInvalidFileUpload);
         }
 
         /// <summary>
@@ -294,10 +295,10 @@ namespace Calamari.Aws
             var filename = GetNormalizedPackageFilename(deployment);
             var client = await amazonS3Client.Value;
 
-            return await CreateRequest(deployment.PackageFilePath,
-                    GetBucketKey(filename, options), options)
-                .Tee(x => LogPutObjectRequest("entire package", x))
-                .Map(x => HandleUploadRequest(client, x, ThrowInvalidFileUpload));
+            var request = CreateRequest(deployment.PackageFilePath, GetBucketKey(filename, options), options);
+            LogPutObjectRequest("entire package", request);
+
+            return await HandleUploadRequest(client, request, ThrowInvalidFileUpload);
         }
 
         static string GetNormalizedPackageFilename(RunningDeployment deployment)
@@ -386,7 +387,9 @@ namespace Calamari.Aws
                         ex.Message + "\n");
 
                 if (!perFileUploadErrors.ContainsKey(ex.ErrorCode)) throw;
-                perFileUploadErrors[ex.ErrorCode](request, ex).Tee((message) => errorAction(ex, message));
+                
+                errorAction(ex, perFileUploadErrors[ex.ErrorCode](request, ex));
+
                 return new S3UploadResult(request, Maybe<PutObjectResponse>.None);
             }
             catch (ArgumentException exception)
@@ -424,22 +427,6 @@ namespace Calamari.Aws
 
                 throw;
             }
-        }
-
-        /// <summary>
-        /// The AmazonServiceException can hold additional information that is useful to include in
-        /// the log.
-        /// </summary>
-        /// <param name="exception">The exception</param>
-        void HandleAmazonServiceException(AmazonServiceException exception)
-        {
-            ((exception.InnerException as WebException)?
-             .Response?
-             .GetResponseStream()?
-             .Map(stream => new StreamReader(stream).ReadToEnd())
-             .Map(message => "An exception was thrown while contacting the AWS API.\n" + message)
-             ?? "An exception was thrown while contacting the AWS API.")
-                .Tee(log.Warn);
         }
     }
 }

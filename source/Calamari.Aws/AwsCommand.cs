@@ -11,7 +11,6 @@ using Amazon.SecurityToken.Model;
 using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Util;
 using Calamari.Commands.Support;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws
 {
@@ -101,15 +100,13 @@ namespace Calamari.Aws
             {
                 var client = await amazonSecurityTokenClient.Value;
 
-                (await client.GetCallerIdentityAsync(new GetCallerIdentityRequest()))
-                    // The response is narrowed to the Aen
-                    .Map(response => response.Arn)
-                    // Try and match the response to get just the role
-                    .Map(arn => ArnNameRe.Match(arn))
-                    // Extract the role name, or a default
-                    .Map(match => match.Success ? match.Groups[1].Value : "Unknown")
-                    // Log the output
-                    .Tee(role => log.Info($"Running the step as the AWS role {role}"));
+                var response = await client.GetCallerIdentityAsync(new GetCallerIdentityRequest());
+
+                var match = ArnNameRe.Match(response.Arn);
+
+                var awsRole = match.Success ? match.Groups[1].Value : "Unknown";
+
+                log.Info($"Running the step as the AWS role {awsRole}");
             }
             catch (AmazonServiceException)
             {
