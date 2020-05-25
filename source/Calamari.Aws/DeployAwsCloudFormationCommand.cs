@@ -86,7 +86,7 @@ namespace Calamari.Aws
         //TODO: Refactor ITemplateResolver in Calamari.Common to make it a generic ITemplateResolver<TypeTemplate> so it returns the template directly 
         CloudFormationTemplate GetCloudFormationTemplate()
         {
-            var isTemplateFilesInPackage = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateSource).Equals(SpecialVariableValues.CloudFormation.TemplateSource.Package, StringComparison.InvariantCultureIgnoreCase);
+            var isTemplateFilesInPackage = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateSource).Equals(SpecialVariableValues.CloudFormation.TemplateSource.Package, StringComparison.OrdinalIgnoreCase);
 
             var template = variables.Get(SpecialVariableNames.Aws.CloudFormation.Template);
 
@@ -117,7 +117,7 @@ namespace Calamari.Aws
 
         bool IsImmediateChangeSetExecution()
         {
-            return !bool.TrueString.Equals(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Defer), StringComparison.InvariantCultureIgnoreCase);
+            return !bool.TrueString.Equals(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Defer), StringComparison.OrdinalIgnoreCase);
         }
 
         bool IsChangeSetsEnabled()
@@ -131,7 +131,7 @@ namespace Calamari.Aws
             var name = $"octo-{Guid.NewGuid():N}";
 
             if (bool.TrueString.Equals(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate), 
-                StringComparison.InvariantCultureIgnoreCase))
+                StringComparison.OrdinalIgnoreCase))
             {
                 variables.Set(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Name, name);
             }
