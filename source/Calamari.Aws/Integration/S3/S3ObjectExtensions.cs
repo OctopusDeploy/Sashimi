@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Amazon.S3.Model;
-﻿using System;
+using System;
 using System.Security.Cryptography;
 using Calamari.Integration.FileSystem;
 using Calamari.Util;
 using Octopus.CoreUtilities;
-using Octopus.CoreUtilities.Extensions;
 using Tag = Amazon.S3.Model.Tag;
 
 namespace Calamari.Aws.Integration.S3
@@ -97,21 +96,23 @@ namespace Calamari.Aws.Integration.S3
 
         public static PutObjectRequest WithMetadata(this PutObjectRequest request, IEnumerable<KeyValuePair<string, string>> source)
         {
-            return request.Tee(x =>
+            Guard.NotNull(request, $"'{nameof(request)}' cannot be null.");
+            Guard.NotNull(source, $"'{nameof(source)}' cannot be null.");
+
+            foreach (var item in source)
             {
-                foreach (var item in source)
+                var key = item.Key.Trim();
+                if (!SupportedSpecialHeaders.ContainsKey(key))
                 {
-                    var key = item.Key.Trim();
-                    if (!SupportedSpecialHeaders.ContainsKey(key))
-                    {
-                        x.Metadata.Add(key, item.Value?.Trim());
-                    }
-                    else
-                    {
-                        x.Headers[key] = item.Value?.Trim();
-                    }
+                    request.Metadata.Add(key, item.Value?.Trim());
                 }
-            });
+                else
+                {
+                    request.Headers[key] = item.Value?.Trim();
+                }
+            }
+
+            return request;
         }
 
         public static PutObjectRequest WithMetadata(this PutObjectRequest request, IHaveMetadata source)
@@ -121,7 +122,12 @@ namespace Calamari.Aws.Integration.S3
 
         public static PutObjectRequest WithTags(this PutObjectRequest request, IHaveTags source)
         {
-            return request.Tee(x => x.TagSet = source.Tags.ToTagSet());
+            Guard.NotNull(request, $"'{nameof(request)}' cannot be null.");
+            Guard.NotNull(source, $"'{nameof(source)}' cannot be null.");
+
+            request.TagSet = source.Tags?.ToTagSet() ?? new List<Tag>();
+
+            return request;
         }
 
         static Maybe<byte[]> GetMd5Checksum(ICalamariFileSystem fileSystem, string path)
@@ -143,7 +149,7 @@ namespace Calamari.Aws.Integration.S3
 
         public static string Md5DigestToHexString(this PutObjectRequest request)
         {
-            return Convert.FromBase64String(request.MD5Digest).Map(BinaryExtensions.ToHexString);
+            return Convert.FromBase64String(request.MD5Digest).ToHexString();
         }
 
         public static ETag GetEtag(this GetObjectMetadataResponse metadata)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Calamari.Aws.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws.Integration.S3
 {
@@ -19,24 +18,26 @@ namespace Calamari.Aws.Integration.S3
 
         IEnumerable<S3FileSelectionProperties> GetFileSelections()
         {
-            return variables.Get(SpecialVariableNames.Aws.S3.FileSelections)
-                ?.Map(Deserialize<List<S3FileSelectionProperties>>);
+            var fileSelectionsAsJson = variables.Get(SpecialVariableNames.Aws.S3.FileSelections);
+
+            return fileSelectionsAsJson == null ? null : Deserialize<List<S3FileSelectionProperties>>(fileSelectionsAsJson);
         }
 
         S3PackageOptions GetPackageOptions()
         {
-            return variables.Get(SpecialVariableNames.Aws.S3.PackageOptions)
-                ?.Map(Deserialize<S3PackageOptions>);
+            var packageOptionsAsJson = variables.Get(SpecialVariableNames.Aws.S3.PackageOptions);
+
+            return packageOptionsAsJson == null ? null : Deserialize<S3PackageOptions>(packageOptionsAsJson);
         }
 
         static JsonSerializerSettings GetEnrichedSerializerSettings()
         {
-            return JsonSerialization.GetDefaultSerializerSettings()
-                .Tee(x =>
-                {
-                    x.Converters.Add(new FileSelectionsConverter());
-                    x.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                });
+            var settings = JsonSerialization.GetDefaultSerializerSettings();
+
+            settings.Converters.Add(new FileSelectionsConverter());
+            settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+            return settings;
         }
 
         static T Deserialize<T>(string value)

@@ -15,7 +15,6 @@ using S3FileSelectionProperties = Sashimi.Aws.Validation.S3FileSelectionProperti
 
 namespace Sashimi.Aws.Tests.RunScript
 {
-    // TODO : move to e2e project, maybe
     public class AwsS3UploadActionHandlerFixture
     {
         [Test]
@@ -23,7 +22,7 @@ namespace Sashimi.Aws.Tests.RunScript
         {
             var bucketName = "octopus-e2e-tests";
             var region = "ap-southeast-1";
-            var folderPrefix = $"test/{Guid.NewGuid().ToString()}/";
+            var folderPrefix = $"test/{Guid.NewGuid()}/";
             var path = TestEnvironment.GetTestPath(@"AwsS3Sample\AwsS3Sample.1.0.0.nupkg");
 
             ActionHandlerTestBuilder.Create<AwsUploadS3ActionHandler, Program>()

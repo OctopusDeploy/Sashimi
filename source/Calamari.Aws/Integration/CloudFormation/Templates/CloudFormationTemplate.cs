@@ -5,7 +5,6 @@ using Amazon.CloudFormation.Model;
 using Calamari.Common.Util;
 using Calamari.Integration.FileSystem;
 using Newtonsoft.Json;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws.Integration.CloudFormation.Templates
 {
@@ -32,7 +31,7 @@ namespace Calamari.Aws.Integration.CloudFormation.Templates
         public string Content => content();
 
         public IEnumerable<Parameter> Inputs => parameters.Inputs;
-        public bool HasOutputs => Content.Map(OutputsRe.IsMatch);
+        public bool HasOutputs => OutputsRe.IsMatch(Content);
         public IEnumerable<StackFormationNamedOutput> Outputs  => HasOutputs ? parse(Content) : new List<StackFormationNamedOutput>();
     }
 }

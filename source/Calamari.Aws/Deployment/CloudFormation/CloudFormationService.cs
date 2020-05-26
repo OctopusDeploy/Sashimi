@@ -10,7 +10,6 @@ using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation.Templates;
 using Calamari.Aws.Util;
 using Octopus.CoreUtilities;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws.Deployment.CloudFormation
 {
@@ -111,8 +110,9 @@ namespace Calamari.Aws.Deployment.CloudFormation
             List<VariableOutput> ConvertStackOutputs(Stack stack) =>
                 stack.Outputs.Select(p => new VariableOutput(p.OutputKey, p.OutputValue)).ToList();
 
-            return (await query()).Select(ConvertStackOutputs)
-                .Map(result => (result: result.SomeOr(new List<VariableOutput>()), success: true));
+            var result = await query();
+
+            return (result: result.Select(ConvertStackOutputs).SomeOr(new List<VariableOutput>()), success: true);
         }
 
         async Task<IReadOnlyCollection<VariableOutput>> GetOutputVariablesWithRetry(Func<Task<Maybe<Stack>>> query)
@@ -211,8 +211,9 @@ namespace Calamari.Aws.Deployment.CloudFormation
             {
                 var client = await amazonCloudFormationClient.Value;
 
-                return (await client.CreateChangeSetAsync(request))
-                    .Map(x => new RunningChangeSet(new StackArn(x.StackId), new ChangeSetArn(x.Id)));
+                var response = await client.CreateChangeSetAsync(request);
+
+                return new RunningChangeSet(new StackArn(response.StackId), new ChangeSetArn(response.Id));
             }
             catch (AmazonCloudFormationException ex) when (ex.ErrorCode == "AccessDenied")
             {
@@ -272,11 +273,18 @@ namespace Calamari.Aws.Deployment.CloudFormation
         /// <param name="cloudFormationTemplate"></param>
         async Task<string> DeployStack(CloudFormationTemplate cloudFormationTemplate, StackArn stackArn, string roleArn, IReadOnlyCollection<string> iamCapabilities, bool isRollbackDisabled, bool waitForCompletion)
         {
-            var stackId = await cloudFormationTemplate.Inputs
-                // Use the parameters to either create or update the stackArn
-                .Map(async parameters => await StackExists(stackArn, StackStatus.DoesNotExist) != StackStatus.DoesNotExist
-                    ? await UpdateCloudFormation(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled)
-                    : await CreateCloudFormation(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled));
+            var stackStatus = await StackExists(stackArn, StackStatus.DoesNotExist);
+
+            string stackId;
+
+            if (stackStatus != StackStatus.DoesNotExist)
+            {
+                stackId = await UpdateCloudFormation(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled);
+            }
+            else
+            {
+                stackId = await CreateCloudFormation(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled);
+            }
 
             if (waitForCompletion)
             {
@@ -334,7 +342,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
                     {
                         StackName = stackArn.Value,
                         TemplateBody = template.Content,
-                        Parameters = template.Inputs.ToList(),
+                        Parameters = template.Inputs?.ToList(),
                         Capabilities = iamCapabilities.ToList(),
                         DisableRollback = isRollbackDisabled,
                         RoleARN = roleArn
@@ -485,8 +493,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
         /// <param name="exception">The exception</param>
         protected void LogAmazonServiceException(AmazonServiceException exception)
         {
-            exception.GetWebExceptionMessage()
-                .Tee(message => stackEventLogger.Warn("AWS-CLOUDFORMATION-ERROR-0014", message));
+            stackEventLogger.Warn("AWS-CLOUDFORMATION-ERROR-0014", exception.GetWebExceptionMessage());
         }
 
         /// <summary>

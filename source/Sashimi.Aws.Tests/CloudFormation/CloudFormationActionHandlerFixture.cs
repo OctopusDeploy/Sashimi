@@ -1,7 +1,8 @@
-﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
+using NuGet.Packaging;
+using NuGet.Versioning;
 using NUnit.Framework;
 using Sashimi.Aws.ActionHandler;
 using Sashimi.Tests.Shared;
@@ -11,292 +12,308 @@ namespace Sashimi.Aws.Tests.CloudFormation
 {
     public class CloudFormationActionHandlerFixture
     {
-        readonly string StackRole = "arn:aws:iam::968802670493:role/e2e_buckets";
-        readonly string TransformIncludeLocation = "s3://octopus-e2e-tests/permanent/tags.json";
-        readonly string Region = "us-east-1";
-        string StackName = string.Empty;
+        const string AwsStackRole = "arn:aws:iam::968802670493:role/e2e_buckets";
+        // BucketName must use the following prefix, otherwise the above stack role will not have permission to access 
+        const string ValidBucketNamePrefix = "cfe2e-";
+        const string TransformIncludeLocation = "s3://octopus-e2e-tests/permanent/tags.json";
+        const string AwsRegion = "us-east-1";
+
+        string stackName;
 
         [SetUp]
         public void Setup()
         {
-            StackName = $"E2ETestStack-{UniqueName.Generate()}";
+            stackName = $"E2ETestStack-{UniqueName.Generate()}";
         }
+
         [Test]
         public void RunCloudFormation_InlineSourceWithoutParameters()
         {
-            var resourceName = @"e2e-test-aws-cf-" + UniqueName.Short();
+            var bucketName = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
 
-            string template = File.ReadAllText(Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withoutparameters", "template.json"))
-                .Replace("e2e-test-aws-cf-@UNIQUEID", resourceName);
-            TestActionHandlerResult result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
+            var template = File.ReadAllText(Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withoutparameters", "template.json"))
+                .Replace("#{BucketName}", bucketName);
+            var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                     .WithArrange(context =>
                     {
-                        WithRunCloudFormationVariables(context, StackName);
-                        context.WithAwsTemplateInlineSource();
-                        context.WithCloudFormationTemplate(template, null);
+                        context.WithStack(stackName)
+                            .WithAwsAccount()
+                            .WithAwsRegion(AwsRegion)
+                            .WithStackRole(AwsStackRole)
+                            .WithAwsTemplateInlineSource(template, null);
+                        
                         context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                     })
-                    .Execute(assertWasSuccess:false);
-
-            DeleteStack(StackName);
+                    .Execute(false);
 
             result.WasSuccessful.Should().BeTrue();
-            
-            // TODO: validate output parameter values
-            // RunInlineScript(VerifyOutputsStepName,
-            //                     $"$outputVar = $OctopusParameters[\"Octopus.Action[{DeployAwsCloudFormationStackStepName}].Output.AwsOutputs[OutputName]\"]" + Environment.NewLine +
-            //                     $"if (-not($outputVar -match \"{resourceName}\")) {{ throw \"Expected OutputName output variable to be '{resourceName}', but was '$outputVar'\"}}"
-            //                 ),
+            result.OutputVariables["AwsOutputs[OutputName]"].Value.Should().Be(bucketName);
         }
 
         [Test]
-        public void RunCloudFormation_InlineSourceWithParameters()
+        public void RunCloudFormation_InlineSourceWithYamlTemplateAndParameters()
         {
-            string VariableParameterValue = "e2e-test-aws-cf-var-" + UniqueName.Short();
-            string VariableParameterName = "NameVarParam";
-            //string VariableParameterOutput = "OutputWithVariableParam";
-            string OctopusVariableName = "NameInVariable";
-            string PlainParameterValue = "e2e-test-aws-cf-plain-" + UniqueName.Short();
-            const string PlainParameterName = "NamePlainParam";
-            const string PlainParameterOutput = "OutputWithPlainParam";
-            string template = File.ReadAllText(Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withparameters", "template.yaml"));
-            var parameterValues = $"[{{\"ParameterKey\": \"{VariableParameterName}\", \"ParameterValue\": \"#{{{OctopusVariableName}}}\"}},"
-                                  + $"{{\"ParameterKey\": \"{PlainParameterName}\", \"ParameterValue\": \"{PlainParameterValue}\"}}]";
+            var nameVarParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
+            var namePlainParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
+
+            var templateFolderPath = Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withparameters");
+            var template = File.ReadAllText(Path.Combine(templateFolderPath, "template.yaml"));
+            var parameters = File.ReadAllText(Path.Combine(templateFolderPath, "parameters.json"))
+                .Replace("#{NameVarParamValue}", nameVarParamValue)
+                .Replace("#{NamePlainParamValue}", namePlainParamValue);
 
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    WithRunCloudFormationVariables(context, StackName);
-                    context.WithAwsTemplateInlineSource();
-                    context.WithCloudFormationTemplate(template, parameterValues);
+                    context.WithStack(stackName)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole)
+                        .WithAwsTemplateInlineSource(template, parameters);
+
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
-                    context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.TemplateParameters, parameterValues);
                 })
-                .Execute(assertWasSuccess:false);
-            
-            DeleteStack(StackName);
-            
-            // TODO: validate output parameter values
-            // result.OutputVariables.ContainsKey()
-            
-            // RunInlineScript(VerifyOutputsStepName + "1",
-            //     $"$outputVar = $OctopusParameters[\"Octopus.Action[{DeployAwsCloudFormationStackStepName}].Output.AwsOutputs[{VariableParameterOutput}]\"]" + Environment.NewLine +
-            //     $"if (-not($outputVar -match \"{VariableParameterValue}\")) {{ throw \"Expected '{VariableParameterOutput}' output variable to be '{VariableParameterValue}', but was '$outputVar'\"}}"
-            // ),
-            // RunInlineScript(VerifyOutputsStepName + "2",
-            //     $"$outputVar = $OctopusParameters[\"Octopus.Action[{DeployAwsCloudFormationStackStepName}].Output.AwsOutputs[{PlainParameterOutput}]\"]" + Environment.NewLine +
-            //     $"if (-not($outputVar -match \"{PlainParameterValue}\")) {{ throw \"Expected '{PlainParameterOutput}' output variable to be '{PlainParameterValue}', but was '$outputVar'\"}}"
-            // ),
+                .Execute(false);
+
+            result.WasSuccessful.Should().BeTrue();
+
+            result.OutputVariables["AwsOutputs[OutputWithVariableParam]"].Value.Should().Be(nameVarParamValue);
+            result.OutputVariables["AwsOutputs[OutputWithPlainParam]"].Value.Should().Be(namePlainParamValue);
         }
 
         [Test]
         public void RunCloudFormation_PackageWithoutParameters()
         {
-            var uniqueId = UniqueName.Short();
-            var resourceName = @"e2e-test-aws-cf-" + uniqueId;
+            const string templateFileName = "template.json";
 
-            // TODO: may need to package this template.json file
-            var sourcePackageFolder = Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withoutparameters", "template.json");
+            var bucketName = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
 
+            var templateFolderPath = Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withoutparameters");
+            var tempFolderPath = Path.Combine(templateFolderPath, UniqueName.Short());
+
+            var templateContent = File.ReadAllText(Path.Combine(templateFolderPath, templateFileName))
+                .Replace("#{BucketName}", bucketName);
+            CreateFile(tempFolderPath, templateFileName, templateContent);
+
+            var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
+            var pathToPackage = Path.Combine(tempFolderPath, packageFileName);
+            
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    WithRunCloudFormationVariables(context, StackName);
-                    context.WithAwsTemplatePackageSource();
-                    context.WithCloudFormationTemplate(sourcePackageFolder, null);
+                    context.WithStack(stackName)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole)
+                        .WithAwsTemplatePackageSource("template.json", null)
+                        .WithPackage(pathToPackage);
+
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
-                .Execute(assertWasSuccess: false);
-            
-            DeleteStack(StackName);
-            
-            // TODO: validate output parameter values
-            // result.OutputVariables.ContainsKey()
-            // RunInlineScript(VerifyOutputsStepName,
-            //     $"$outputVar = $OctopusParameters[\"Octopus.Action[{DeployAwsCloudFormationStackStepName}].Output.AwsOutputs[OutputName]\"]" + Environment.NewLine +
-            //     $"if (-not($outputVar -match \"{resourceName}\")) {{ throw \"Expected OutputName output variable to be '{resourceName}', but was '$outputVar'\"}}"
-            // ),
+                .Execute(false);
+
+            result.WasSuccessful.Should().BeTrue();
+            result.OutputVariables["AwsOutputs[OutputName]"].Value.Should().Be(bucketName);
+
+            Directory.Delete(tempFolderPath, true);
         }
 
         [Test]
         public void RunCloudFormation_PackageWithParameters()
         {
-            string uniqueId = UniqueName.Short();
-            string variableParameterValue = "e2e-test-aws-cf-var-" + uniqueId;
-            //string VariableParameterOutput = "OutputWithVariableParam";
-            //string OctopusVariableName = "NameInVariable";
+            const string parametersFileName = "parameters.json";
+            const string templateFileName = "template.yaml";
 
-            string plainParameterValue = "e2e-test-aws-cf-plain-" + uniqueId;
-            //string PlainParameterOutput = "OutputWithPlainParam";
-            
-            var sourcePackageFolder = Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withparameters");
-            
-            var parametersFile = Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "parameters.json");
-            string template = File.ReadAllText(parametersFile).Replace("e2e-test-aws-cf-plain-@UNIQUEID", plainParameterValue);
-            File.WriteAllText(parametersFile, template);
-            
+            var templateFolderPath = Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withparameters");
+            var tempFolderPath = Path.Combine(templateFolderPath, UniqueName.Short());
+
+            var templateContent = File.ReadAllText(Path.Combine(templateFolderPath, templateFileName));
+            CreateFile(tempFolderPath, templateFileName, templateContent);
+
+            var nameVarParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
+            var namePlainParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
+            var parametersContent = File.ReadAllText(Path.Combine(templateFolderPath, parametersFileName))
+                .Replace("#{NameVarParamValue}", nameVarParamValue)
+                .Replace("#{NamePlainParamValue}", namePlainParamValue);
+            CreateFile(tempFolderPath, parametersFileName, parametersContent);
+
+            var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
+            var pathToPackage = Path.Combine(tempFolderPath, packageFileName);
+
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    WithRunCloudFormationVariables(context, StackName);
-                    context.WithAwsTemplatePackageSource();
-                    context.WithCloudFormationTemplate(sourcePackageFolder, parametersFile);
+                    context.WithStack(stackName)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole)
+                        .WithAwsTemplatePackageSource(templateFileName, parametersFileName)
+                        .WithPackage(pathToPackage);
+
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
-                .Execute(assertWasSuccess: false);
-            
-            DeleteStack(StackName);
-            
-            // TODO: validate output parameter values
-            // result.OutputVariables.ContainsKey()
-            // RunInlineScript(VerifyOutputsStepName + "1",
-            //     $"$outputVar = $OctopusParameters[\"Octopus.Action[{DeployAwsCloudFormationStackStepName}].Output.AwsOutputs[{VariableParameterOutput}]\"]" + Environment.NewLine +
-            //     $"if (-not($outputVar -match \"{variableParameterValue}\")) {{ throw \"Expected '{VariableParameterOutput}' output variable to be '{variableParameterValue}', but was '$outputVar'\"}}"
-            // ),
-            // RunInlineScript(VerifyOutputsStepName + "2",
-            //     $"$outputVar = $OctopusParameters[\"Octopus.Action[{DeployAwsCloudFormationStackStepName}].Output.AwsOutputs[{PlainParameterOutput}]\"]" + Environment.NewLine +
-            //     $"if (-not($outputVar -match \"{plainParameterValue}\")) {{ throw \"Expected '{PlainParameterOutput}' output variable to be '{plainParameterValue}', but was '$outputVar'\"}}"
-            // ),
+                .Execute(false);
+
+            result.OutputVariables["AwsOutputs[OutputWithVariableParam]"].Value.Should().Be(nameVarParamValue);
+            result.OutputVariables["AwsOutputs[OutputWithPlainParam]"].Value.Should().Be(namePlainParamValue);
+
+            Directory.Delete(tempFolderPath, true);
         }
         
         [Test]
         public void RunCloudFormation_ChangeSet()
         {
-            var bucketName = $"cfe2e-{UniqueName.Generate()}";
+            var bucketName = $"{ValidBucketNamePrefix}{UniqueName.Generate()}";
+            var pathToPackage = TestEnvironment.GetTestPath(@"Packages\CloudFormationS3.1.0.0.nupkg");
 
-            try
-            {
-                // create bucket
-                CreateBucket(StackName, bucketName);
+            // create bucket
+            CreateBucket(stackName, bucketName, pathToPackage);
 
-                // remove bucket tags
-                string stackId = null;
-                string changeSetId = null;
-                (changeSetId, stackId) = RemoveBucket(StackName, bucketName);
+            // remove bucket tags
+            var (changeSetId, stackId) = RemoveBucketTag(stackName, bucketName, pathToPackage);
 
-                // apply remove bucket tags
-                ApplyChangeSet(changeSetId, stackId, bucketName);
+            // apply remove bucket tags
+            ApplyChangeSet(changeSetId, stackId, bucketName);
 
-                // create bucket again
-                CreateBucketAgain(StackName, bucketName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-                // delete cloud formation
-                DeleteStack(StackName);
-            }
+            // create bucket again
+            CreateBucketAgain(stackName, bucketName, pathToPackage);
         }
 
-        void DeleteStack(string stackName)
+        [TearDown]
+        public void TearDown()
+        {
+            DeleteStack(stackName);
+        }
+
+        static void DeleteStack(string stackName)
         {
             ActionHandlerTestBuilder.Create<AwsDeleteCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    context.Variables.Add("Octopus.Action.Aws.AssumeRole", bool.FalseString);
-                    context.Variables.Add("Octopus.Action.Aws.AssumedRoleArn", string.Empty);
-                    context.Variables.Add("Octopus.Action.Aws.AssumedRoleSession", string.Empty);
-                    context.Variables.Add("Octopus.Action.Aws.Region", Region);
-                    context.Variables.Add("Octopus.Action.Aws.CloudFormationStackName", stackName);
-                    context.Variables.Add("Octopus.Action.Aws.WaitForCompletion", bool.TrueString);
-                    context.WithAwsAccount();
+                    context.WithStack(stackName)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole);
+
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
                 .Execute();
         }
 
-        void CreateBucketAgain(string stackName, string bucketName)
+        static void CreateBucketAgain(string stackName, string bucketName, string pathToPackage)
         {
             ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    WithRunCloudFormationVariables(context, stackName);
+                    context.WithStack(stackName)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole)
+                        .WithCloudFormationChangeSets()
+                        .WithAwsTemplatePackageSource("bucket.json", "bucket-parameters.json")
+                        .WithPackage(pathToPackage);
+
                     context.Variables.Add("BucketName", bucketName);
                     context.Variables.Add("TransformIncludeLocation", TransformIncludeLocation);
-                    context.WithAwsRegion(Region);
-                    context.WithAwsTemplatePackageSource();
-                    context.WithCloudFormationTemplate("bucket.json", "bucket-parameters.json");
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
-                    context.WithStackRole(StackRole);
-                    context.WithCloudFormationChangeSets();
-                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
                 })
                 .Execute();
         }
 
-        void ApplyChangeSet(string changeSetId, string stackId, string bucketName)
+        static void ApplyChangeSet(string changeSetId, string stackId, string bucketName)
         {
             ActionHandlerTestBuilder.Create<AwsApplyCloudFormationChangeSetActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    WithRunCloudFormationVariables(context, stackId);
+                    context.WithStack(stackId)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole);
+
                     context.Variables.Add("BucketName", bucketName);
                     context.Variables.Add("TransformIncludeLocation", TransformIncludeLocation);
-                    context.Variables.Add("Octopus.Action.Aws.WaitForCompletion", bool.TrueString);
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.Changesets.Arn, changeSetId);
                 })
                 .Execute();
         }
 
-        (string changeSetId, string stackName) RemoveBucket(string stackName, string bucketName)
+        static (string changeSetId, string stackName) RemoveBucketTag(string stackName, string bucketName, string pathToPackage)
         {
-            string changeSetId = string.Empty;
-            string stackId = string.Empty;
-            ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
+            var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    WithRunCloudFormationVariables(context, stackName);
+                    context.WithStack(stackName)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole)
+                        .WithPackage(pathToPackage)
+                        .WithAwsTemplatePackageSource("bucket.json", "bucket-parameters.json")
+                        .WithCloudFormationChangeSets(deferExecution: true)
+                        .WithIamCapabilities(new List<string> { "CAPABILITY_IAM"});
+                            
                     context.Variables.Add("BucketName", bucketName);
                     context.Variables.Add("TransformIncludeLocation", TransformIncludeLocation);
-                    context.WithAwsTemplatePackageSource();
-                    context.WithCloudFormationTemplate("bucket.json", "bucket-parameters.json");               
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
-                    context.WithStackRole(StackRole);
-                    context.WithCloudFormationChangeSets(deferExecution: true);
-                    context.WithIamCapabilities(new List<string> {"CAPABILITY_IAM"});
-                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
-                })
-                .WithAssert(result =>
-                {
-                    result.WasSuccessful.Should().BeTrue();
-                    changeSetId = result.OutputVariables["ChangeSetId"].Value;
-                    stackId = result.OutputVariables["StackId"].Value;
                 })
                 .Execute();
             
-            return (changeSetId, stackId);
+            return (result.OutputVariables["AwsOutputs[ChangesetId]"].Value, result.OutputVariables["AwsOutputs[StackId]"].Value);
         }
 
-        void CreateBucket(string stackName, string bucketName)
+        static void CreateBucket(string stackName, string bucketName, string pathToPackage)
         {
             ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
+                    context.WithStack(stackName)
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole)
+                        .WithCloudFormationChangeSets()
+                        .WithIamCapabilities(new List<string> { "CAPABILITY_IAM" })
+                        .WithAwsTemplatePackageSource("bucket-transform.json", "bucket-parameters.json")
+                        .WithPackage(pathToPackage);
+
                     context.Variables.Add("BucketName", bucketName);
                     context.Variables.Add("TransformIncludeLocation", TransformIncludeLocation);
-                    WithRunCloudFormationVariables(context, stackName);
-                    context.WithCloudFormationTemplate("bucket-transform.json", "bucket-parameters.json");
-                    context.WithAwsTemplatePackageSource();
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
-                    context.WithStackRole(StackRole);
-                    context.WithCloudFormationChangeSets();
-                    context.WithIamCapabilities(new List<string> {"CAPABILITY_IAM"});
-                    context.WithPackage(@"Packages\CloudFormationS3.1.0.0.nupkg");
-                    
                 })
                 .Execute();
         }
 
-        void WithRunCloudFormationVariables(TestActionHandlerContext<Calamari.Aws.Program> context, string stackName)
+        static void CreateFile(string folderPath, string fileName, string content)
         {
-            context.Variables.Add("Octopus.Action.Aws.AssumeRole", bool.FalseString);
-            context.Variables.Add("Octopus.Action.Aws.AssumedRoleArn", string.Empty);
-            context.Variables.Add("Octopus.Action.Aws.AssumedRoleSession", string.Empty);
-            context.Variables.Add(AwsSpecialVariables.Action.Aws.CloudFormation.StackName, stackName);
-            context.WithAwsRegion(Region);
-            context.WithAwsAccount();
+            Directory.CreateDirectory(folderPath);
+
+            using (var file = File.CreateText(Path.Combine(folderPath, fileName)))
+            {
+                file.Write(content);
+            }
+        }
+
+        static string CreateNugetPackage(string packageId, string filePath)
+        {
+            var metadata = new ManifestMetadata
+            {
+                Authors = new[] { "octopus@e2eTests" },
+                Version = new NuGetVersion(1, 0, 0),
+                Id = packageId,
+                Description = "For CloudFormation E2E Test(s)"
+            };
+
+            var packageFileName = $"{packageId}{metadata.Version}.nupkg";
+
+            var builder = new PackageBuilder();
+            builder.PopulateFiles(filePath, new[] { new ManifestFile { Source = "**" } });
+            builder.Populate(metadata);
+
+            using (var stream = File.Open(Path.Combine(filePath, packageFileName), FileMode.OpenOrCreate))
+            {
+                builder.Save(stream);
+            }
+
+            return packageFileName;
         }
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using Amazon.S3.Model;
 using Calamari.Aws.Integration.S3;
 using NUnit.Framework;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws.Tests.S3
 {
@@ -16,15 +15,11 @@ namespace Calamari.Aws.Tests.S3
         {
             var useHeaderValues = GetKnownSpecialKeyApplier();
 
-            PutObjectRequest request = new PutObjectRequest().Tee(r =>
-            {
-                useHeaderValues(r.Headers);
-            });
+            var request = new PutObjectRequest();
+            useHeaderValues(request.Headers);
 
-            GetObjectMetadataResponse response = new GetObjectMetadataResponse().Tee(r =>
-            {
-                useHeaderValues(r.Headers);
-            });
+            var response = new GetObjectMetadataResponse();
+            useHeaderValues(response.Headers);
 
             var result = S3ObjectExtensions.MetadataEq(request.ToCombinedMetadata(), response.ToCombinedMetadata());
             Assert.IsTrue(result, "Metadata was found to be not equal, but should match.");
@@ -36,15 +31,11 @@ namespace Calamari.Aws.Tests.S3
             var useHeaderValues = GetKnownSpecialKeyApplier();
             var useDifferentHeaderValues = GetKnownSpecialKeyApplier();
 
-            PutObjectRequest request = new PutObjectRequest().Tee(r =>
-            {
-                useHeaderValues(r.Headers);
-            });
+            var request = new PutObjectRequest();
+            useHeaderValues(request.Headers);
 
-            GetObjectMetadataResponse response = new GetObjectMetadataResponse().Tee(r =>
-            {
-                useDifferentHeaderValues(r.Headers);
-            });
+            var response = new GetObjectMetadataResponse();
+            useDifferentHeaderValues(response.Headers);
 
             var result = S3ObjectExtensions.MetadataEq(request.ToCombinedMetadata(), response.ToCombinedMetadata());
             Assert.IsFalse(result, "The comparison was found to be equal, however the special headers differ.");
@@ -56,17 +47,13 @@ namespace Calamari.Aws.Tests.S3
         {
             var useHeaderValues = GetKnownSpecialKeyApplier();
 
-            PutObjectRequest request = new PutObjectRequest().Tee(r =>
-            {
-                useHeaderValues(r.Headers);
-                r.Metadata.Add("Cowabunga", "Baby");
-            });
+            var request = new PutObjectRequest();
+            useHeaderValues(request.Headers);
+            request.Metadata.Add("Cowabunga", "Baby");
 
-            GetObjectMetadataResponse response = new GetObjectMetadataResponse().Tee(r =>
-            {
-                useHeaderValues(r.Headers);
-                r.Metadata.Add("Cowabunga", "Baby2");
-            });
+            var response = new GetObjectMetadataResponse();
+            useHeaderValues(response.Headers);
+            response.Metadata.Add("Cowabunga", "Baby2");
             
             var result = S3ObjectExtensions.MetadataEq(request.ToCombinedMetadata(), response.ToCombinedMetadata());
             Assert.IsFalse(result, "Metadata comparison was found to be match, but should differ");
@@ -77,17 +64,13 @@ namespace Calamari.Aws.Tests.S3
         {
             var useHeaderValues = GetKnownSpecialKeyApplier();
 
-            PutObjectRequest request = new PutObjectRequest().Tee(r =>
-            {
-                useHeaderValues(r.Headers);
-                r.Metadata.Add("Meep Meep", "Baby2");
-            });
+            var request = new PutObjectRequest();
+            useHeaderValues(request.Headers);
+            request.Metadata.Add("Meep Meep", "Baby2");
 
-            GetObjectMetadataResponse response = new GetObjectMetadataResponse().Tee(r =>
-            {
-                useHeaderValues(r.Headers);
-                r.Metadata.Add("Cowabunga", "Baby2");
-            });
+            var response = new GetObjectMetadataResponse();
+            useHeaderValues(response.Headers);
+            response.Metadata.Add("Cowabunga", "Baby2");
 
             var result = S3ObjectExtensions.MetadataEq(request.ToCombinedMetadata(), response.ToCombinedMetadata());
             Assert.IsFalse(result, "Metadata comparison was found to be match, but should differ");
@@ -96,19 +79,17 @@ namespace Calamari.Aws.Tests.S3
         [Test]
         public void MetadataComparisonIgnoresUnknownSpecialHeaders()
         {
-            PutObjectRequest request = new PutObjectRequest().Tee(r =>
+            var request = new PutObjectRequest
             {
-                r.Headers["Geppetto"] = "Pinocchio ";
+                Headers = {["Geppetto"] = "Pinocchio "}
+            };
+            request.Metadata.Add("Cowabunga", "Baby");
 
-                r.Metadata.Add("Cowabunga", "Baby");
-            });
-
-            GetObjectMetadataResponse response = new GetObjectMetadataResponse().Tee(r =>
+            var response = new GetObjectMetadataResponse
             {
-                r.Headers["Crazy"] = "Town";
-
-                r.Metadata.Add("Cowabunga", "Baby");
-            });
+                Headers = { ["Crazy"] = "Town " }
+            };
+            response.Metadata.Add("Cowabunga", "Baby");
 
             var result = S3ObjectExtensions.MetadataEq(request.ToCombinedMetadata(), response.ToCombinedMetadata());
             Assert.IsTrue(result, "Metadata was found to be equal, but should differ");

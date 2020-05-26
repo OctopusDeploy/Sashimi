@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using Amazon.Runtime;
+using Amazon.S3.Model.Internal.MarshallTransformations;
 using Calamari.Aws.Exceptions;
 using Calamari.Aws.Integration.CloudFormation;
 using Octopus.CoreUtilities;
@@ -192,12 +193,23 @@ namespace Calamari.Aws.Deployment.CloudFormation
         /// <returns></returns>
         public static string GetWebExceptionMessage(this AmazonServiceException exception)
         {
-            return (exception.InnerException as WebException)?
-                   .Response?
-                   .GetResponseStream()?
-                   .Map(stream => new StreamReader(stream).ReadToEnd())
-                   .Map(message => "An exception was thrown while contacting the AWS API.\n" + message)
-                   ?? "An exception was thrown while contacting the AWS API.";
+            if (exception.InnerException is WebException webException)
+            {
+                using (var stream = webException.Response?.GetResponseStream())
+                {
+                    if (stream != null)
+                    {
+                        using (var reader = new StreamReader(stream))
+                        {
+                            var message = reader.ReadToEnd();
+
+                            return "An exception was thrown while contacting the AWS API.\n" + message;
+                        }
+                    }
+                }
+            }
+
+            return "An exception was thrown while contacting the AWS API.";
         }
 
         /// <summary>
