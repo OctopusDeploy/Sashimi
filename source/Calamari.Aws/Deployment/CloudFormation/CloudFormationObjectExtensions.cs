@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using Amazon.Runtime;
-using Amazon.S3.Model.Internal.MarshallTransformations;
 using Calamari.Aws.Exceptions;
 using Calamari.Aws.Integration.CloudFormation;
 using Octopus.CoreUtilities;
-using Octopus.CoreUtilities.Extensions;
 
 namespace Calamari.Aws.Deployment.CloudFormation
 {
@@ -60,7 +58,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
         /// your stack can return to a working state. Or, you can contact customer support to restore the stack to a usable state. 
         /// 
         /// http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-describing-stacks.html#w2ab2c15c15c17c11
-        private static HashSet<string> UnrecoverableStackStatuses =
+        static HashSet<string> UnrecoverableStackStatuses =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "CREATE_FAILED", "ROLLBACK_COMPLETE", "ROLLBACK_FAILED", "DELETE_FAILED",
@@ -75,11 +73,6 @@ namespace Calamari.Aws.Deployment.CloudFormation
                 ChangeSetName = changeSet.Value,
                 StackName = stack.Value
             });
-        }
-
-        public static Task<CreateChangeSetResponse> CreateChangeSetAsync(this IAmazonCloudFormation client, CreateChangeSetRequest request)
-        {
-            return client.CreateChangeSetAsync(request);
         }
 
         public static async Task<DescribeChangeSetResponse> WaitForChangeSetCompletion(
@@ -144,6 +137,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
         public static async Task<Stack> DescribeStackAsync(this IAmazonCloudFormation client, StackArn stack)
         {
             var response = await client.DescribeStacksAsync(new DescribeStacksRequest {StackName = stack.Value});
+
             return response.Stacks.FirstOrDefault();
         }
 
@@ -193,6 +187,8 @@ namespace Calamari.Aws.Deployment.CloudFormation
         /// <returns></returns>
         public static string GetWebExceptionMessage(this AmazonServiceException exception)
         {
+            Guard.NotNull(exception, $"'{nameof(exception)}' cannot be null.");
+
             if (exception.InnerException is WebException webException)
             {
                 using (var stream = webException.Response?.GetResponseStream())
@@ -257,39 +253,20 @@ namespace Calamari.Aws.Deployment.CloudFormation
             return UnrecoverableStackStatuses.Contains(status.ResourceStatus.Value);
         }
 
-        public static Task<DeleteStackResponse> DeleteStackAsync(this IAmazonCloudFormation client, StackArn stack)
+        public static async Task<DeleteStackResponse> DeleteStackAsync(this IAmazonCloudFormation client, StackArn stack)
         {
             Guard.NotNull(client, "client should not be null");
             Guard.NotNull(stack, "Stack should not be null");
 
             try
             {
-                return client.DeleteStackAsync(new DeleteStackRequest {StackName = stack.Value});
+                return await client.DeleteStackAsync(new DeleteStackRequest {StackName = stack.Value});
             }
             catch (AmazonCloudFormationException ex) when (ex.ErrorCode == "AccessDenied")
             {
                 throw new PermissionException(
                     "The AWS account used to perform the operation does not have the required permissions to delete the stack.\n" +
                     "Please ensure the current account has permission to perform action 'cloudformation:DeleteStack'.\n" +
-                    ex.Message
-                );
-            }
-        }
-
-        public static async Task<string> CreateStackAsync(this IAmazonCloudFormation client,
-            CreateStackRequest request)
-        {
-            try
-            {
-                var response =  await client.CreateStackAsync(request);
-
-                return response.StackId;
-            }
-            catch (AmazonCloudFormationException ex) when (ex.ErrorCode == "AccessDenied")
-            {
-                throw new PermissionException(
-                    "The AWS account used to perform the operation does not have the required permissions to create the stack.\n"+
-                    "Please ensure the current account has permission to perform action 'cloudformation:CreateStack'.\n" +
                     ex.Message
                 );
             }
