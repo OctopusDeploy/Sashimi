@@ -63,19 +63,15 @@ namespace Calamari.Aws
             }
         }
 
-        async Task LogAwsUserInfo()
+        Task LogAwsUserInfo()
         {
-            if (variables.IsSet(SpecialVariableNames.Aws.AssumeRoleARN) ||
-                !variables.IsSet(SpecialVariableNames.Aws.AccountId) ||
-                !variables.IsSet(variables.Get(SpecialVariableNames.Aws.AccountId) +
-                                            ".AccessKey"))
-            {
-                await TryLogAwsUserRole();
-            }
-            else
-            {
-                await TryLogAwsUserName();
-            }
+            var isAssumeRoleArnSet = variables.IsSet(SpecialVariableNames.Aws.AssumeRoleARN);
+            var isAccountIdSet = variables.IsSet(SpecialVariableNames.Aws.AccountId);
+            var isAccountAccessKeySet = variables.IsSet($"{SpecialVariableNames.Aws.AccountId}.AccessKey");
+
+            var isUserRoleLocatable = isAssumeRoleArnSet || !isAccountIdSet || !isAccountAccessKeySet;
+
+            return isUserRoleLocatable ? TryLogAwsUserRole() : TryLogAwsUserName();
         }
 
         async Task TryLogAwsUserName()

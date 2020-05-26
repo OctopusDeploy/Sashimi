@@ -21,12 +21,12 @@ namespace Calamari.Aws
             this.cloudFormationService = cloudFormationService;
         }
 
-        protected override async Task ExecuteCoreAsync()
+        protected override Task ExecuteCoreAsync()
         {
             var stackArn = new StackArn(variables.Get(SpecialVariableNames.Aws.CloudFormation.StackName));
             var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion);
 
-            await cloudFormationService.DeleteByStackArn(stackArn, waitForCompletion);
+            return cloudFormationService.DeleteByStackArn(stackArn, waitForCompletion);
         }
     }
 }
