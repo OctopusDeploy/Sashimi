@@ -24,7 +24,7 @@ namespace Sashimi.Aws.ActionHandler
 
         public IActionHandlerResult Execute(IActionHandlerContext context)
         {
-            var builder = context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.Commands.ApplyAwsCloudFormationChangeSet);
+            var builder = context.CalamariCommand(AwsConstants.CalamariAws, KnownAwsCalamariCommands.Commands.ApplyAwsCloudFormationChangeSet);
             return builder.Execute();
         }
     }

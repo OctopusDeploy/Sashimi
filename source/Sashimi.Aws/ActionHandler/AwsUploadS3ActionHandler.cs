@@ -17,7 +17,7 @@ namespace Sashimi.Aws.ActionHandler
         public ActionHandlerCategory[] Categories => new[] { ActionHandlerCategory.BuiltInStep, AwsConstants.AwsActionHandlerCategory, ActionHandlerCategory.Package };
 
         public IActionHandlerResult Execute(IActionHandlerContext context)
-            => context.CalamariCommand(CalamariFlavour.CalamariAws, KnownAwsCalamariCommands.Commands.UploadAwsS3)
+            => context.CalamariCommand(AwsConstants.CalamariAws, KnownAwsCalamariCommands.Commands.UploadAwsS3)
                 .WithStagedPackageArgument()
                 .Execute();
     }
