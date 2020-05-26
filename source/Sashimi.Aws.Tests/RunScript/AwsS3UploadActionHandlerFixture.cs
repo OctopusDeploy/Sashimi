@@ -15,7 +15,6 @@ using S3FileSelectionProperties = Sashimi.Aws.Validation.S3FileSelectionProperti
 
 namespace Sashimi.Aws.Tests.RunScript
 {
-    // TODO : move to e2e project, maybe
     public class AwsS3UploadActionHandlerFixture
     {
         [Test]

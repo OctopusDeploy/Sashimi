@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Amazon.S3.Model;
-﻿using System;
+using System;
 using System.Security.Cryptography;
 using Calamari.Integration.FileSystem;
 using Calamari.Util;

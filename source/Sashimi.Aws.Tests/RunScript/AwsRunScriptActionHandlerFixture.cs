@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NSubstitute;
 using NSubstitute.Extensions;
 using NUnit.Framework;
