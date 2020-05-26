@@ -1,5 +1,4 @@
 ﻿using System;
-using Octopus.Diagnostics;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
@@ -13,13 +12,6 @@ namespace Sashimi.Aws.ActionHandler
     /// </summary>
     public class AwsRunScriptActionHandler : IActionHandler
     {
-        readonly ILog log;
-
-        public AwsRunScriptActionHandler(ILog log)
-        {
-            this.log = log;
-        }
-
         public string Id => AwsActionTypes.RunScript;
         public string Name => "Run an AWS CLI Script";
         public string Description => "Runs a custom script with AWS credentials and the AWS CLI provided";
@@ -36,7 +28,7 @@ namespace Sashimi.Aws.ActionHandler
 
             var builder = context
                 .CalamariCommand(CalamariFlavour.CalamariAws, KnownCalamariCommands.RunScript)
-                .WithAwsTools(context, log);
+                .WithAwsTools(context, context.Log);
 
             var isInPackage = KnownVariableValues.Action.Script.ScriptSource.Package.Equals(context.Variables.Get(KnownVariables.Action.Script.ScriptSource), StringComparison.OrdinalIgnoreCase);
             if (isInPackage)
