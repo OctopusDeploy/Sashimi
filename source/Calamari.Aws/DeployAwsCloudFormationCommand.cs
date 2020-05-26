@@ -107,9 +107,9 @@ namespace Calamari.Aws
             }
             else
             {
+                var parameterContent = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParameters) ?? string.Empty;
                 var parameters = new CloudFormationParametersFile(
-                    () => Maybe<string>.Some(variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateParameters) ?? string.Empty),
-                    JsonConvert.DeserializeObject<List<Parameter>>);
+                    () => Maybe<string>.Some(variables.Evaluate(parameterContent)), JsonConvert.DeserializeObject<List<Parameter>>);
 
                 return new CloudFormationTemplate(() => template, parameters, JsonConvert.DeserializeObject<List<StackFormationNamedOutput>>);
             }
