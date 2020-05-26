@@ -15,6 +15,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
         const string AwsStackRole = "arn:aws:iam::968802670493:role/e2e_buckets";
         // BucketName must use the following prefix, otherwise the above stack role will not have permission to access 
         const string ValidBucketNamePrefix = "cfe2e-";
+        const string StackNamePrefix = "E2ETestStack-";
         const string TransformIncludeLocation = "s3://octopus-e2e-tests/permanent/tags.json";
         const string AwsRegion = "us-east-1";
 
@@ -23,7 +24,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
         [SetUp]
         public void Setup()
         {
-            stackName = $"E2ETestStack-{UniqueName.Generate()}";
+            stackName = $"{StackNamePrefix}{UniqueName.Generate()}";
         }
 
         [Test]
@@ -32,7 +33,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var bucketName = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
 
             var template = File.ReadAllText(Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withoutparameters", "template.json"))
-                .Replace("#{BucketName}", bucketName);
+                .Replace("@BucketName", bucketName);
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                     .WithArrange(context =>
                     {
@@ -59,8 +60,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var templateFolderPath = Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withparameters");
             var template = File.ReadAllText(Path.Combine(templateFolderPath, "template.yaml"));
             var parameters = File.ReadAllText(Path.Combine(templateFolderPath, "parameters.json"))
-                .Replace("#{NameVarParamValue}", nameVarParamValue)
-                .Replace("#{NamePlainParamValue}", namePlainParamValue);
+                .Replace("@NamePlainParamValue", namePlainParamValue);
 
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
@@ -72,6 +72,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         .WithAwsTemplateInlineSource(template, parameters);
 
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
+                    context.Variables.Add("NameVarParamValue", nameVarParamValue);
                 })
                 .Execute(false);
 
@@ -92,7 +93,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var tempFolderPath = Path.Combine(templateFolderPath, UniqueName.Short());
 
             var templateContent = File.ReadAllText(Path.Combine(templateFolderPath, templateFileName))
-                .Replace("#{BucketName}", bucketName);
+                .Replace("@BucketName", bucketName);
             CreateFile(tempFolderPath, templateFileName, templateContent);
 
             var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
@@ -133,8 +134,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var nameVarParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
             var namePlainParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
             var parametersContent = File.ReadAllText(Path.Combine(templateFolderPath, parametersFileName))
-                .Replace("#{NameVarParamValue}", nameVarParamValue)
-                .Replace("#{NamePlainParamValue}", namePlainParamValue);
+                    .Replace("@NamePlainParamValue", namePlainParamValue);
             CreateFile(tempFolderPath, parametersFileName, parametersContent);
 
             var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
@@ -150,6 +150,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         .WithAwsTemplatePackageSource(templateFileName, parametersFileName)
                         .WithPackage(pathToPackage);
 
+                    context.Variables.Add("NameVarParamValue", nameVarParamValue);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
                 .Execute(false);

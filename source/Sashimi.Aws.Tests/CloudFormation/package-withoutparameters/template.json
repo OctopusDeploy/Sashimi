@@ -4,7 +4,7 @@
     "TestBucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": "#{BucketName}",
+        "BucketName": "@BucketName",
         "Tags" : [
           {
             "Key" : "Environment",

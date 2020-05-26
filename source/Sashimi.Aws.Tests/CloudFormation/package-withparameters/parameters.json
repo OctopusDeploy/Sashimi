@@ -5,6 +5,6 @@
   },
   {
     "ParameterKey": "NamePlainParam",
-    "ParameterValue": "#{NamePlainParamValue}"
+    "ParameterValue": "@NamePlainParamValue"
   }
 ]
