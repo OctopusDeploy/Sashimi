@@ -6,7 +6,7 @@ namespace Sashimi.Tests.Shared
     {
         public static string Generate()
         {
-            return Guid.NewGuid().ToString("N").ToLower();
+            return Guid.NewGuid().ToString("N").ToLowerInvariant();
         }
 
         public static string Short()

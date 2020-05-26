@@ -179,7 +179,7 @@ namespace Calamari.Aws.Tests
                 }
 
                 foreach (var userMetadata in userDefinedMetadata)
-                    metadata["x-amz-meta-" + userMetadata.Key.ToLower()]
+                    metadata["x-amz-meta-" + userMetadata.Key.ToLowerInvariant()]
                         .Should().Be(userMetadata.Value);
 
                 response.TagCount.Should().Be(1);
