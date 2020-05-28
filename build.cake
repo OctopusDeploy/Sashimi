@@ -159,25 +159,8 @@ Task("CopyToLocalPackages")
     CopyFiles(Path.Combine(artifactsDir, $"Sashimi.*.{nugetVersion}.nupkg"), localPackagesDir);
 });
 
-Task("Publish")
-    .IsDependentOn("Test")
-    .IsDependentOn("PackSashimi")
-    .WithCriteria(BuildSystem.IsRunningOnTeamCity)
-    .Does(() =>
-{
-    var packages = GetFiles($"{artifactsDir}Sashimi.*.{nugetVersion}.nupkg");
-    foreach (var package in packages)
-    {
-        NuGetPush(package, new NuGetPushSettings {
-            Source = "https://f.feedz.io/octopus-deploy/dependencies/nuget",
-            ApiKey = EnvironmentVariable("FeedzIoApiKey")
-        });
-    }
-});
-
 Task("Default")
-    .IsDependentOn("CopyToLocalPackages")
-    .IsDependentOn("Publish");
+    .IsDependentOn("CopyToLocalPackages");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
