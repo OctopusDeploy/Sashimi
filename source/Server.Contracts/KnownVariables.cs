@@ -4,8 +4,6 @@
     {
         public static readonly string UseRawScript = "OctopusUseRawScript";
         public static readonly string OriginalPackageDirectoryPath = "OctopusOriginalPackageDirectoryPath";
-
-
         public static class Project
         {
              public static readonly string Id = "Octopus.Project.Id";
