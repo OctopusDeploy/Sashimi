@@ -62,7 +62,6 @@ namespace Sashimi.Aws.Tests.RunScript
         }
 
         [Test]
-        [Ignore("waiting on aws script refactor")]
         public void AwsCli_Basic() =>
             ActionHandlerTestBuilder.Create<AwsRunScriptActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
@@ -83,7 +82,6 @@ namespace Sashimi.Aws.Tests.RunScript
                 .Execute();
 
         [Test]
-        [Ignore("waiting on aws script refactor")]
         public void AwsCli_PowerShell() =>
             ActionHandlerTestBuilder.Create<AwsRunScriptActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>

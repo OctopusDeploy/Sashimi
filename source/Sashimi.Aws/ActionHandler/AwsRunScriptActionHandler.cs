@@ -1,6 +1,7 @@
 ﻿using System;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
+using Sashimi.Server.Contracts.Calamari;
 
 namespace Sashimi.Aws.ActionHandler
 {
@@ -26,7 +27,7 @@ namespace Sashimi.Aws.ActionHandler
                 throw new InvalidOperationException("AWS steps do not support raw scripts");
 
             var builder = context
-                .CalamariCommand(AwsConstants.CalamariAws, KnownCalamariCommands.RunScript)
+                .CalamariCommand(CalamariFlavour.Calamari, KnownCalamariCommands.RunScript)
                 .WithAwsTools(context, context.Log);
 
             var isInPackage = KnownVariableValues.Action.Script.ScriptSource.Package.Equals(context.Variables.Get(KnownVariables.Action.Script.ScriptSource), StringComparison.OrdinalIgnoreCase);
