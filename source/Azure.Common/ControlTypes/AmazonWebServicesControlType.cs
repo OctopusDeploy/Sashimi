@@ -4,6 +4,6 @@ namespace Sashimi.Azure.Common.ControlTypes
 {
     public static class AzureControlType
     {
-        public static readonly ControlType AzureAccount = new ControlType("AzureAccount");
+        public static readonly ControlType AzureServicePrincipal = new ControlType("AzureAccount");
     }
 }

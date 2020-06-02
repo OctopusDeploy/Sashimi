@@ -6,7 +6,7 @@ namespace Sashimi.Azure.Common.ControlTypes
 {
     class AzureControlTypeProvider : IControlTypeProvider
     {
-        public ControlType ControlType => AzureControlType.AzureAccount;
-        public VariableType VariableType => AzureVariableType.AzureAccount;
+        public ControlType ControlType => AzureControlType.AzureServicePrincipal;
+        public VariableType VariableType => AzureVariableType.AzureServicePrincipal;
     }
 }
