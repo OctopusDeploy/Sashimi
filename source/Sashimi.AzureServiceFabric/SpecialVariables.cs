@@ -9,8 +9,6 @@ namespace Sashimi.AzureServiceFabric
             {
                 #region Connection variables
 
-                public static readonly string IsLegacyMode = "Octopus.Action.ServiceFabric.IsLegacyMode";
-
                 public static readonly string ConnectionEndpoint = "Octopus.Action.ServiceFabric.ConnectionEndpoint";
 
                 public static readonly string SecurityMode = "Octopus.Action.ServiceFabric.SecurityMode";
@@ -31,37 +29,9 @@ namespace Sashimi.AzureServiceFabric
 
                 #region Certificate override variables
 
-                public static readonly string CertificateFindType = "Octopus.Action.ServiceFabric.CertificateFindType";
-
-                public static readonly string CertificateFindValueOverride = "Octopus.Action.ServiceFabric.CertificateFindValueOverride";
-
                 public static readonly string CertificateStoreLocation = "Octopus.Action.ServiceFabric.CertificateStoreLocation";
 
                 public static readonly string CertificateStoreName = "Octopus.Action.ServiceFabric.CertificateStoreName";
-
-                #endregion
-
-                #region Deployment variables
-
-                public static readonly string PublishProfileFile = "Octopus.Action.ServiceFabric.PublishProfileFile";
-
-                public static readonly string ApplicationPackagePath = "Octopus.Action.ServiceFabric.ApplicationPackagePath";
-
-                public static readonly string DeployOnly = "Octopus.Action.ServiceFabric.DeployOnly";
-
-                public static readonly string UnregisterUnusedApplicationVersionsAfterUpgrade = "Octopus.Action.ServiceFabric.UnregisterUnusedApplicationVersionsAfterUpgrade";
-
-                public static readonly string OverrideUpgradeBehavior = "Octopus.Action.ServiceFabric.OverrideUpgradeBehavior";
-
-                public static readonly string OverwriteBehavior = "Octopus.Action.ServiceFabric.OverwriteBehavior";
-
-                public static readonly string SkipPackageValidation = "Octopus.Action.ServiceFabric.SkipPackageValidation";
-
-                public static readonly string CopyPackageTimeoutSec = "Octopus.Action.ServiceFabric.CopyPackageTimeoutSec";
-
-                public static readonly string RegisterApplicationTypeTimeoutSec = "Octopus.Action.ServiceFabric.RegisterApplicationTypeTimeoutSec";
-
-                public static readonly string LogExtractedApplicationPackage = "Octopus.Action.ServiceFabric.LogExtractedApplicationPackage";
 
                 #endregion
             }
