@@ -8,7 +8,7 @@ using Sashimi.Server.Contracts.Variables;
 
 namespace Sashimi.AzureServiceFabric.Endpoints
 {
-    public class AzureServiceFabricClusterEndpoint : Endpoint, IEndpointWithExpandableCertificate, IRunsOnAWorker
+    class AzureServiceFabricClusterEndpoint : Endpoint, IEndpointWithExpandableCertificate, IRunsOnAWorker
     {
         public static readonly DeploymentTargetType AzureServiceFabricClusterDeploymentTargetType = new DeploymentTargetType("AzureServiceFabricCluster", "Azure Service Fabric Cluster");
 
