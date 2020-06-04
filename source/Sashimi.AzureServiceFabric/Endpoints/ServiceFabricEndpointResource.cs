@@ -2,9 +2,9 @@
 using Octopus.Data.Resources.Attributes;
 using Sashimi.Server.Contracts.Endpoint;
 
-namespace Sashimi.AzureServiceFabric
+namespace Sashimi.AzureServiceFabric.Endpoints
 {
-    public class ServiceFabricEndpointResource : AgentlessEndpointResource
+    public class ServiceFabricEndpointResource : EndpointResource
     {
         public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureServiceFabricCluster;
 

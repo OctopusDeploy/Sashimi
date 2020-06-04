@@ -1,9 +1,9 @@
 ﻿using Octopus.Data.Resources.Attributes;
-using Sashimi.Server.Contracts.Endpoint;
+using Sashimi.Server.Contracts.Endpoints;
 
 namespace Sashimi.AzureWebApp
 {
-    public class AzureWebAppEndpointResource : AgentlessEndpointResource
+    public class AzureWebAppEndpointResource : EndpointResource
     {
         public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureWebApp;
 
