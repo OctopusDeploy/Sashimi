@@ -6,8 +6,6 @@ namespace Sashimi.AzureWebApp.Endpoints
 {
     public class AzureWebAppEndpointResource : EndpointResource
     {
-        public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureWebApp;
-
         [Trim]
         [Writeable]
         public string AccountId { get; set; }
