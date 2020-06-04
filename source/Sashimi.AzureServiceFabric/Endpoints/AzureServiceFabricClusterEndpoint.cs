@@ -11,7 +11,6 @@ namespace Sashimi.AzureServiceFabric.Endpoints
     {
         public static readonly DeploymentTargetType AzureServiceFabricClusterDeploymentTargetType = new DeploymentTargetType("AzureServiceFabricCluster", "Azure Service Fabric Cluster");
 
-        public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureServiceFabricCluster;
         public override DeploymentTargetType DeploymentTargetType { get; } = AzureServiceFabricClusterDeploymentTargetType;
         public override string Description => ConnectionEndpoint;
 

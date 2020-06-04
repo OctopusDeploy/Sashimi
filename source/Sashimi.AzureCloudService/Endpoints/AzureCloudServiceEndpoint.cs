@@ -9,7 +9,6 @@ namespace Sashimi.AzureCloudService.Endpoints
     {
         public static readonly DeploymentTargetType AzureCloudServiceDeploymentTargetType = new DeploymentTargetType("AzureCloudService", "Azure Cloud Service");
 
-        public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureCloudService;
         public override DeploymentTargetType DeploymentTargetType { get; } = AzureCloudServiceDeploymentTargetType;
         public override string Description => CloudServiceName;
 

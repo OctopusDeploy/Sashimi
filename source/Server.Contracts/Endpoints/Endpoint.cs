@@ -6,10 +6,6 @@ namespace Sashimi.Server.Contracts.Endpoints
 {
     public abstract class Endpoint
     {
-        //TODO: Remove this when we've done the migration
-        [JsonIgnore]
-        public abstract CommunicationStyle CommunicationStyle { get; }
-
         [JsonIgnore]
         public abstract DeploymentTargetType DeploymentTargetType { get; }
 

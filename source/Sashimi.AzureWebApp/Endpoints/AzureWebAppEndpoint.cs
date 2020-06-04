@@ -9,8 +9,6 @@ namespace Sashimi.AzureWebApp
     {
         public static readonly DeploymentTargetType AzureWebAppDeploymentTargetType = new DeploymentTargetType("AzureWebApp", "Azure Web Application");
 
-        public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureWebApp;
-
         public override DeploymentTargetType DeploymentTargetType { get; } = AzureWebAppDeploymentTargetType;
         public override string Description => WebAppName;
 
