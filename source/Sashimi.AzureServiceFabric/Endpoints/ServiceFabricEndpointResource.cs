@@ -7,6 +7,8 @@ namespace Sashimi.AzureServiceFabric.Endpoints
 {
     public class ServiceFabricEndpointResource : EndpointResource
     {
+        public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureServiceFabricCluster;
+
         [Trim]
         [Writeable]
         public string ConnectionEndpoint { get; set; }
