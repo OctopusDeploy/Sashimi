@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Sashimi.Server.Contracts;
-using Sashimi.Server.Contracts.Endpoint;
+using Sashimi.Server.Contracts.Endpoints;
 using Sashimi.Server.Contracts.Variables;
 
 namespace Sashimi.AzureWebApp

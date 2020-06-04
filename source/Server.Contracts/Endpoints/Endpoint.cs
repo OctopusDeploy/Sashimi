@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Sashimi.Server.Contracts.Variables;
 
-namespace Sashimi.Server.Contracts.Endpoint
+namespace Sashimi.Server.Contracts.Endpoints
 {
     public abstract class Endpoint
     {

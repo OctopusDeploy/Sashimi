@@ -1,8 +1,8 @@
 using System;
 using Sashimi.Server.Contracts;
-using Sashimi.Server.Contracts.Endpoint;
+using Sashimi.Server.Contracts.Endpoints;
 
-namespace Sashimi.AzureWebApp
+namespace Sashimi.AzureWebApp.Endpoints
 {
     class AzureWebAppDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
     {

@@ -1,6 +1,6 @@
 ﻿﻿using Octopus.Data.Resources;
 
- namespace Sashimi.Server.Contracts.Endpoint
+ namespace Sashimi.Server.Contracts.Endpoints
 {
     public abstract class EndpointResource : Resource
     {

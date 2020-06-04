@@ -1,8 +1,8 @@
 using System;
 using Sashimi.Server.Contracts;
-using Sashimi.Server.Contracts.Endpoint;
+using Sashimi.Server.Contracts.Endpoints;
 
-namespace Sashimi.AzureCloudService
+namespace Sashimi.AzureCloudService.Endpoints
 {
     class AzureCloudServiceDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
     {

@@ -1,5 +1,6 @@
 using Autofac;
-using Sashimi.Server.Contracts.Endpoint;
+using Sashimi.AzureWebApp.Endpoints;
+using Sashimi.Server.Contracts.Endpoints;
 
 namespace Sashimi.AzureWebApp
 {

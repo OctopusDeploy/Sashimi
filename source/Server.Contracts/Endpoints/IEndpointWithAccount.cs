@@ -1,4 +1,4 @@
-namespace Sashimi.Server.Contracts.Endpoint
+namespace Sashimi.Server.Contracts.Endpoints
 {
     public interface IEndpointWithAccount
     {

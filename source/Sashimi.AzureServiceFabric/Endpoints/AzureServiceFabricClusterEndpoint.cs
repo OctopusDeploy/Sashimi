@@ -2,10 +2,10 @@
 using System.Security.Cryptography.X509Certificates;
 using Octopus.Data.Model;
 using Sashimi.Server.Contracts;
-using Sashimi.Server.Contracts.Endpoint;
+using Sashimi.Server.Contracts.Endpoints;
 using Sashimi.Server.Contracts.Variables;
 
-namespace Sashimi.AzureServiceFabric
+namespace Sashimi.AzureServiceFabric.Endpoints
 {
     public class AzureServiceFabricClusterEndpoint : Endpoint, IEndpointWithExpandableCertificate, IRunsOnAWorker
     {

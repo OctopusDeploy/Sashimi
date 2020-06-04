@@ -1,4 +1,4 @@
-namespace Sashimi.AzureCloudService
+namespace Sashimi.AzureCloudService.Endpoints
 {
     public class AzureCloudServiceResource
     {

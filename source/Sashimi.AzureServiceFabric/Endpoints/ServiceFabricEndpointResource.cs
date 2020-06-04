@@ -1,6 +1,6 @@
 ﻿using Octopus.Data.Resources;
 using Octopus.Data.Resources.Attributes;
-using Sashimi.Server.Contracts.Endpoint;
+using Sashimi.Server.Contracts.Endpoints;
 
 namespace Sashimi.AzureServiceFabric.Endpoints
 {

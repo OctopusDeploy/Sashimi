@@ -1,4 +1,4 @@
-﻿﻿namespace Sashimi.AzureServiceFabric
+﻿﻿namespace Sashimi.AzureServiceFabric.Endpoints
 {
     public enum AzureServiceFabricSecurityMode
     {
