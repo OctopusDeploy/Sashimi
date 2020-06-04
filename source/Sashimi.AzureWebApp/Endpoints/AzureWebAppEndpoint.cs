@@ -4,9 +4,9 @@ using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.Endpoints;
 using Sashimi.Server.Contracts.Variables;
 
-namespace Sashimi.AzureWebApp.Endpoints
+namespace Sashimi.AzureWebApp
 {
-    class AzureWebAppEndpoint : Endpoint, IEndpointWithAccount, IRunsOnAWorker
+    public class AzureWebAppEndpoint : Endpoint, IEndpointWithAccount, IRunsOnAWorker
     {
         public static readonly DeploymentTargetType AzureWebAppDeploymentTargetType = new DeploymentTargetType("AzureWebApp", "Azure Web Application");
 

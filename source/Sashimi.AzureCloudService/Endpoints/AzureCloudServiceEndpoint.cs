@@ -6,7 +6,7 @@ using Sashimi.Server.Contracts.Variables;
 
 namespace Sashimi.AzureCloudService.Endpoints
 {
-    class AzureCloudServiceEndpoint : Endpoint, IEndpointWithAccount, IRunsOnAWorker
+    public class AzureCloudServiceEndpoint : Endpoint, IEndpointWithAccount, IRunsOnAWorker
     {
         public static readonly DeploymentTargetType AzureCloudServiceDeploymentTargetType = new DeploymentTargetType("AzureCloudService", "Azure Cloud Service");
 
