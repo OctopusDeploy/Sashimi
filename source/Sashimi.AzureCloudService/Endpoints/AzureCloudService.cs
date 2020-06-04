@@ -1,3 +1,4 @@
+#nullable disable
 namespace Sashimi.AzureCloudService.Endpoints
 {
     public class AzureCloudServiceResource

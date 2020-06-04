@@ -1,3 +1,4 @@
+#nullable disable
 using System.Collections.Generic;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.Endpoints;

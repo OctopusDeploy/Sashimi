@@ -1,7 +1,8 @@
-﻿using Octopus.Data.Resources.Attributes;
+﻿#nullable disable
+using Octopus.Data.Resources.Attributes;
 using Sashimi.Server.Contracts.Endpoints;
 
-namespace Sashimi.AzureWebApp
+namespace Sashimi.AzureWebApp.Endpoints
 {
     public class AzureWebAppEndpointResource : EndpointResource
     {

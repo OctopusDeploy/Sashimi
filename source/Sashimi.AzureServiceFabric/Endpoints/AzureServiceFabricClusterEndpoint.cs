@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable disable
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Octopus.Data.Model;
 using Sashimi.Server.Contracts;
