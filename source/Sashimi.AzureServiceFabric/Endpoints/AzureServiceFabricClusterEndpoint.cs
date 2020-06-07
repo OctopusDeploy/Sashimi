@@ -25,7 +25,7 @@ namespace Sashimi.AzureServiceFabric.Endpoints
         public string AadClientCredentialSecret { get; set; }
         public string AadUserCredentialUsername { get; set; }
 
-        public SensitiveString AadUserCredentialPassword { get; set; } = new SensitiveString();
+        public SensitiveString AadUserCredentialPassword { get; set; }
 
         public override IEnumerable<Variable> ContributeVariables()
         {
