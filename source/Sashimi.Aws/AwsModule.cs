@@ -20,10 +20,12 @@ namespace Sashimi.Aws
             builder.RegisterType<CloudFormationYamlCloudTemplateHandler>().As<ICloudTemplateHandler>().SingleInstance();
 
             builder.RegisterType<AwsUploadS3ActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<AwsRunScriptActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<AwsRunCloudFormationActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<AwsDeleteCloudFormationActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<AwsApplyCloudFormationChangeSetActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
+
+            //Register when we've actually implemented the runscript command
+            //builder.RegisterType<AwsRunScriptActionHandler>().As<IActionHandler>().AsSelf().InstancePerLifetimeScope();
         }
     }
 }
