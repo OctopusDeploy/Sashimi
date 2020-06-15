@@ -13,6 +13,7 @@ using Sashimi.Tests.Shared.Server;
 namespace Sashimi.AzureWebApp.Tests
 {
     [TestFixture]
+    [Parallelizable(ParallelScope.All)]
     class AzureWebAppHealthCheckActionHandlerFixtures
     {
         [Test]
