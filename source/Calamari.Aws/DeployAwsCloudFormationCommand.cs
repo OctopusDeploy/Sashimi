@@ -12,6 +12,7 @@ using Calamari.Aws.Integration.CloudFormation;
 using Calamari.Aws.Integration.CloudFormation.Templates;
 using Calamari.Aws.Util;
 using Calamari.Common.Util;
+using Calamari.Common.Variables;
 using Calamari.Deployment;
 using Newtonsoft.Json;
 using Octopus.CoreUtilities;
@@ -46,8 +47,8 @@ namespace Calamari.Aws
             var iamCapabilities = GetValidIamCapabilities();
             var waitForCompletion = variables.GetFlag(SpecialVariableNames.Action.WaitForCompletion);
 
-            var packageFilePath = variables.IsSet(SpecialVariableNames.Package.Id) ? 
-                new PathToPackage(Path.GetFullPath(variables.Get(SpecialVariableNames.Package.Id))) :
+            var packageFilePath = variables.IsSet(PackageVariables.IndexedPackageId(null)) ?
+                new PathToPackage(Path.GetFullPath(variables.Get(PackageVariables.IndexedPackageId(null)))) :
                 null;
             extractPackage.ExtractToStagingDirectory(packageFilePath);
 
@@ -83,7 +84,7 @@ namespace Calamari.Aws
             }
         }
 
-        //TODO: Refactor ITemplateResolver in Calamari.Common to make it a generic ITemplateResolver<TypeTemplate> so it returns the template directly 
+        //TODO: Refactor ITemplateResolver in Calamari.Common to make it a generic ITemplateResolver<TypeTemplate> so it returns the template directly
         CloudFormationTemplate GetCloudFormationTemplate()
         {
             var isTemplateFilesInPackage = variables.Get(SpecialVariableNames.Aws.CloudFormation.TemplateSource).Equals(SpecialVariableValues.CloudFormation.TemplateSource.Package, StringComparison.OrdinalIgnoreCase);
@@ -130,7 +131,7 @@ namespace Calamari.Aws
         {
             var name = $"octo-{Guid.NewGuid():N}";
 
-            if (bool.TrueString.Equals(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate), 
+            if (bool.TrueString.Equals(variables.Get(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Generate),
                 StringComparison.OrdinalIgnoreCase))
             {
                 variables.Set(SpecialVariableNames.Aws.CloudFormation.ChangeSets.Name, name);
