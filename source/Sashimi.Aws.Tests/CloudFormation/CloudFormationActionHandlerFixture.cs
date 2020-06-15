@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using FluentAssertions;
 using NuGet.Packaging;
 using NuGet.Versioning;
@@ -10,21 +12,25 @@ using Sashimi.Tests.Shared.Server;
 
 namespace Sashimi.Aws.Tests.CloudFormation
 {
+    [Parallelizable(ParallelScope.All)]
     public class CloudFormationActionHandlerFixture
     {
         const string AwsStackRole = "arn:aws:iam::968802670493:role/e2e_buckets";
+
         // BucketName must use the following prefix, otherwise the above stack role will not have permission to access 
         const string ValidBucketNamePrefix = "cfe2e-";
         const string StackNamePrefix = "E2ETestStack-";
         const string TransformIncludeLocation = "s3://octopus-e2e-tests/permanent/tags.json";
         const string AwsRegion = "us-east-1";
 
-        string stackName;
+        readonly List<string> stackNames = new List<string>();
 
-        [SetUp]
-        public void Setup()
+        string GetStackName()
         {
-            stackName = $"{StackNamePrefix}{UniqueName.Generate()}";
+            var name = $"{StackNamePrefix}{UniqueName.Generate()}";
+            stackNames.Add(name);
+            Console.WriteLine($"Stack: {name}");
+            return name;
         }
 
         [Test]
@@ -35,17 +41,17 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var template = File.ReadAllText(Path.Combine(TestEnvironment.GetTestPath(), "CloudFormation", "package-withoutparameters", "template.json"))
                 .Replace("@BucketName", bucketName);
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
-                    .WithArrange(context =>
-                    {
-                        context.WithStack(stackName)
-                            .WithAwsAccount()
-                            .WithAwsRegion(AwsRegion)
-                            .WithStackRole(AwsStackRole)
-                            .WithAwsTemplateInlineSource(template, null);
-                        
-                        context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
-                    })
-                    .Execute(false);
+                .WithArrange(context =>
+                {
+                    context.WithStack(GetStackName())
+                        .WithAwsAccount()
+                        .WithAwsRegion(AwsRegion)
+                        .WithStackRole(AwsStackRole)
+                        .WithAwsTemplateInlineSource(template, null);
+
+                    context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
+                })
+                .Execute(false);
 
             result.WasSuccessful.Should().BeTrue();
             result.OutputVariables["AwsOutputs[OutputName]"].Value.Should().Be(bucketName);
@@ -65,7 +71,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    context.WithStack(stackName)
+                    context.WithStack(GetStackName())
                         .WithAwsAccount()
                         .WithAwsRegion(AwsRegion)
                         .WithStackRole(AwsStackRole)
@@ -98,11 +104,11 @@ namespace Sashimi.Aws.Tests.CloudFormation
 
             var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
             var pathToPackage = Path.Combine(tempFolderPath, packageFileName);
-            
+
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    context.WithStack(stackName)
+                    context.WithStack(GetStackName())
                         .WithAwsAccount()
                         .WithAwsRegion(AwsRegion)
                         .WithStackRole(AwsStackRole)
@@ -134,7 +140,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var nameVarParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
             var namePlainParamValue = $"{ValidBucketNamePrefix}{UniqueName.Short()}";
             var parametersContent = File.ReadAllText(Path.Combine(templateFolderPath, parametersFileName))
-                    .Replace("@NamePlainParamValue", namePlainParamValue);
+                .Replace("@NamePlainParamValue", namePlainParamValue);
             CreateFile(tempFolderPath, parametersFileName, parametersContent);
 
             var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
@@ -143,7 +149,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
                 {
-                    context.WithStack(stackName)
+                    context.WithStack(GetStackName())
                         .WithAwsAccount()
                         .WithAwsRegion(AwsRegion)
                         .WithStackRole(AwsStackRole)
@@ -160,12 +166,13 @@ namespace Sashimi.Aws.Tests.CloudFormation
 
             Directory.Delete(tempFolderPath, true);
         }
-        
+
         [Test]
         public void RunCloudFormation_ChangeSet()
         {
             var bucketName = $"{ValidBucketNamePrefix}{UniqueName.Generate()}";
             var pathToPackage = TestEnvironment.GetTestPath(@"Packages\CloudFormationS3.1.0.0.nupkg");
+            var stackName = GetStackName();
 
             // create bucket
             CreateBucket(stackName, bucketName, pathToPackage);
@@ -180,10 +187,10 @@ namespace Sashimi.Aws.Tests.CloudFormation
             CreateBucketAgain(stackName, bucketName, pathToPackage);
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
-            DeleteStack(stackName);
+            stackNames.AsParallel().ForAll(DeleteStack);
         }
 
         static void DeleteStack(string stackName)
@@ -251,14 +258,14 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         .WithPackage(pathToPackage)
                         .WithAwsTemplatePackageSource("bucket.json", "bucket-parameters.json")
                         .WithCloudFormationChangeSets(deferExecution: true)
-                        .WithIamCapabilities(new List<string> { "CAPABILITY_IAM"});
-                            
+                        .WithIamCapabilities(new List<string> {"CAPABILITY_IAM"});
+
                     context.Variables.Add("BucketName", bucketName);
                     context.Variables.Add("TransformIncludeLocation", TransformIncludeLocation);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
                 .Execute();
-            
+
             return (result.OutputVariables["AwsOutputs[ChangesetId]"].Value, result.OutputVariables["AwsOutputs[StackId]"].Value);
         }
 
@@ -272,7 +279,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         .WithAwsRegion(AwsRegion)
                         .WithStackRole(AwsStackRole)
                         .WithCloudFormationChangeSets()
-                        .WithIamCapabilities(new List<string> { "CAPABILITY_IAM" })
+                        .WithIamCapabilities(new List<string> {"CAPABILITY_IAM"})
                         .WithAwsTemplatePackageSource("bucket-transform.json", "bucket-parameters.json")
                         .WithPackage(pathToPackage);
 
@@ -297,7 +304,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
         {
             var metadata = new ManifestMetadata
             {
-                Authors = new[] { "octopus@e2eTests" },
+                Authors = new[] {"octopus@e2eTests"},
                 Version = new NuGetVersion(1, 0, 0),
                 Id = packageId,
                 Description = "For CloudFormation E2E Test(s)"
@@ -306,7 +313,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             var packageFileName = $"{packageId}{metadata.Version}.nupkg";
 
             var builder = new PackageBuilder();
-            builder.PopulateFiles(filePath, new[] { new ManifestFile { Source = "**" } });
+            builder.PopulateFiles(filePath, new[] {new ManifestFile {Source = "**"}});
             builder.Populate(metadata);
 
             using (var stream = File.Open(Path.Combine(filePath, packageFileName), FileMode.OpenOrCreate))

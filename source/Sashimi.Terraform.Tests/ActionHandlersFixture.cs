@@ -24,6 +24,7 @@ using Sashimi.Tests.Shared.Server;
 namespace Sashimi.Terraform.Tests
 {
     [TestFixture]
+    [Parallelizable(ParallelScope.All)]
     public class ActionHandlersFixture
     {
         string? customTerraformExecutable;

@@ -19,6 +19,8 @@ namespace Sashimi.Tests.Shared.Server
 {
     class TestCalamariCommandBuilder<TCalamariProgram> : ICalamariCommandBuilder where TCalamariProgram : CalamariFlavourProgram
     {
+        static object currentDirectoryMutex = new object();
+        
         TestVariableDictionary variables = new TestVariableDictionary();
         bool withStagedPackageArgument;
 
@@ -197,6 +199,7 @@ namespace Sashimi.Tests.Shared.Server
                 }
             }
 
+            lock(currentDirectoryMutex)
             using (var working = TemporaryDirectory.Create())
             {
                 var workingPath = working.DirectoryPath;

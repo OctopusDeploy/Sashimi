@@ -6,22 +6,14 @@ using Sashimi.Tests.Shared.Extensions;
 
 namespace Sashimi.AzureWebApp.Tests
 {
+    [Parallelizable(ParallelScope.All)]
     public class AzureWebAppEndpointValidatorFixture
     {
-        IValidator sut;
-        AzureWebAppEndpoint endpoint;
-
-        [SetUp]
-        public void Setup()
-        {
-            sut = new AzureWebAppEndpointValidator();
-            endpoint = new AzureWebAppEndpoint();
-        }
-
         [Test]
         public void Validate_FieldsNotPopulated_Error()
         {
-            var errors = sut.ValidateAndGetErrors(endpoint);
+            var sut = new AzureWebAppEndpointValidator();
+            var errors = sut.ValidateAndGetErrors(new AzureWebAppEndpoint());
 
             errors.Should().Contain("'Account' must not be empty.");
             errors.Should().Contain("'Web App' must not be empty.");
@@ -31,9 +23,14 @@ namespace Sashimi.AzureWebApp.Tests
         [Test]
         public void Validate_FieldsPopulated_NoError()
         {
-            endpoint.AccountId = "blah";
-            endpoint.WebAppName = "the webapp";
-            endpoint.ResourceGroupName = "the group";
+            var sut = new AzureWebAppEndpointValidator();
+            var endpoint = new AzureWebAppEndpoint
+            {
+                AccountId = "blah", 
+                WebAppName = "the webapp", 
+                ResourceGroupName = "the group"
+            };
+
 
             var errors = sut.ValidateAndGetErrors(endpoint);
 
