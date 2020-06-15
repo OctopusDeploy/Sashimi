@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Calamari;
 using Calamari.CloudAccounts;
+using Calamari.Common.Variables;
 using Calamari.Integration.FileSystem;
 using Calamari.Integration.Retry;
 using Calamari.Terraform;
@@ -15,11 +16,11 @@ using Calamari.Tests.Shared;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Terraform.ActionHandler;
 using Sashimi.Tests.Shared;
 using Sashimi.Tests.Shared.Server;
+using KnownVariables = Sashimi.Server.Contracts.KnownVariables;
 
 namespace Sashimi.Terraform.Tests
 {
@@ -151,7 +152,7 @@ namespace Sashimi.Terraform.Tests
                     _.Variables.Add(TerraformSpecialVariables.Action.Terraform.AdditionalInitParams, additionalParams), "Simple")
                 .Should().Contain($"init -no-color -get-plugins=true {additionalParams}");
         }
-        
+
         [Test]
         public void AllowPluginDownloadsShouldBeDisabled()
         {
@@ -162,7 +163,7 @@ namespace Sashimi.Terraform.Tests
                         false.ToString());
                 }, "Simple").Should().Contain("init -no-color -get-plugins=false");
         }
-        
+
         [Test]
         public void AttachLogFile()
         {
@@ -243,7 +244,7 @@ namespace Sashimi.Terraform.Tests
                 .Should()
                 .NotContain("No files were found that match the substitution target pattern");
         }
-             
+
         [Test]
         public void EnableNoMatchWarningIsNotSetWithAdditionSubstitution()
         {
@@ -256,7 +257,7 @@ namespace Sashimi.Terraform.Tests
                 .And
                 .Contain("No files were found that match the substitution target pattern 'doesNotExist.txt'");
         }
-        
+
         [Test]
         public void EnableNoMatchWarningIsTrue()
         {
@@ -270,7 +271,7 @@ namespace Sashimi.Terraform.Tests
                 .And
                 .Contain("No files were found that match the substitution target pattern 'doesNotExist.txt'");
         }
-        
+
         [Test]
         public void EnableNoMatchWarningIsFalse()
         {
@@ -478,7 +479,7 @@ output ""nestedlist"" {
 # Example of getting an element from a nested map
 output ""nestedmap"" {
   value = ""${lookup(var.test3[""val1""], ""val2"")}""
-}";                                        
+}";
 
             ExecuteAndReturnLogOutput<TerraformApplyActionHandler>(_ =>
             {
@@ -493,7 +494,7 @@ output ""nestedmap"" {
                 _.OutputVariables.ContainsKey("TerraformValueOutputs[nestedmap]").Should().BeTrue();
             });
         }
-        
+
         [Test]
         public void InlineHclTemplateWithMultilineOutput()
         {
@@ -517,7 +518,7 @@ CONFIGMAPAWSAUTH
 
 output ""config-map-aws-auth"" {{
     value = ""${{local.config-map-aws-auth}}""
-}}", expected);                                     
+}}", expected);
 
             ExecuteAndReturnLogOutput<TerraformApplyActionHandler>(_ =>
             {
@@ -566,7 +567,7 @@ output ""config-map-aws-auth"" {{
          ""value"":""#{RandomNumber}""
       }
     }
-}";                          
+}";
 
             var randomNumber = new Random().Next().ToString();
 
@@ -628,7 +629,7 @@ output ""config-map-aws-auth"" {{
             string folderName, params Type[] commandTypes)
         {
             var terraformFiles = TestEnvironment.GetTestPath(folderName);
-            
+
             foreach (var commandType in commandTypes)
             {
                 yield return ActionHandlerTestBuilder.Create<Program>(commandType)
@@ -636,7 +637,7 @@ output ""config-map-aws-auth"" {{
                     {
                         context.Variables.Add(KnownVariables.Action.Script.ScriptSource,
                             KnownVariables.Action.Script.ScriptSourceOptions.Package);
-                        context.Variables.Add(KnownVariables.Action.Packages.PackageId, terraformFiles);
+                        context.Variables.Add(PackageVariables.IndexedPackageId(null), terraformFiles);
                         context.Variables.Add(TerraformSpecialVariables.Calamari.TerraformCliPath,
                             Path.GetDirectoryName(customTerraformExecutable));
                         context.Variables.Add(TerraformSpecialVariables.Action.Terraform.CustomTerraformExecutable,

@@ -29,7 +29,7 @@ namespace Calamari.Tests.Shared
         public static CommandTestBuilderContext WithPackage(this CommandTestBuilderContext context, string path)
         {
             context.Variables.Add(KnownVariables.OriginalPackageDirectoryPath, Path.GetDirectoryName(path));
-            context.Variables.Add("Octopus.Action.Package.PackageId", path);
+            context.Variables.Add(PackageVariables.IndexedPackageId(null), path);
             context.Variables.Add("Octopus.Action.Package.FeedId", "FeedId");
 
             return context;

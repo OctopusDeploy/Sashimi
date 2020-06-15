@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using Autofac;
 using Calamari;
+using Calamari.Common.Variables;
 using Calamari.Tests.Shared;
 using FluentAssertions;
-using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
+using KnownVariables = Sashimi.Server.Contracts.KnownVariables;
 
 namespace Sashimi.Tests.Shared.Server
 {
@@ -29,7 +30,7 @@ namespace Sashimi.Tests.Shared.Server
             where TCalamariProgram : CalamariFlavourProgram
         {
             context.Variables.Add(KnownVariables.OriginalPackageDirectoryPath, Path.GetDirectoryName(path));
-            context.Variables.Add(KnownVariables.Action.Packages.PackageId, path);
+            context.Variables.Add(PackageVariables.IndexedPackageId(null), path);
             context.Variables.Add(KnownVariables.Action.Packages.FeedId, "FeedId");
 
             return context;

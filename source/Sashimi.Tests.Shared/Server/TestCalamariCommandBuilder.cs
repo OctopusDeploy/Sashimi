@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Calamari;
+using Calamari.Common.Variables;
 using Calamari.Integration.FileSystem;
 using Calamari.Tests.Shared;
 using Calamari.Tests.Shared.Helpers;
@@ -127,7 +128,7 @@ namespace Sashimi.Tests.Shared.Server
 
                 if (withStagedPackageArgument)
                 {
-                    var packageId = variables.GetRaw(KnownVariables.Action.Packages.PackageId);
+                    var packageId = variables.GetRaw(PackageVariables.IndexedPackageId(null));
                     if (File.Exists(packageId))
                     {
                         var fileName = new FileInfo(packageId).Name;
