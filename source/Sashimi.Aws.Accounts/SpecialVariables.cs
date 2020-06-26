@@ -21,6 +21,7 @@ namespace Sashimi.Aws.Accounts
                 public static readonly string AssumedRoleSession = "Octopus.Action.Aws.AssumedRoleSession";
                 public static readonly string AssumeRoleSessionDurationSeconds = "Octopus.Action.Aws.AssumeRoleSessionDurationSeconds";
                 public static readonly string IamCapabilities = "Octopus.Action.Aws.IamCapabilities";
+                public static readonly string AssumeRoleExternalId = "Octopus.Action.Aws.AssumeRoleExternalId";
             }
         }
     }
