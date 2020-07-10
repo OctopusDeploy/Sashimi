@@ -4,6 +4,7 @@ using Sashimi.AzureCloudService.Endpoints;
 using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Endpoints;
+using Sashimi.Server.Contracts.ServiceMessages;
 
 namespace Sashimi.AzureCloudService
 {
