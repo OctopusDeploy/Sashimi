@@ -16,6 +16,8 @@ namespace Sashimi.AzureWebApp
                 .SingleInstance();
             builder.RegisterType<AzureWebAppHealthCheckActionHandler>().As<IActionHandler>().AsSelf()
                 .InstancePerLifetimeScope();
+            builder.RegisterType<AzureWebAppServiceMessageHandler>().AsSelf()
+                .InstancePerLifetimeScope();
         }
     }
 }
