@@ -1,30 +1,25 @@
 ﻿using System.Collections.Generic;
-using Octostache;
+using Octopus.Data.Model;
 using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.ServiceMessages;
 
 namespace Sashimi.Aws.Accounts
 {
-    class AmazonWebServicesServiceMessageHandler : IServiceMessageHandler
+    class AmazonWebServicesServiceMessageHandler : ICreateAccountDetailsServiceMessageHandler
     {
         public string AuditEntryDescription => "AWS Account";
         public string ServiceMessageName => CreateAwsAccountServiceMessagePropertyNames.Name;
 
-        public ServiceMessageValidationResult IsServiceMessageValid(IDictionary<string, string> properties, VariableDictionary variables)
+        public AccountDetails CreateAccountDetails(IDictionary<string, string> messageProperties)
         {
-            var secretValid = properties.ContainsPropertyWithValue(CreateAwsAccountServiceMessagePropertyNames.SecretKey);
-            var accessValid = properties.ContainsPropertyWithValue(CreateAwsAccountServiceMessagePropertyNames.AccessKey);
+            messageProperties.TryGetValue(CreateAwsAccountServiceMessagePropertyNames.AccessKey, out var accessKey);
+            messageProperties.TryGetValue(CreateAwsAccountServiceMessagePropertyNames.SecretKey, out var secretKey);
 
-            if (!(secretValid && accessValid))
+            return new AmazonWebServicesAccountDetails
             {
-                var messages = new List<string>();
-                if (!secretValid) messages.Add("Secret Key is missing or invalid");
-                if (!accessValid) messages.Add("Access Key is missing or invalid");
-
-                return ServiceMessageValidationResult.Invalid(messages);
-            }
-
-            return ServiceMessageValidationResult.Valid;
+                AccessKey = accessKey,
+                SecretKey = secretKey.ToSensitiveString()
+            };
         }
     }
 }

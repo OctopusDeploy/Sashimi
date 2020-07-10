@@ -4,16 +4,12 @@ using System.Linq;
 using FluentValidation;
 using Octopus.Server.Extensibility.HostServices.Mapping;
 using Sashimi.Server.Contracts.Accounts;
+using Sashimi.Server.Contracts.ServiceMessages;
 
 namespace Sashimi.AzureCloudService
 {
     class AzureSubscriptionTypeProvider : IAccountTypeProvider
     {
-        public AccountDetails CreateViaServiceMessage(IDictionary<string, string> properties)
-        {
-            throw new NotImplementedException();
-        }
-
         public AccountType AccountType => AccountTypes.AzureSubscriptionAccountType;
         public Type ModelType => typeof(AzureSubscriptionDetails);
         public Type ApiType => typeof(AzureSubscriptionAccountResource);
@@ -33,6 +29,6 @@ namespace Sashimi.AzureCloudService
             builder.Map<AzureSubscriptionAccountResource, AzureSubscriptionDetails>();
         }
 
-        public IServiceMessageHandler? ServiceMessageHandler => null;
+        public ICreateAccountDetailsServiceMessageHandler? CreateAccountDetailsServiceMessageHandler => null;
     }
 }

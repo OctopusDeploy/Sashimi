@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
-using Octopus.Data.Model;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
 using Octopus.Server.Extensibility.HostServices.Mapping;
 using Sashimi.Server.Contracts.Accounts;
@@ -15,47 +14,6 @@ namespace Sashimi.Azure.Accounts
         public AzureServicePrincipalAccountTypeProvider(Lazy<IOctopusHttpClientFactory> httpClientFactoryLazy)
         {
             Verifier = new AzureServicePrincipalAccountVerifier(httpClientFactoryLazy);
-        }
-
-        public AccountDetails CreateViaServiceMessage(IDictionary<string, string> properties)
-        {
-            properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.SubscriptionAttribute,
-                out var subscriptionNumber);
-            properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.ApplicationAttribute,
-                out var clientId);
-            properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.PasswordAttribute,
-                out var password);
-            properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.TenantAttribute,
-                out var tenantId);
-
-            var details = new AzureServicePrincipalAccountDetails
-            {
-                SubscriptionNumber = subscriptionNumber,
-                ClientId = clientId,
-                Password = password.ToSensitiveString(),
-                TenantId = tenantId
-            };
-
-            if (properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.EnvironmentAttribute, out var environment) &&
-                string.IsNullOrWhiteSpace(environment))
-            {
-                properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.BaseUriAttribute,
-                    out var baseUri);
-                properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.ResourceManagementBaseUriAttribute,
-                    out var resourceManagementBaseUri);
-
-                details.AzureEnvironment = environment;
-                details.ActiveDirectoryEndpointBaseUri = baseUri;
-                details.ResourceManagementEndpointBaseUri = resourceManagementBaseUri;
-            }
-            else
-            {
-                details.AzureEnvironment = string.Empty;
-                details.ActiveDirectoryEndpointBaseUri = string.Empty;
-                details.ResourceManagementEndpointBaseUri = string.Empty;
-            }
-
-            return details;
         }
 
         public AccountType AccountType { get; } = AccountTypes.AzureServicePrincipalAccountType;
@@ -71,7 +29,7 @@ namespace Sashimi.Azure.Accounts
             yield return ("azureserviceprincipalaccount", total);
         }
 
-        public IServiceMessageHandler? ServiceMessageHandler { get; } = new AzureServicePrincipalServiceMessageHandler();
+        public ICreateAccountDetailsServiceMessageHandler? CreateAccountDetailsServiceMessageHandler { get; } = new AzureServicePrincipalServiceMessageHandler();
 
         public void BuildMappings(IResourceMappingsBuilder builder)
         {
