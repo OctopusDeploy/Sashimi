@@ -1,15 +1,18 @@
 using System.Collections.Generic;
 
-static class PropertyDictionaryExtensions
+namespace Sashimi.Aws.Accounts
 {
-    public static bool ContainsPropertyWithValue(this IDictionary<string, string> dictionary, string key)
+    static class PropertyDictionaryExtensions
     {
-        if (!dictionary.ContainsKey(key))
+        public static bool ContainsPropertyWithValue(this IDictionary<string, string> dictionary, string key)
         {
-            return false;
-        }
+            if (!dictionary.ContainsKey(key))
+            {
+                return false;
+            }
 
-        string value = dictionary[key];
-        return value != null && !string.IsNullOrEmpty(value);
+            string value = dictionary[key];
+            return value != null && !string.IsNullOrEmpty(value);
+        }
     }
 }
