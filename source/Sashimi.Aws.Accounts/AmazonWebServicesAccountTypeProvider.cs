@@ -5,6 +5,7 @@ using FluentValidation;
 using Octopus.Data.Model;
 using Octopus.Server.Extensibility.HostServices.Mapping;
 using Sashimi.Server.Contracts.Accounts;
+using Sashimi.Server.Contracts.ServiceMessages;
 
 namespace Sashimi.Aws.Accounts
 {
@@ -22,8 +23,6 @@ namespace Sashimi.Aws.Accounts
             };
         }
 
-        public string AuditEntryDescription => "AWS Account";
-        public string ServiceMessageName => CreateAwsAccountServiceMessagePropertyNames.Name;
         public AccountType AccountType { get; } = AccountTypes.AmazonWebServicesAccountType;
         public Type ModelType { get; } = typeof(AmazonWebServicesAccountDetails);
         public Type ApiType { get; } = typeof(AmazonWebServicesAccountResource);
@@ -36,6 +35,8 @@ namespace Sashimi.Aws.Accounts
 
             yield return ("amazonwebservicesaccount", total);
         }
+
+        public IServiceMessageHandler? ServiceMessageHandler { get; } = new AmazonWebServicesServiceMessageHandler();
 
         public void BuildMappings(IResourceMappingsBuilder builder)
         {

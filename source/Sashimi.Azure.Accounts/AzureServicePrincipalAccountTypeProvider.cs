@@ -5,9 +5,8 @@ using FluentValidation;
 using Octopus.Data.Model;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
 using Octopus.Server.Extensibility.HostServices.Mapping;
-using Sashimi.Azure.Common.Extensions;
-using Sashimi.Azure.Common.Extensions;
 using Sashimi.Server.Contracts.Accounts;
+using Sashimi.Server.Contracts.ServiceMessages;
 
 namespace Sashimi.Azure.Accounts
 {
@@ -72,12 +71,11 @@ namespace Sashimi.Azure.Accounts
             yield return ("azureserviceprincipalaccount", total);
         }
 
+        public IServiceMessageHandler? ServiceMessageHandler { get; } = new AzureServicePrincipalServiceMessageHandler();
+
         public void BuildMappings(IResourceMappingsBuilder builder)
         {
             builder.Map<AzureServicePrincipalAccountResource, AzureServicePrincipalAccountDetails>();
         }
-
-        public string AuditEntryDescription => "Azure Service Principal account";
-        public string ServiceMessageName => CreateAzureAccountServiceMessagePropertyNames.Name;
     }
 }

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using Octopus.Server.Extensibility.HostServices.Mapping;
-using Octostache;
 using Sashimi.Server.Contracts.Accounts;
-using Sashimi.Server.Contracts.ServiceMessages;
 
 namespace Sashimi.AzureCloudService
 {
@@ -15,14 +13,6 @@ namespace Sashimi.AzureCloudService
         {
             throw new NotImplementedException();
         }
-
-        public ServiceMessageValidationResult IsServiceMessageValid(IDictionary<string, string> messageProperties, VariableDictionary variables)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string AuditEntryDescription => $"{AccountType.Value} account";
-        public string ServiceMessageName => "not-implemented";
 
         public AccountType AccountType => AccountTypes.AzureSubscriptionAccountType;
         public Type ModelType => typeof(AzureSubscriptionDetails);
@@ -42,5 +32,7 @@ namespace Sashimi.AzureCloudService
         {
             builder.Map<AzureSubscriptionAccountResource, AzureSubscriptionDetails>();
         }
+
+        public IServiceMessageHandler? ServiceMessageHandler => null;
     }
 }

@@ -6,7 +6,7 @@ using Sashimi.Server.Contracts.ServiceMessages;
 
 namespace Sashimi.Server.Contracts.Accounts
 {
-    public interface IAccountTypeProvider: IContributeMappings, IServiceMessageHandler
+    public interface IAccountTypeProvider: IContributeMappings
     {
         AccountDetails CreateViaServiceMessage(IDictionary<string, string> properties);
         AccountType AccountType { get; }
@@ -15,5 +15,6 @@ namespace Sashimi.Server.Contracts.Accounts
         IValidator Validator { get; }
         IVerifyAccount Verifier { get; }
         IEnumerable<(string key, object value)> GetFeatureUsage(IAccountMetricContext context);
+        IServiceMessageHandler? ServiceMessageHandler { get; }
     }
 }
