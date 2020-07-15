@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Octopus.Data.Model;
 using Octostache;
-using Sashimi.Azure.Common.Extensions;
 using Sashimi.AzureServiceFabric.Endpoints;
-using Sashimi.Server.Contracts;
-using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.Endpoints;
 using Sashimi.Server.Contracts.ServiceMessages;
 
@@ -17,77 +14,70 @@ namespace Sashimi.AzureServiceFabric
         static readonly string[] SecurityModeSecureClientCertificateAliases =
             {"secureclientcertificate", "clientcertificate", "certificate"};
 
-        static readonly string[] SecurityModeAzureActiveDirectoryAliases = {"aad", "azureactivedirectory",};
+        static readonly string[] SecurityModeAzureActiveDirectoryAliases = {"aad", "azureactivedirectory"};
 
         public string AuditEntryDescription => "Azure Service Fabric Target";
         public string ServiceMessageName => AzureServiceFabricServiceMessageNames.CreateTargetName;
-
-        public DeploymentTargetType DeploymentTargetType =>
-            AzureServiceFabricClusterEndpoint.AzureServiceFabricClusterDeploymentTargetType;
-
-        public AccountType[] SupportedAccountTypes { get; } = { };
-
-        public ServiceMessageValidationResult IsServiceMessageValid(IDictionary<string, string> messageProperties,
-            VariableDictionary variables)
-        {
-            var messages = new List<string>();
-            var securityModeValidation = ValidateSecurityMode(messageProperties);
-            messages.AddRange(securityModeValidation.Messages);
-
-            var connectionEndpointIsValid =
-                messageProperties.ContainsPropertyWithValue(AzureServiceFabricServiceMessageNames
-                    .ConnectionEndpointAttribute);
-            var isValid = securityModeValidation.IsValid && connectionEndpointIsValid;
-            if (!isValid)
-            {
-                if (!connectionEndpointIsValid) messages.Add("Connection endpoint is missing");
-                ServiceMessageValidationResult.Invalid(messages);
-            }
-
-            return ServiceMessageValidationResult.Valid;
-        }
 
         public Endpoint BuildEndpoint(IDictionary<string, string> messageProperties, VariableDictionary variables,
             Func<string, string> accountIdResolver,
             Func<string, string> certificateIdResolver)
         {
+            if (messageProperties == null) throw new ArgumentNullException(nameof(messageProperties));
+            if (variables == null) throw new ArgumentNullException(nameof(variables));
+
+            messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.ConnectionEndpointAttribute, out var connectionEndpoint);
+
             var azureServiceFabricClusterEndpoint = new AzureServiceFabricClusterEndpoint
             {
                 SecurityMode = GetSecurityMode(messageProperties),
-                ConnectionEndpoint =
-                    messageProperties[AzureServiceFabricServiceMessageNames.ConnectionEndpointAttribute]
+                ConnectionEndpoint = connectionEndpoint
             };
 
-            switch (azureServiceFabricClusterEndpoint.SecurityMode)
+            if (azureServiceFabricClusterEndpoint.SecurityMode == AzureServiceFabricSecurityMode.SecureClientCertificate &&
+                certificateIdResolver == null)
+                throw new ArgumentNullException(nameof(certificateIdResolver));
+
+            if (azureServiceFabricClusterEndpoint.SecurityMode == AzureServiceFabricSecurityMode.SecureClientCertificate)
             {
-                case AzureServiceFabricSecurityMode.SecureClientCertificate:
-                    var certificateId =
-                        certificateIdResolver(
-                            messageProperties[AzureServiceFabricServiceMessageNames.CertificateIdOrNameAttribute]);
-                    if (string.IsNullOrEmpty(certificateId))
+                messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.CertificateIdOrNameAttribute,
+                    out var certificateIdOrName);
+                if (!string.IsNullOrWhiteSpace(certificateIdOrName))
+                {
+                    var resolvedCertificateId = certificateIdResolver(certificateIdOrName);
+                    if (string.IsNullOrWhiteSpace(resolvedCertificateId))
                     {
                         var message =
-                            $"Certificate with Id / Name {messageProperties[AzureServiceFabricServiceMessageNames.CertificateIdOrNameAttribute]} not found.";
+                            $"Certificate with Id / Name {certificateIdOrName} not found.";
                         throw new Exception(message);
                     }
 
-                    azureServiceFabricClusterEndpoint.ClientCertVariable = certificateId;
-                    azureServiceFabricClusterEndpoint.ServerCertThumbprint =
-                        messageProperties[AzureServiceFabricServiceMessageNames.CertificateThumbprintAttribute];
-                    azureServiceFabricClusterEndpoint.CertificateStoreLocation =
-                        messageProperties[AzureServiceFabricServiceMessageNames.CertificateStoreLocationAttribute];
-                    azureServiceFabricClusterEndpoint.CertificateStoreName = GetCertificateStoreName(messageProperties);
-                    break;
-                case AzureServiceFabricSecurityMode.SecureAzureAD:
-                    azureServiceFabricClusterEndpoint.ServerCertThumbprint =
-                        messageProperties[AzureServiceFabricServiceMessageNames.CertificateThumbprintAttribute];
-                    azureServiceFabricClusterEndpoint.AadUserCredentialUsername =
-                        messageProperties[AzureServiceFabricServiceMessageNames.ActiveDirectoryUsernameAttribute];
-                    azureServiceFabricClusterEndpoint.AadUserCredentialPassword = new SensitiveString(
-                        messageProperties[AzureServiceFabricServiceMessageNames.ActiveDirectoryPasswordAttribute]);
-                    azureServiceFabricClusterEndpoint.AadCredentialType =
-                        AzureServiceFabricCredentialType.UserCredential;
-                    break;
+                    azureServiceFabricClusterEndpoint.ClientCertVariable = resolvedCertificateId;
+                }
+
+                messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.CertificateThumbprintAttribute,
+                    out var certificateThumbprint);
+                messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.CertificateStoreLocationAttribute,
+                    out var certificateStoreLocation);
+
+                azureServiceFabricClusterEndpoint.ServerCertThumbprint = certificateThumbprint;
+                azureServiceFabricClusterEndpoint.CertificateStoreLocation = certificateStoreLocation;
+                azureServiceFabricClusterEndpoint.CertificateStoreName = GetCertificateStoreName(messageProperties);
+            }
+            
+            if (azureServiceFabricClusterEndpoint.SecurityMode == AzureServiceFabricSecurityMode.SecureAzureAD)
+            {
+                messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.CertificateThumbprintAttribute,
+                    out var certificateThumbprint);
+                messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.ActiveDirectoryUsernameAttribute,
+                    out var activeDirectoryUsername);
+                messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.ActiveDirectoryPasswordAttribute,
+                    out var activeDirectoryPassword);
+
+                azureServiceFabricClusterEndpoint.ServerCertThumbprint = certificateThumbprint;
+                azureServiceFabricClusterEndpoint.AadUserCredentialUsername = activeDirectoryUsername;
+                azureServiceFabricClusterEndpoint.AadUserCredentialPassword = new SensitiveString(activeDirectoryPassword);
+                azureServiceFabricClusterEndpoint.AadCredentialType = AzureServiceFabricCredentialType.UserCredential;
             }
 
             return azureServiceFabricClusterEndpoint;
@@ -95,23 +85,28 @@ namespace Sashimi.AzureServiceFabric
 
         static string GetCertificateStoreName(IDictionary<string, string> messageProperties)
         {
-            return messageProperties.ContainsPropertyWithValue(AzureServiceFabricServiceMessageNames
-                .CertificateStoreNameAttribute)
-                ? "My"
-                : messageProperties[AzureServiceFabricServiceMessageNames.CertificateStoreNameAttribute];
+            if (messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.CertificateStoreNameAttribute,
+                out var certificateStoreName))
+            {
+                if (!string.IsNullOrWhiteSpace(certificateStoreName))
+                    return "My";
+            }
+
+            return certificateStoreName;
         }
 
         static AzureServiceFabricSecurityMode GetSecurityMode(IDictionary<string, string> messageProperties)
         {
-            var securityModeValue = messageProperties[AzureServiceFabricServiceMessageNames.SecurityModeAttribute];
+            messageProperties.TryGetValue(AzureServiceFabricServiceMessageNames.SecurityModeAttribute, out var securityModeValue);
+            
             if (SecurityModeSecureClientCertificateAliases.Any(x =>
-                securityModeValue.Equals(x, StringComparison.OrdinalIgnoreCase)))
+                x.Equals(securityModeValue, StringComparison.OrdinalIgnoreCase)))
             {
                 return AzureServiceFabricSecurityMode.SecureClientCertificate;
             }
 
             if (SecurityModeAzureActiveDirectoryAliases.Any(x =>
-                securityModeValue.Equals(x, StringComparison.OrdinalIgnoreCase)))
+                x.Equals(securityModeValue, StringComparison.OrdinalIgnoreCase)))
             {
                 return AzureServiceFabricSecurityMode.SecureAzureAD;
             }
@@ -119,61 +114,7 @@ namespace Sashimi.AzureServiceFabric
             return AzureServiceFabricSecurityMode.Unsecure;
         }
 
-        static ServiceMessageValidationResult ValidateSecurityMode(IDictionary<string, string> messageProperties)
-        {
-            var securityMode = GetSecurityMode(messageProperties);
-
-            var isValid = false;
-            var messages = new List<string>();
-
-            var certThumbprintIsValid =
-                messageProperties.ContainsPropertyWithValue(AzureServiceFabricServiceMessageNames
-                    .CertificateThumbprintAttribute);
-            var certificateIdOrNameIsValid =
-                messageProperties.ContainsPropertyWithValue(AzureServiceFabricServiceMessageNames
-                    .CertificateIdOrNameAttribute);
-            var activeDirectorUsernameIsValid =
-                messageProperties.ContainsPropertyWithValue(AzureServiceFabricServiceMessageNames
-                    .ActiveDirectoryUsernameAttribute);
-            var activeDirectoryPasswordIsValid =
-                messageProperties.ContainsPropertyWithValue(AzureServiceFabricServiceMessageNames
-                    .ActiveDirectoryPasswordAttribute);
-
-            switch (securityMode)
-            {
-                case AzureServiceFabricSecurityMode.Unsecure:
-                    isValid = true;
-                    break;
-                case AzureServiceFabricSecurityMode.SecureClientCertificate:
-                    isValid = certThumbprintIsValid && certificateIdOrNameIsValid;
-                    if (!isValid)
-                    {
-                        if (!certThumbprintIsValid) messages.Add("Certificate Thumbprint is missing");
-                        if (!certificateIdOrNameIsValid) messages.Add("Certificate Id Or Name is missing");
-                    }
-
-                    break;
-                case AzureServiceFabricSecurityMode.SecureAzureAD:
-                    isValid = certThumbprintIsValid && activeDirectorUsernameIsValid && activeDirectoryPasswordIsValid;
-                    if (!isValid)
-                    {
-                        if (!certThumbprintIsValid) messages.Add("Certificate Thumbprint is missing");
-                        if (!activeDirectorUsernameIsValid) messages.Add("Active Directory Username is missing");
-                        if (!activeDirectoryPasswordIsValid) messages.Add("Active Directory Password is missing");
-                    }
-
-                    break;
-            }
-
-            if (!isValid)
-            {
-                ServiceMessageValidationResult.Invalid(messages);
-            }
-
-            return ServiceMessageValidationResult.Valid;
-        }
-
-        static class AzureServiceFabricServiceMessageNames
+        internal static class AzureServiceFabricServiceMessageNames
         {
             public const string CreateTargetName = "create-azureservicefabrictarget";
             public const string ConnectionEndpointAttribute = "connectionEndpoint";

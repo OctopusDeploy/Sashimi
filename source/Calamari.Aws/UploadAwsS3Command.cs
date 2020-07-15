@@ -17,6 +17,7 @@ using Calamari.Commands.Support;
 using Calamari.Common.Variables;
 using Calamari.Deployment;
 using Calamari.Deployment.Conventions;
+using Calamari.Extensions;
 using Calamari.Integration.FileSystem;
 using Calamari.Util;
 using Octopus.CoreUtilities;

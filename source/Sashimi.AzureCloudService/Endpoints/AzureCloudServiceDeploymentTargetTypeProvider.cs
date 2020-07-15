@@ -13,6 +13,11 @@ namespace Sashimi.AzureCloudService.Endpoints
 {
     class AzureCloudServiceDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
     {
+        public AzureCloudServiceDeploymentTargetTypeProvider(AzureCloudServiceServiceMessageHandler azureCloudServiceServiceMessageHandler)
+        {
+            CreateTargetServiceMessageHandler = azureCloudServiceServiceMessageHandler;
+        }
+
         public DeploymentTargetType DeploymentTargetType =>
             AzureCloudServiceEndpoint.AzureCloudServiceDeploymentTargetType;
 
@@ -39,6 +44,6 @@ namespace Sashimi.AzureCloudService.Endpoints
             yield return ("azurecloudservices", total);
         }
 
-        public ICreateTargetServiceMessageHandler? CreateTargetServiceMessageHandler { get; } = new AzureCloudServiceServiceMessageHandler();
+        public ICreateTargetServiceMessageHandler? CreateTargetServiceMessageHandler { get; }
     }
 }
