@@ -36,7 +36,7 @@ namespace Sashimi.Azure.Accounts
             };
 
             if (properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.EnvironmentAttribute, out var environment) &&
-                !string.IsNullOrWhiteSpace(environment))
+                string.IsNullOrWhiteSpace(environment))
             {
                 properties.TryGetValue(CreateAzureAccountServiceMessagePropertyNames.ServicePrincipal.BaseUriAttribute,
                     out var baseUri);
