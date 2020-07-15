@@ -45,7 +45,7 @@ namespace Sashimi.AzureServiceFabric.Tests
 
             var errors = sut.ValidateAndGetErrors(endpoint);
 
-            errors.Should().Contain("'Azure AD Credential Type' must not be equal to 'ClientCredential'.");
+            errors.Should().Contain("'Azure AD Credential Type' must be equal to 'UserCredential'.");
         }
 
         [Test]
@@ -92,6 +92,9 @@ namespace Sashimi.AzureServiceFabric.Tests
             endpoint.SecurityMode = AzureServiceFabricSecurityMode.SecureClientCertificate;
             endpoint.ClientCertVariable = "abc";
             endpoint.ServerCertThumbprint = "123";
+            endpoint.CertificateStoreLocation = "Washington DC";
+            endpoint.CertificateStoreName = "Marvel";
+            
             var errors = sut.ValidateAndGetErrors(endpoint);
 
             errors.Should().BeEmpty();
