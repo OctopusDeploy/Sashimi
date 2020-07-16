@@ -278,7 +278,7 @@ namespace Sashimi.Tests.Shared.Server
 
             if (TestEnvironment.IsCI)
             {
-                var calamariFullPath = Path.GetFullPath(Path.Combine("..", "CalamariBinaries", calamariExe));
+                var calamariFullPath = Path.GetFullPath(Path.Combine(Environment.GetEnvironmentVariable("env.checkoutdir"), "CalamariBinaries", calamariExe));
                 Console.WriteLine("Running Calamari from: "+ calamariFullPath);
                 return new CommandLine(calamariFullPath);
             }
