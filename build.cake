@@ -115,26 +115,23 @@ Task("PublishCalamariProjects")
                         Framework = framework,
                         Runtime = runtime
 		    	    });
+                    Console.WriteLine($"{publishDir}{calamariFlavour}/{platform}");
+                    Zip($"{publishDir}{calamariFlavour}/{platform}", $"{artifactsDir}{calamariFlavour}.{platform}.zip");
                 }
 
                 if(framework.StartsWith("netcoreapp"))
                 {
                     var runtimes = XmlPeek(project, "Project/PropertyGroup/RuntimeIdentifiers").Split(';');
                     foreach(var runtime in runtimes)
-                    {
                         RunPublish(runtime, runtime);
-                        Console.WriteLine($"{publishDir}{calamariFlavour}/{runtime}");
-                        Zip($"{publishDir}{calamariFlavour}/{runtime}", $"{artifactsDir}{calamariFlavour}.{runtime}.zip");
-
-                    }
                 }
                 else
                 {
                     RunPublish(null, "netfx");
-                    Console.WriteLine($"{publishDir}{calamariFlavour}");
-                    Zip($"{publishDir}{calamariFlavour}/netfx", $"{artifactsDir}{calamariFlavour}.zip");
                 }
             }
+              Console.WriteLine($"{publishDir}/{calamariFlavour}");
+                        Zip($"{publishDir}{calamariFlavour}", $"{artifactsDir}{calamariFlavour}.zip");
         }
 });
 
