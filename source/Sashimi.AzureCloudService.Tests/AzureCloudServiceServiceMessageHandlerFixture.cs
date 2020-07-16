@@ -90,7 +90,7 @@ namespace Sashimi.AzureCloudService.Tests
         [Test]
         public void BuildEndpoint_WhenMessagePropertiesIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(null, new VariableDictionary(), _ => "", null, null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(null, new VariableDictionary(), _ => "", null, null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -98,7 +98,7 @@ namespace Sashimi.AzureCloudService.Tests
         [Test]
         public void BuildEndpoint_WhenVariableDictionaryIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), null, _ => "", null, null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), null, _ => "", null, null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -106,7 +106,7 @@ namespace Sashimi.AzureCloudService.Tests
         [Test]
         public void BuildEndpoint_WhenAccountIdResolverIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), new VariableDictionary(), null, null, null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), new VariableDictionary(), null, null, null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -127,7 +127,7 @@ namespace Sashimi.AzureCloudService.Tests
             }
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, variableDict, ResolveAccountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -159,7 +159,7 @@ namespace Sashimi.AzureCloudService.Tests
             }
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, variableDict, ResolveAccountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -186,7 +186,7 @@ namespace Sashimi.AzureCloudService.Tests
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties,
                 GetVariableDictionaryForBuildingEndpoint(), _ => accountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -210,7 +210,7 @@ namespace Sashimi.AzureCloudService.Tests
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties,
                 GetVariableDictionaryForBuildingEndpoint(), _ => accountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -236,7 +236,7 @@ namespace Sashimi.AzureCloudService.Tests
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties,
                 GetVariableDictionaryForBuildingEndpoint(), _ => accountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -261,7 +261,7 @@ namespace Sashimi.AzureCloudService.Tests
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties,
                 GetVariableDictionaryForBuildingEndpoint(), _ => accountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -287,7 +287,7 @@ namespace Sashimi.AzureCloudService.Tests
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties,
                 GetVariableDictionaryForBuildingEndpoint(), _ => accountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -312,7 +312,7 @@ namespace Sashimi.AzureCloudService.Tests
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties,
                 GetVariableDictionaryForBuildingEndpoint(), _ => accountId,
-                null, null);
+                null, null, null);
 
             AssertAzureCloudServiceEndpoint(endpoint, new ExpectedEndpointValues
             {

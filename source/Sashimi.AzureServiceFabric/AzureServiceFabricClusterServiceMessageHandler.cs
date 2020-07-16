@@ -4,6 +4,7 @@ using System.Linq;
 using Octopus.Data.Model;
 using Octostache;
 using Sashimi.AzureServiceFabric.Endpoints;
+using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.Endpoints;
 using Sashimi.Server.Contracts.ServiceMessages;
 
@@ -22,7 +23,8 @@ namespace Sashimi.AzureServiceFabric
         public Endpoint BuildEndpoint(IDictionary<string, string> messageProperties, VariableDictionary variables,
             Func<string, string> accountIdResolver,
             Func<string, string> certificateIdResolver,
-            Func<string, string> workerPoolIdResolver)
+            Func<string, string> workerPoolIdResolver, 
+            Func<string, AccountType> accountTypeResolver)
         {
             if (messageProperties == null) throw new ArgumentNullException(nameof(messageProperties));
             if (variables == null) throw new ArgumentNullException(nameof(variables));

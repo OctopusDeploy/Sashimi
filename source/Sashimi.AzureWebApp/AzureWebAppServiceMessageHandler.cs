@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Octopus.Diagnostics;
 using Octostache;
 using Sashimi.AzureWebApp.Endpoints;
+using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.Endpoints;
 using Sashimi.Server.Contracts.ServiceMessages;
 
@@ -21,7 +22,8 @@ namespace Sashimi.AzureWebApp
         public string ServiceMessageName => AzureWebAppServiceMessageNames.CreateTargetName;
 
         public Endpoint BuildEndpoint(IDictionary<string, string> messageProperties, VariableDictionary variables,
-            Func<string, string> accountIdResolver, Func<string, string> certificateIdResolver, Func<string, string> workerPoolIdResolver)
+            Func<string, string> accountIdResolver, Func<string, string> certificateIdResolver,
+            Func<string, string> workerPoolIdResolver, Func<string, AccountType> accountTypeResolver)
         {
             if (messageProperties == null) throw new ArgumentNullException(nameof(messageProperties));
             if (variables == null) throw new ArgumentNullException(nameof(variables));
