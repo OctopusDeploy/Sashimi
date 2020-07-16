@@ -7,6 +7,6 @@ namespace Sashimi.Server.Contracts.ServiceMessages
 {
     public interface ICreateTargetServiceMessageHandler : IServiceMessageHandler
     {
-        Endpoint BuildEndpoint(IDictionary<string, string> messageProperties, VariableDictionary variables, Func<string, string> accountIdResolver, Func<string, string> certificateIdResolver);
+        Endpoint BuildEndpoint(IDictionary<string, string> messageProperties, VariableDictionary variables, Func<string, string> accountIdResolver, Func<string, string> certificateIdResolver, Func<string, string> workerPoolIdResolver);
     }
 }

@@ -21,7 +21,8 @@ namespace Sashimi.AzureServiceFabric
 
         public Endpoint BuildEndpoint(IDictionary<string, string> messageProperties, VariableDictionary variables,
             Func<string, string> accountIdResolver,
-            Func<string, string> certificateIdResolver)
+            Func<string, string> certificateIdResolver,
+            Func<string, string> workerPoolIdResolver)
         {
             if (messageProperties == null) throw new ArgumentNullException(nameof(messageProperties));
             if (variables == null) throw new ArgumentNullException(nameof(variables));

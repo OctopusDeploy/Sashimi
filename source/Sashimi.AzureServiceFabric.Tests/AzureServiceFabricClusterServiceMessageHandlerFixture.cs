@@ -127,7 +127,7 @@ namespace Sashimi.AzureServiceFabric.Tests
         [Test]
         public void BuildEndpoint_WhenMessagePropertiesIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(null, new VariableDictionary(), _ => null, _ => null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(null, new VariableDictionary(), _ => null, _ => null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -135,7 +135,7 @@ namespace Sashimi.AzureServiceFabric.Tests
         [Test]
         public void BuildEndpoint_WhenVariableDictionaryIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), null, _ => null, _ => null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), null, _ => null, _ => null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -144,7 +144,7 @@ namespace Sashimi.AzureServiceFabric.Tests
         public void BuildEndpoint_WhenSecurityModeIsSecureClientCertificateAndCertificateIdResolverIsNull_ShouldThrowArgumentNullException()
         {
             var messageProperties = GetMessagePropertiesBySecurityMode(AllAliasesForSecureClientCertificate().First());
-            Action action = () => serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), _ => null, null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), _ => null, null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -158,7 +158,7 @@ namespace Sashimi.AzureServiceFabric.Tests
             var messageProperties = GetMessagePropertiesBySecurityMode(AllAliasesForSecureClientCertificate().First());
 
             Action action = () => serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null,
-                _ => invalidCertificateId);
+                _ => invalidCertificateId, null);
 
             action.Should().Throw<Exception>().Which.Message.Should().Be(
                 $"Certificate with Id / Name {messageProperties[AzureServiceFabricServiceMessageNames.CertificateIdOrNameAttribute]} not found.");
@@ -172,7 +172,7 @@ namespace Sashimi.AzureServiceFabric.Tests
 
             const string certificateId = "Certificates-1";
 
-            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId);
+            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId, null);
 
             AssertEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -193,7 +193,7 @@ namespace Sashimi.AzureServiceFabric.Tests
             var messageProperties = GetMessagePropertiesBySecurityMode(securityModeValue);
             const string certificateId = "Certificates-1";
             
-            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId);
+            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId, null);
 
             AssertEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -214,7 +214,7 @@ namespace Sashimi.AzureServiceFabric.Tests
             var messageProperties = GetMessagePropertiesBySecurityMode(securityModeValue);
             const string certificateId = "Certificates-3";
 
-            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId);
+            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId, null);
 
             AssertEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -234,7 +234,7 @@ namespace Sashimi.AzureServiceFabric.Tests
             
             const string certificateId = "Certificates-5";
 
-            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId);
+            var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), null, _ => certificateId, null);
 
             AssertEndpoint(endpoint, new ExpectedEndpointValues
             {

@@ -126,7 +126,7 @@ namespace Sashimi.AzureWebApp.Tests
         [Test]
         public void BuildEndpoint_WhenMessagePropertiesIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(null, new VariableDictionary(), _ => "", null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(null, new VariableDictionary(), _ => "", null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -134,7 +134,7 @@ namespace Sashimi.AzureWebApp.Tests
         [Test]
         public void BuildEndpoint_WhenVariableDictionaryIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), null, _ => "", null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), null, _ => "", null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -142,7 +142,7 @@ namespace Sashimi.AzureWebApp.Tests
         [Test]
         public void BuildEndpoint_WhenAccountIdResolverIsNull_ShouldThrowArgumentNullException()
         {
-            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), new VariableDictionary(), null, null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(new Dictionary<string, string>(), new VariableDictionary(), null, null, null);
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -152,7 +152,7 @@ namespace Sashimi.AzureWebApp.Tests
         {
             var messageProperties = GetMessageProperties();
 
-            Action action = () => serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), _ => null, null);
+            Action action = () => serviceMessageHandler.BuildEndpoint(messageProperties, new VariableDictionary(), _ => null, null, null);
 
             var expectedErrorMessage = $"Account with Id / Name, {messageProperties[AzureWebAppServiceMessageNames.AccountIdOrNameAttribute]}, not found.";
             action.Should().Throw<Exception>().Which.Message.Should().Be(expectedErrorMessage);
@@ -175,7 +175,7 @@ namespace Sashimi.AzureWebApp.Tests
             }
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, variableDict, ResolveAccountId,
-                null);
+                null, null);
 
             AssertAzureWebAppEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -206,7 +206,7 @@ namespace Sashimi.AzureWebApp.Tests
             }
 
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, variableDict, ResolveAccountId,
-                null);
+                null, null);
 
             AssertAzureWebAppEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -226,7 +226,7 @@ namespace Sashimi.AzureWebApp.Tests
 
             const string accountId = "Accounts-12";
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, variableDict, _ => accountId,
-                null);
+                null, null);
 
             AssertAzureWebAppEndpoint(endpoint, new ExpectedEndpointValues
             {
@@ -245,7 +245,7 @@ namespace Sashimi.AzureWebApp.Tests
 
             const string accountId = "Accounts-12";
             var endpoint = serviceMessageHandler.BuildEndpoint(messageProperties, variableDict, _ => accountId,
-                null);
+                null, null);
 
             AssertAzureWebAppEndpoint(endpoint, new ExpectedEndpointValues
             {
