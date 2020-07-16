@@ -273,6 +273,9 @@ namespace Sashimi.Tests.Shared.Server
         //Need to build and load correct version of Calamari and TC
         CommandLine Calamari()
         {
+            Console.WriteLine("Current directory: "+ Environment.CurrentDirectory);
+            Console.WriteLine("DLL directory: "+ GetType().Assembly.FullLocalPath());
+
             var calamariFullPathInSashimiTestFolder = typeof(TCalamariProgram).Assembly.FullLocalPath();
             var calamariExe = Path.GetFileNameWithoutExtension(calamariFullPathInSashimiTestFolder);
 
