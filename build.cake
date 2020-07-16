@@ -111,7 +111,7 @@ Task("PublishCalamariProjects")
                      DotNetCorePublish(project.FullPath, new DotNetCorePublishSettings
 		    	    {
 		    	    	Configuration = configuration,
-                        OutputDirectory = $"{publishDir}/{calamariFlavour}/{platform}",
+                        OutputDirectory = $"{publishDir}{calamariFlavour}/{platform}",
                         Framework = framework,
                         Runtime = runtime
 		    	    });
@@ -121,15 +121,20 @@ Task("PublishCalamariProjects")
                 {
                     var runtimes = XmlPeek(project, "Project/PropertyGroup/RuntimeIdentifiers").Split(';');
                     foreach(var runtime in runtimes)
+                    {
                         RunPublish(runtime, runtime);
+                        Console.WriteLine($"{publishDir}{calamariFlavour}/{runtime}");
+                        Zip($"{publishDir}{calamariFlavour}/{runtime}", $"{artifactsDir}{calamariFlavour}.{runtime}.zip");
+
+                    }
                 }
                 else
                 {
                     RunPublish(null, "netfx");
+                    Console.WriteLine($"{publishDir}{calamariFlavour}");
+                    Zip($"{publishDir}{calamariFlavour}/netfx", $"{artifactsDir}{calamariFlavour}.zip");
                 }
             }
-            Console.WriteLine($"{publishDir}/{calamariFlavour}");
-            Zip($"{publishDir}{calamariFlavour}", $"{artifactsDir}{calamariFlavour}.zip");
         }
 });
 
