@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Calamari;
 using Calamari.Integration.FileSystem;
+using Calamari.Integration.Processes;
+using Calamari.Tests.Helpers;
 using Calamari.Tests.Shared;
 using Calamari.Tests.Shared.Helpers;
 using Calamari.Tests.Shared.LogParser;
 using Calamari.Util;
+using Calamari.Variables;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
@@ -171,6 +176,14 @@ namespace Sashimi.Tests.Shared.Server
 
         IActionHandlerResult ExecuteActionHandler(List<string> args)
         {
+//            if (TestEnvironment.IsCI)
+            return ExecuteActionHandlerOutOfProc(args);
+            // else
+            //     return ExecuteActionHandlerInProc(args);
+        }
+
+        IActionHandlerResult ExecuteActionHandlerInProc(List<string> args)
+        {
             AssertMatchingCalamariFlavour();
 
             var inMemoryLog = new InMemoryLog();
@@ -213,6 +226,94 @@ namespace Sashimi.Tests.Shared.Server
                 outputFilter.TestOutputVariables, outputFilter.Actions,
                 outputFilter.ServiceMessages, outputFilter.ResultMessage, outputFilter.Artifacts,
                 serverInMemoryLog.ToString());
+        }
+
+        IActionHandlerResult ExecuteActionHandlerOutOfProc(List<string> args)
+        {
+            using (var variablesFile = new TemporaryFile(Path.GetTempFileName()))
+            {
+                variables.Save(variablesFile.FilePath);
+
+                var commandLine = Calamari();
+                foreach (var argument in args)
+                    commandLine = commandLine.Argument(argument);
+
+                var calamariResult = Invoke(commandLine);
+
+                var capturedOutput = calamariResult.CapturedOutput;
+
+                var serverInMemoryLog = new ServerInMemoryLog();
+
+                var outputFilter = new ScriptOutputFilter(serverInMemoryLog);
+                foreach (var text in capturedOutput.Errors)
+                {
+                    outputFilter.Write(ProcessOutputSource.StdErr, text);
+                }
+
+                foreach (var text in capturedOutput.Infos)
+                {
+                    outputFilter.Write(ProcessOutputSource.StdOut, text);
+                }
+
+                return new TestActionHandlerResult(calamariResult.ExitCode,
+                    outputFilter.TestOutputVariables, outputFilter.Actions,
+                    outputFilter.ServiceMessages, outputFilter.ResultMessage, outputFilter.Artifacts,
+                    serverInMemoryLog.ToString());
+            }
+        }
+
+        //If local
+        //NetCore - run in proc
+        //NetFull - run out of proc
+
+        //If Teamcity
+        //Use a folder that we already expect
+        //Need to build and load correct version of Calamari and TC
+        CommandLine Calamari()
+        {
+            var calamariFullPath = typeof(TCalamariProgram).Assembly.FullLocalPath();
+            var calamariExe = Path.GetFileNameWithoutExtension(calamariFullPath);
+
+            if (TestEnvironment.IsCI)
+            {
+            }
+            else
+            {
+                //Change these to your liking
+                var configuration = "Debug";
+                var targetFramework = "net452";
+                var runtime = "win-x64";
+
+                //When running out of process locally, always publish so we get something runnable for NetCore
+                var calamariProjectFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(calamariFullPath), "../../../..", calamariExe));
+                DotNetPublish(calamariProjectFolder, configuration, targetFramework, runtime);
+
+                var publishedFullPath = Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariExe);
+                return new CommandLine(publishedFullPath);
+            }
+
+            return new CommandLine(calamariFullPath);
+
+            void DotNetPublish(string calamariProjectFolder, string configuration, string targetFramework, string runtime)
+            {
+                var stdOut = new StringBuilder();
+                var stdError = new StringBuilder();
+                var result = SilentProcessRunner.ExecuteCommand($"dotnet",
+                    $"publish --framework {targetFramework} --configuration {configuration} --runtime {runtime}",
+                    calamariProjectFolder,
+                    s => stdOut.AppendLine(s),
+                    s => stdError.AppendLine(s));
+
+                if (result.ExitCode != 0)
+                    throw new Exception(stdOut.ToString() + stdError);
+            }
+        }
+
+        protected CalamariResult Invoke(CommandLine command, IVariables? variables = null)
+        {
+            var runner = new TestCommandLineRunner(ConsoleLog.Instance, variables ?? new CalamariVariables());
+            var result = runner.Execute(command.Build());
+            return new CalamariResult(result.ExitCode, runner.Output);
         }
 
         void Copy(string sourcePath, string destinationPath)
