@@ -176,14 +176,15 @@ namespace Sashimi.Tests.Shared.Server
 
         IActionHandlerResult ExecuteActionHandler(List<string> args)
         {
-//            if (TestEnvironment.IsCI)
-            return ExecuteActionHandlerOutOfProc(args);
-            // else
-            //     return ExecuteActionHandlerInProc(args);
+            if (TestEnvironment.IsCI)
+                return ExecuteActionHandlerOutOfProc(args);
+            else
+                return ExecuteActionHandlerInProc(args);
         }
 
         IActionHandlerResult ExecuteActionHandlerInProc(List<string> args)
         {
+            Console.WriteLine("Running Calamari In Proc");
             AssertMatchingCalamariFlavour();
 
             var inMemoryLog = new InMemoryLog();
@@ -230,6 +231,7 @@ namespace Sashimi.Tests.Shared.Server
 
         IActionHandlerResult ExecuteActionHandlerOutOfProc(List<string> args)
         {
+            Console.WriteLine("Running Calamari Out of Proc");
             using (var variablesFile = new TemporaryFile(Path.GetTempFileName()))
             {
                 variables.Save(variablesFile.FilePath);
@@ -271,11 +273,14 @@ namespace Sashimi.Tests.Shared.Server
         //Need to build and load correct version of Calamari and TC
         CommandLine Calamari()
         {
-            var calamariFullPath = typeof(TCalamariProgram).Assembly.FullLocalPath();
-            var calamariExe = Path.GetFileNameWithoutExtension(calamariFullPath);
+            var calamariFullPathInSashimiTestFolder = typeof(TCalamariProgram).Assembly.FullLocalPath();
+            var calamariExe = Path.GetFileNameWithoutExtension(calamariFullPathInSashimiTestFolder);
 
             if (TestEnvironment.IsCI)
             {
+                var calamariFullPath = Path.GetFullPath(Path.Combine("..", "CalamariBinaries", calamariExe));
+                Console.WriteLine("Running Calamari from: "+ calamariFullPath);
+                return new CommandLine(calamariFullPath);
             }
             else
             {
@@ -285,14 +290,13 @@ namespace Sashimi.Tests.Shared.Server
                 var runtime = "win-x64";
 
                 //When running out of process locally, always publish so we get something runnable for NetCore
-                var calamariProjectFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(calamariFullPath), "../../../..", calamariExe));
+                var calamariProjectFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(calamariFullPathInSashimiTestFolder), "../../../..", calamariExe));
                 DotNetPublish(calamariProjectFolder, configuration, targetFramework, runtime);
 
-                var publishedFullPath = Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariExe);
-                return new CommandLine(publishedFullPath);
+                var calamariFullPath = Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariExe);
+                Console.WriteLine("Running Calamari from: "+ calamariFullPath);
+                return new CommandLine(calamariFullPath);
             }
-
-            return new CommandLine(calamariFullPath);
 
             void DotNetPublish(string calamariProjectFolder, string configuration, string targetFramework, string runtime)
             {
@@ -309,7 +313,7 @@ namespace Sashimi.Tests.Shared.Server
             }
         }
 
-        protected CalamariResult Invoke(CommandLine command, IVariables? variables = null)
+        CalamariResult Invoke(CommandLine command, IVariables? variables = null)
         {
             var runner = new TestCommandLineRunner(ConsoleLog.Instance, variables ?? new CalamariVariables());
             var result = runner.Execute(command.Build());

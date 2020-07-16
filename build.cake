@@ -130,8 +130,8 @@ Task("PublishCalamariProjects")
                     RunPublish(null, "netfx");
                 }
             }
-              Console.WriteLine($"{publishDir}/{calamariFlavour}");
-                        Zip($"{publishDir}{calamariFlavour}", $"{artifactsDir}{calamariFlavour}.zip");
+            Console.WriteLine($"{publishDir}/{calamariFlavour}");
+            Zip($"{publishDir}{calamariFlavour}", $"{artifactsDir}{calamariFlavour}.zip");
         }
 });
 
