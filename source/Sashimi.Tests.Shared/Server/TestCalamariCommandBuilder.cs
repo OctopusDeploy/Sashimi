@@ -280,7 +280,7 @@ namespace Sashimi.Tests.Shared.Server
             var calamariExe = Path.GetFileNameWithoutExtension(calamariFullPathInSashimiTestFolder);
 
             Console.WriteLine("calamariFullPathInSashimiTestFolder directory: "+ GetType().Assembly.FullLocalPath());
-            var fullPath = Path.GetFullPath(Path.Combine(calamariFullPathInSashimiTestFolder, "..", "CalamariBinaries", calamariExe));
+            var fullPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(calamariFullPathInSashimiTestFolder), "..", "CalamariBinaries", calamariExe));
             Console.WriteLine("pretend directory: "+ fullPath);
 
             if (TestEnvironment.IsCI)
