@@ -279,9 +279,13 @@ namespace Sashimi.Tests.Shared.Server
             var calamariFullPathInSashimiTestFolder = typeof(TCalamariProgram).Assembly.FullLocalPath();
             var calamariExe = Path.GetFileNameWithoutExtension(calamariFullPathInSashimiTestFolder);
 
+            Console.WriteLine("calamariFullPathInSashimiTestFolder directory: "+ GetType().Assembly.FullLocalPath());
+            var fullPath = Path.GetFullPath(Path.Combine(calamariFullPathInSashimiTestFolder, "..", "CalamariBinaries", calamariExe));
+            Console.WriteLine("pretend directory: "+ fullPath);
+
             if (TestEnvironment.IsCI)
             {
-                var calamariFullPath = Path.GetFullPath(Path.Combine(Environment.GetEnvironmentVariable("env.checkoutdir"), "CalamariBinaries", calamariExe));
+                var calamariFullPath = fullPath;//Path.GetFullPath(Path.Combine(Environment.GetEnvironmentVariable("env.checkoutdir"), "CalamariBinaries", calamariExe));
                 Console.WriteLine("Running Calamari from: "+ calamariFullPath);
                 return new CommandLine(calamariFullPath);
             }
