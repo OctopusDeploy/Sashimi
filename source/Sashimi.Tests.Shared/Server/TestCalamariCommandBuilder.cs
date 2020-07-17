@@ -176,15 +176,31 @@ namespace Sashimi.Tests.Shared.Server
 
         IActionHandlerResult ExecuteActionHandler(List<string> args)
         {
+            const string inProcOutProcOverrideEnvironmentVariableName = "inproc_outproc_override";
+            const string inProc = "inproc";
+            const string outroc = "outproc";
+
+            var inProcOutProcOverride = Environment.GetEnvironmentVariable(inProcOutProcOverrideEnvironmentVariableName);
+            if (!string.IsNullOrEmpty(inProcOutProcOverride))
+            {
+                if (inProc.Equals(inProcOutProcOverride, StringComparison.OrdinalIgnoreCase))
+                    return ExecuteActionHandlerInProc(args);
+
+                if (outroc.Equals(inProcOutProcOverride, StringComparison.OrdinalIgnoreCase))
+                    return ExecuteActionHandlerOutProc(args);
+
+                throw new Exception($"'{inProcOutProcOverrideEnvironmentVariableName}' environment variable must be '{inProc}' or '{outroc}'");
+            }
+
             if (TestEnvironment.IsCI)
-                return ExecuteActionHandlerOutOfProc(args);
+                return ExecuteActionHandlerOutProc(args);
             else
                 return ExecuteActionHandlerInProc(args);
         }
 
         IActionHandlerResult ExecuteActionHandlerInProc(List<string> args)
         {
-            Console.WriteLine("Running Calamari In Proc");
+            Console.WriteLine("Running Calamari InProc");
             AssertMatchingCalamariFlavour();
 
             var inMemoryLog = new InMemoryLog();
@@ -229,14 +245,17 @@ namespace Sashimi.Tests.Shared.Server
                 serverInMemoryLog.ToString());
         }
 
-        IActionHandlerResult ExecuteActionHandlerOutOfProc(List<string> args)
+        IActionHandlerResult ExecuteActionHandlerOutProc(List<string> args)
         {
-            Console.WriteLine("Running Calamari Out of Proc");
+            Console.WriteLine("Running Calamari OutProc");
             using (var variablesFile = new TemporaryFile(Path.GetTempFileName()))
             {
                 variables.Save(variablesFile.FilePath);
 
-                var commandLine = Calamari();
+                var calamariFullPath = GetOutProcCalamariExePath();
+                Console.WriteLine("Running Calamari from: "+ calamariFullPath);
+
+                var commandLine = new CommandLine(calamariFullPath);
                 foreach (var argument in args)
                     commandLine = commandLine.Argument(argument);
 
@@ -264,46 +283,27 @@ namespace Sashimi.Tests.Shared.Server
             }
         }
 
-        //If local
-        //NetCore - run in proc
-        //NetFull - run out of proc
-
-        //If Teamcity
-        //Use a folder that we already expect
-        //Need to build and load correct version of Calamari and TC
-        CommandLine Calamari()
+        string GetOutProcCalamariExePath()
         {
-            Console.WriteLine("Current directory: "+ Environment.CurrentDirectory);
-            Console.WriteLine("DLL directory: "+ GetType().Assembly.FullLocalPath());
-
-            var calamariFullPathInSashimiTestFolder = typeof(TCalamariProgram).Assembly.FullLocalPath();
-            var calamariExe = Path.GetFileNameWithoutExtension(calamariFullPathInSashimiTestFolder);
-
-            Console.WriteLine("calamariFullPathInSashimiTestFolder directory: "+ GetType().Assembly.FullLocalPath());
-            var fullPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(calamariFullPathInSashimiTestFolder), "..", "CalamariBinaries", calamariExe));
-            Console.WriteLine("pretend directory: "+ fullPath);
+            var calamariFlavour = typeof(TCalamariProgram).Assembly.GetName().Name;
+            var sashimiTestFolder = Path.GetDirectoryName(typeof(TCalamariProgram).Assembly.FullLocalPath());
 
             if (TestEnvironment.IsCI)
             {
-                var calamariFullPath = fullPath;//Path.GetFullPath(Path.Combine(Environment.GetEnvironmentVariable("env.checkoutdir"), "CalamariBinaries", calamariExe));
-                Console.WriteLine("Running Calamari from: "+ calamariFullPath);
-                return new CommandLine(calamariFullPath);
+                var calamaribinariesFolder = "CalamariBinaries"; //This is where Teamcity puts the Calamari binaries, extract to environment variable?
+                return Path.GetFullPath(Path.Combine(sashimiTestFolder, "..", calamaribinariesFolder, calamariFlavour));
             }
-            else
-            {
-                //Change these to your liking
-                var configuration = "Debug";
-                var targetFramework = "net452";
-                var runtime = "win-x64";
 
-                //When running out of process locally, always publish so we get something runnable for NetCore
-                var calamariProjectFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(calamariFullPathInSashimiTestFolder), "../../../..", calamariExe));
-                DotNetPublish(calamariProjectFolder, configuration, targetFramework, runtime);
+            //Running locally - change these to your liking
+            var configuration = "Debug";
+            var targetFramework = "net452";
+            var runtime = "win-x64";
 
-                var calamariFullPath = Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariExe);
-                Console.WriteLine("Running Calamari from: "+ calamariFullPath);
-                return new CommandLine(calamariFullPath);
-            }
+            //When running out of process locally, always publish so we get something runnable for NetCore
+            var calamariProjectFolder = Path.GetFullPath(Path.Combine(sashimiTestFolder, "../../../..", calamariFlavour));
+            DotNetPublish(calamariProjectFolder, configuration, targetFramework, runtime);
+
+            return Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariFlavour);
 
             void DotNetPublish(string calamariProjectFolder, string configuration, string targetFramework, string runtime)
             {
