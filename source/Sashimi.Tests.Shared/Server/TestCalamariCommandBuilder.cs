@@ -255,8 +255,7 @@ namespace Sashimi.Tests.Shared.Server
                 var calamariFullPath = GetOutProcCalamariExePath();
                 Console.WriteLine("Running Calamari from: "+ calamariFullPath);
 
-                var commandLine = new CommandLine("/usr/bin/mono");
-                commandLine.Argument(calamariFullPath);
+                var commandLine = new CommandLine(calamariFullPath);
                 foreach (var argument in args)
                     commandLine = commandLine.Argument(argument);
 
