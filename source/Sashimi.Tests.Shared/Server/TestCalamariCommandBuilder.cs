@@ -290,9 +290,9 @@ namespace Sashimi.Tests.Shared.Server
 
             if (TestEnvironment.IsCI)
             {
-                //This is where Teamcity puts the Calamari binaries, extract to environment variable?
-                var calamaribinariesFolder = "CalamariBinaries";
-                return AddExeIfNecessary(Path.GetFullPath(Path.Combine(sashimiTestFolder, "..", calamaribinariesFolder, calamariFlavour)));
+                //This is where Teamcity puts the Calamari binaries
+                var calamaribinariesFolder = Environment.GetEnvironmentVariable("CalamariBinaries");
+                return AddExeIfNecessary(Path.GetFullPath(Path.Combine(sashimiTestFolder, calamaribinariesFolder, calamariFlavour)));
             }
 
             //Running locally - change these to your liking
