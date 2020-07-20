@@ -290,8 +290,9 @@ namespace Sashimi.Tests.Shared.Server
 
             if (TestEnvironment.IsCI)
             {
-                var calamaribinariesFolder = "CalamariBinaries"; //This is where Teamcity puts the Calamari binaries, extract to environment variable?
-                return Path.GetFullPath(Path.Combine(sashimiTestFolder, "..", calamaribinariesFolder, calamariFlavour));
+                //This is where Teamcity puts the Calamari binaries, extract to environment variable?
+                var calamaribinariesFolder = "CalamariBinaries";
+                return AddExeIfNecessary(Path.GetFullPath(Path.Combine(sashimiTestFolder, "..", calamaribinariesFolder, calamariFlavour)));
             }
 
             //Running locally - change these to your liking
@@ -303,7 +304,7 @@ namespace Sashimi.Tests.Shared.Server
             var calamariProjectFolder = Path.GetFullPath(Path.Combine(sashimiTestFolder, "../../../..", calamariFlavour));
             DotNetPublish(calamariProjectFolder, configuration, targetFramework, runtime);
 
-            return Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariFlavour);
+            return AddExeIfNecessary(Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariFlavour));
 
             void DotNetPublish(string calamariProjectFolder, string configuration, string targetFramework, string runtime)
             {
@@ -317,6 +318,18 @@ namespace Sashimi.Tests.Shared.Server
 
                 if (result.ExitCode != 0)
                     throw new Exception(stdOut.ToString() + stdError);
+            }
+
+            string AddExeIfNecessary(string exePath)
+            {
+                if (File.Exists(exePath))
+                    return exePath;
+
+                var withExeExtension = exePath + ".exe";
+                if (File.Exists(withExeExtension))
+                    return withExeExtension;
+
+                throw new Exception($"Calamari exe doesn't exist on disk: '{exePath}'");
             }
         }
 
