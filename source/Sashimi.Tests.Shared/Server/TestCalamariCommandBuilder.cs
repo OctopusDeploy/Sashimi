@@ -6,19 +6,22 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Calamari;
-using Calamari.Integration.FileSystem;
-using Calamari.Integration.Processes;
+using Calamari.Common;
+using Calamari.Common.Features.Processes;
+using Calamari.Common.Plumbing;
+using Calamari.Common.Plumbing.Extensions;
+using Calamari.Common.Plumbing.FileSystem;
+using Calamari.Common.Plumbing.Logging;
+using Calamari.Common.Plumbing.Variables;
 using Calamari.Tests.Helpers;
 using Calamari.Tests.Shared;
 using Calamari.Tests.Shared.Helpers;
 using Calamari.Tests.Shared.LogParser;
-using Calamari.Util;
-using Calamari.Variables;
-using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
 using Sashimi.Server.Contracts.CommandBuilders;
 using Sashimi.Server.Contracts.DeploymentTools;
+using KnownVariables = Sashimi.Server.Contracts.KnownVariables;
 
 namespace Sashimi.Tests.Shared.Server
 {

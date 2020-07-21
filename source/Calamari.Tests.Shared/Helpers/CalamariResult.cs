@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Calamari.Integration.ServiceMessages;
-using Calamari.Util;
+using Calamari.Common.Plumbing.Extensions;
+using Calamari.Common.Plumbing.ServiceMessages;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
