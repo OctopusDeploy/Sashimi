@@ -24,6 +24,15 @@ namespace Sashimi.Tests.Shared.Server
 {
     class TestCalamariCommandBuilder<TCalamariProgram> : ICalamariCommandBuilder where TCalamariProgram : CalamariFlavourProgram
     {
+        const string CalamaribinariesLocationEnvironmentVariable = "CalamariBinaries";
+
+        static class InProcOutProcOverride
+        {
+            public static readonly string EnvironmentVariable = "inproc_outproc_override";
+            public static readonly string InProcValue = "inproc";
+            public static readonly string OutProcValue = "outproc";
+        }
+
         public TestCalamariCommandBuilder(CalamariFlavour calamariFlavour, string calamariCommand)
         {
             CalamariFlavour = calamariFlavour;
@@ -176,20 +185,16 @@ namespace Sashimi.Tests.Shared.Server
 
         IActionHandlerResult ExecuteActionHandler(List<string> args)
         {
-            const string inProcOutProcOverrideEnvironmentVariableName = "inproc_outproc_override";
-            const string inProc = "inproc";
-            const string outroc = "outproc";
-
-            var inProcOutProcOverride = Environment.GetEnvironmentVariable(inProcOutProcOverrideEnvironmentVariableName);
+            var inProcOutProcOverride = Environment.GetEnvironmentVariable(InProcOutProcOverride.EnvironmentVariable);
             if (!string.IsNullOrEmpty(inProcOutProcOverride))
             {
-                if (inProc.Equals(inProcOutProcOverride, StringComparison.OrdinalIgnoreCase))
+                if (InProcOutProcOverride.InProcValue.Equals(inProcOutProcOverride, StringComparison.OrdinalIgnoreCase))
                     return ExecuteActionHandlerInProc(args);
 
-                if (outroc.Equals(inProcOutProcOverride, StringComparison.OrdinalIgnoreCase))
+                if (InProcOutProcOverride.OutProcValue.Equals(inProcOutProcOverride, StringComparison.OrdinalIgnoreCase))
                     return ExecuteActionHandlerOutProc(args);
 
-                throw new Exception($"'{inProcOutProcOverrideEnvironmentVariableName}' environment variable must be '{inProc}' or '{outroc}'");
+                throw new Exception($"'{InProcOutProcOverride.EnvironmentVariable}' environment variable must be '{InProcOutProcOverride.InProcValue}' or '{InProcOutProcOverride.OutProcValue}'");
             }
 
             if (TestEnvironment.IsCI)
@@ -291,7 +296,7 @@ namespace Sashimi.Tests.Shared.Server
             if (TestEnvironment.IsCI)
             {
                 //This is where Teamcity puts the Calamari binaries
-                var calamaribinariesFolder = Environment.GetEnvironmentVariable("CalamariBinaries");
+                var calamaribinariesFolder = Environment.GetEnvironmentVariable(CalamaribinariesLocationEnvironmentVariable);
                 return AddExeIfNecessary(Path.GetFullPath(Path.Combine(sashimiTestFolder, calamaribinariesFolder, calamariFlavour)));
             }
 
