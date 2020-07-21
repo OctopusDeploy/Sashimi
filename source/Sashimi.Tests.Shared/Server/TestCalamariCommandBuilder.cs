@@ -260,6 +260,8 @@ namespace Sashimi.Tests.Shared.Server
                 var calamariFullPath = GetOutProcCalamariExePath();
                 Console.WriteLine("Running Calamari from: "+ calamariFullPath);
 
+                MakeExecutable(calamariFullPath);
+
                 var commandLine = new CommandLine(calamariFullPath);
                 foreach (var argument in args)
                     commandLine = commandLine.Argument(argument);
@@ -286,6 +288,23 @@ namespace Sashimi.Tests.Shared.Server
                     outputFilter.ServiceMessages, outputFilter.ResultMessage, outputFilter.Artifacts,
                     serverInMemoryLog.ToString());
             }
+        }
+
+        static void MakeExecutable(string calamariFullPath)
+        {
+            if (!CalamariEnvironment.IsRunningOnNix)
+                return;
+
+            var stdOut = new StringBuilder();
+            var stdError = new StringBuilder();
+            var result = SilentProcessRunner.ExecuteCommand("chmod",
+                $"+x {calamariFullPath}",
+                Path.GetDirectoryName(calamariFullPath),
+                s => stdOut.AppendLine(s),
+                s => stdError.AppendLine(s));
+
+            if (result.ExitCode != 0)
+                throw new Exception(stdOut.ToString() + stdError);
         }
 
         string GetOutProcCalamariExePath()
