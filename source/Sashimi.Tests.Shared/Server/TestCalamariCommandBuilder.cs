@@ -24,13 +24,13 @@ namespace Sashimi.Tests.Shared.Server
 {
     class TestCalamariCommandBuilder<TCalamariProgram> : ICalamariCommandBuilder where TCalamariProgram : CalamariFlavourProgram
     {
-        const string CalamaribinariesLocationEnvironmentVariable = "CalamariBinaries";
+        const string CalamaribinariesLocationEnvironmentVariable = "CalamariBinaries_RelativePath";
 
         static class InProcOutProcOverride
         {
-            public static readonly string EnvironmentVariable = "inproc_outproc_override";
-            public static readonly string InProcValue = "inproc";
-            public static readonly string OutProcValue = "outproc";
+            public static readonly string EnvironmentVariable = "Test_Calamari_InProc_OutProc_Override";
+            public static readonly string InProcValue = "InProc";
+            public static readonly string OutProcValue = "OutProc";
         }
 
         public TestCalamariCommandBuilder(CalamariFlavour calamariFlavour, string calamariCommand)
