@@ -295,7 +295,7 @@ namespace Sashimi.Tests.Shared.Server
 
         static void MakeExecutable(string calamariFullPath)
         {
-            if (!CalamariEnvironment.IsRunningOnNix)
+            if (CalamariEnvironment.IsRunningOnWindows)
                 return;
 
             var stdOut = new StringBuilder();
