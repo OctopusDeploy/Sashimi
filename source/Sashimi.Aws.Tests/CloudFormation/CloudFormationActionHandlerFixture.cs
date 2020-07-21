@@ -96,8 +96,9 @@ namespace Sashimi.Aws.Tests.CloudFormation
                 .Replace("@BucketName", bucketName);
             CreateFile(tempFolderPath, templateFileName, templateContent);
 
-            var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
-            var pathToPackage = Path.Combine(tempFolderPath, packageFileName);
+            var packageId = $"{nameof(RunCloudFormation_PackageWithoutParameters)}";
+            var packageFileName = CreateNugetPackage(packageId, tempFolderPath);
+            var pathToPackage = (packageId, Path.Combine(tempFolderPath, packageFileName));
 
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
@@ -137,8 +138,9 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     .Replace("@NamePlainParamValue", namePlainParamValue);
             CreateFile(tempFolderPath, parametersFileName, parametersContent);
 
-            var packageFileName = CreateNugetPackage($"{nameof(RunCloudFormation_PackageWithoutParameters)}", tempFolderPath);
-            var pathToPackage = Path.Combine(tempFolderPath, packageFileName);
+            var packageId = $"{nameof(RunCloudFormation_PackageWithoutParameters)}";
+            var packageFileName = CreateNugetPackage(packageId, tempFolderPath);
+            var pathToPackage = (packageId, Path.Combine(tempFolderPath, packageFileName));
 
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
@@ -165,19 +167,19 @@ namespace Sashimi.Aws.Tests.CloudFormation
         public void RunCloudFormation_ChangeSet()
         {
             var bucketName = $"{ValidBucketNamePrefix}{UniqueName.Generate()}";
-            var pathToPackage = TestEnvironment.GetTestPath(@"Packages/CloudFormationS3.1.0.0.nupkg");
+            var package = ("CloudFormationS3", TestEnvironment.GetTestPath(@"Packages/CloudFormationS3.1.0.0.nupkg"));
 
             // create bucket
-            CreateBucket(stackName, bucketName, pathToPackage);
+            CreateBucket(stackName, bucketName, package);
 
             // remove bucket tags
-            var (changeSetId, stackId) = RemoveBucketTag(stackName, bucketName, pathToPackage);
+            var (changeSetId, stackId) = RemoveBucketTag(stackName, bucketName, package);
 
             // apply remove bucket tags
             ApplyChangeSet(changeSetId, stackId, bucketName);
 
             // create bucket again
-            CreateBucketAgain(stackName, bucketName, pathToPackage);
+            CreateBucketAgain(stackName, bucketName, package);
         }
 
         [TearDown]
@@ -201,7 +203,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                 .Execute();
         }
 
-        static void CreateBucketAgain(string stackName, string bucketName, string pathToPackage)
+        static void CreateBucketAgain(string stackName, string bucketName, (string Id, string Path) package)
         {
             ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
@@ -212,7 +214,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         .WithStackRole(AwsStackRole)
                         .WithCloudFormationChangeSets()
                         .WithAwsTemplatePackageSource("bucket.json", "bucket-parameters.json")
-                        .WithPackage(pathToPackage);
+                        .WithPackage(package);
 
                     context.Variables.Add("BucketName", bucketName);
                     context.Variables.Add("TransformIncludeLocation", TransformIncludeLocation);
@@ -239,7 +241,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                 .Execute();
         }
 
-        static (string changeSetId, string stackName) RemoveBucketTag(string stackName, string bucketName, string pathToPackage)
+        static (string changeSetId, string stackName) RemoveBucketTag(string stackName, string bucketName, (string Id, string Path) package)
         {
             var result = ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
@@ -248,7 +250,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         .WithAwsAccount()
                         .WithAwsRegion(AwsRegion)
                         .WithStackRole(AwsStackRole)
-                        .WithPackage(pathToPackage)
+                        .WithPackage(package)
                         .WithAwsTemplatePackageSource("bucket.json", "bucket-parameters.json")
                         .WithCloudFormationChangeSets(deferExecution: true)
                         .WithIamCapabilities(new List<string> { "CAPABILITY_IAM"});
@@ -262,7 +264,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
             return (result.OutputVariables["AwsOutputs[ChangesetId]"].Value, result.OutputVariables["AwsOutputs[StackId]"].Value);
         }
 
-        static void CreateBucket(string stackName, string bucketName, string pathToPackage)
+        static void CreateBucket(string stackName, string bucketName, (string Id, string Path) package)
         {
             ActionHandlerTestBuilder.Create<AwsRunCloudFormationActionHandler, Calamari.Aws.Program>()
                 .WithArrange(context =>
@@ -274,7 +276,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                         .WithCloudFormationChangeSets()
                         .WithIamCapabilities(new List<string> { "CAPABILITY_IAM" })
                         .WithAwsTemplatePackageSource("bucket-transform.json", "bucket-parameters.json")
-                        .WithPackage(pathToPackage);
+                        .WithPackage(package);
 
                     context.Variables.Add("BucketName", bucketName);
                     context.Variables.Add("TransformIncludeLocation", TransformIncludeLocation);
