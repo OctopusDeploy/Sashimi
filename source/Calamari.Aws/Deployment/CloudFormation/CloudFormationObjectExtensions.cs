@@ -179,9 +179,9 @@ namespace Calamari.Aws.Deployment.CloudFormation
             {
                 return StackStatus.DoesNotExist;
             }
-            catch (AmazonCloudFormationException ex)
+            catch (AmazonCloudFormationException ex) when (ex.ErrorCode == "Throttling")
             {
-                throw new Exception($"AmazonCloudFormationException123 Msg: '{ex.Message}', Code: '{ex.ErrorCode}'", ex);
+                return defaultValue;
             }
         }
 

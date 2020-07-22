@@ -255,13 +255,12 @@ namespace Sashimi.Tests.Shared.Server
 
         IActionHandlerResult ExecuteActionHandlerOutProc(List<string> args)
         {
-            Console.WriteLine("Running Calamari OutProc");
             using (var variablesFile = new TemporaryFile(Path.GetTempFileName()))
             {
                 variables.Save(variablesFile.FilePath);
 
                 var calamariFullPath = GetOutProcCalamariExePath();
-                Console.WriteLine("Running Calamari from: "+ calamariFullPath);
+                Console.WriteLine("Running Calamari OutProc from: "+ calamariFullPath);
 
                 MakeExecutable(calamariFullPath);
 
@@ -331,7 +330,7 @@ namespace Sashimi.Tests.Shared.Server
             var calamariProjectFolder = Path.GetFullPath(Path.Combine(sashimiTestFolder, "../../../..", calamariFlavour));
             DotNetPublish(calamariProjectFolder, configuration, targetFramework, runtime);
 
-            return AddExeIfNecessary(Path.Combine(calamariProjectFolder, "bin", "Debug", targetFramework, runtime, "publish", calamariFlavour));
+            return AddExeIfNecessary(Path.Combine(calamariProjectFolder, "bin", configuration, targetFramework, runtime, "publish", calamariFlavour));
 
             void DotNetPublish(string calamariProjectFolder, string configuration, string targetFramework, string runtime)
             {
