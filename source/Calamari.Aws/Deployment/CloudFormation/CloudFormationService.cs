@@ -200,6 +200,11 @@ namespace Calamari.Aws.Deployment.CloudFormation
 
                 return changeSet;
             }
+            catch (AmazonCloudFormationException ex)
+            {
+                log.Warn($"CF Exception: {ex.Message}, code: '{ex.ErrorCode}'");
+                throw;
+            }
             catch (AmazonServiceException exception)
             {
                 LogAmazonServiceException(exception);
