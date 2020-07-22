@@ -45,9 +45,8 @@ namespace Sashimi.Aws.Tests.CloudFormation
 
                         context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                     })
-                    .Execute(false);
+                    .Execute();
 
-            result.WasSuccessful.Should().BeTrue();
             result.OutputVariables["AwsOutputs[OutputName]"].Value.Should().Be(bucketName);
         }
 
@@ -74,9 +73,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                     context.Variables.Add("NameVarParamValue", nameVarParamValue);
                 })
-                .Execute(false);
-
-            result.WasSuccessful.Should().BeTrue();
+                .Execute();
 
             result.OutputVariables["AwsOutputs[OutputWithVariableParam]"].Value.Should().Be(nameVarParamValue);
             result.OutputVariables["AwsOutputs[OutputWithPlainParam]"].Value.Should().Be(namePlainParamValue);
@@ -112,9 +109,8 @@ namespace Sashimi.Aws.Tests.CloudFormation
 
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
-                .Execute(false);
+                .Execute();
 
-            result.WasSuccessful.Should().BeTrue();
             result.OutputVariables["AwsOutputs[OutputName]"].Value.Should().Be(bucketName);
 
             Directory.Delete(tempFolderPath, true);
@@ -155,7 +151,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
                     context.Variables.Add("NameVarParamValue", nameVarParamValue);
                     context.Variables.Add(AwsSpecialVariables.Action.Aws.WaitForCompletion, bool.TrueString);
                 })
-                .Execute(false);
+                .Execute();
 
             result.OutputVariables["AwsOutputs[OutputWithVariableParam]"].Value.Should().Be(nameVarParamValue);
             result.OutputVariables["AwsOutputs[OutputWithPlainParam]"].Value.Should().Be(namePlainParamValue);
