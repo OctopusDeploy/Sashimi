@@ -25,7 +25,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
         public CloudFormationService(ILog log, IAmazonClientFactory amazonClientFactory)
         {
             this.log = log;
-            
+
             amazonCloudFormationClient = new Lazy<Task<IAmazonCloudFormation>>(amazonClientFactory.GetCloudFormationClient);
             stackEventLogger = new StackEventLogger(log);
         }
@@ -53,11 +53,18 @@ namespace Calamari.Aws.Deployment.CloudFormation
 
             await WaitAndExecuteChangeSet(stackArn, changeSetArn);
 
-            if (waitForCompletion)
+            try
             {
-                await WithAmazonServiceExceptionHandling(async () =>
-                    await client.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stackArn, LogAndThrowRollbacks(client, stackArn))
-                );
+                if (waitForCompletion)
+                {
+                    await WithAmazonServiceExceptionHandling(async () =>
+                        await client.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stackArn, LogAndThrowRollbacks(client, stackArn))
+                    );
+                }
+            }
+            catch (AmazonCloudFormationException ex)
+            {
+                log.Warn($"CF Exception: {ex.Message}, code: '{ex.ErrorCode}'");
             }
         }
 
@@ -264,7 +271,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
             var client = await amazonCloudFormationClient.Value;
 
             await client.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stackArn, LogAndThrowRollbacks(client, stackArn, false));
-            
+
             return await DeployStack(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled, waitForCompletion);
         }
 
@@ -431,7 +438,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
                 // the stackArn from scratch.
                 await DeleteCloudFormation(stackArn);
                 await client.WaitForStackToComplete(CloudFormationDefaults.StatusWaitPeriod, stackArn, LogAndThrowRollbacks(client, stackArn, false));
-                
+
                 return await CreateCloudFormation(cloudFormationTemplate, stackArn, roleArn, iamCapabilities, isRollbackDisabled);
             }
             catch (AmazonServiceException ex)
