@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using Autofac;
 using Calamari.Common;
+using Calamari.Common.Plumbing.Variables;
 using FluentAssertions;
 using Octopus.Diagnostics;
-using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
+using KnownVariables = Sashimi.Server.Contracts.KnownVariables;
 
 namespace Sashimi.Tests.Shared.Server
 {
@@ -25,11 +26,11 @@ namespace Sashimi.Tests.Shared.Server
             return new ActionHandlerTestBuilder<TCalamari>(actionHandlerType);
         }
 
-        public static TestActionHandlerContext<TCalamariProgram> WithPackage<TCalamariProgram>(this TestActionHandlerContext<TCalamariProgram> context, string path)
+        public static TestActionHandlerContext<TCalamariProgram> WithPackage<TCalamariProgram>(this TestActionHandlerContext<TCalamariProgram> context, (string Id, string Path) package)
             where TCalamariProgram : CalamariFlavourProgram
         {
-            context.Variables.Add(KnownVariables.OriginalPackageDirectoryPath, Path.GetDirectoryName(path));
-            context.Variables.Add(KnownVariables.Action.Packages.PackageId, path);
+            context.Variables.Add(TentacleVariables.CurrentDeployment.PackageFilePath, package.Path);
+            context.Variables.Add(KnownVariables.Action.Packages.PackageId, package.Id);
             context.Variables.Add(KnownVariables.Action.Packages.FeedId, "FeedId");
 
             return context;
