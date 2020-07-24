@@ -164,6 +164,7 @@ namespace Sashimi.Aws.Tests.CloudFormation
         {
             var bucketName = $"{ValidBucketNamePrefix}{UniqueName.Generate()}";
             var pathToPackage = TestEnvironment.GetTestPath(@"Packages\CloudFormationS3.1.0.0.nupkg");
+            var package = ("CloudFormationS3", pathToPackage);
 
             // create bucket
             CreateBucket(stackName, bucketName, package);
