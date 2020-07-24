@@ -32,8 +32,8 @@ namespace Calamari.Aws.Deployment.CloudFormation
 
         public async Task ExecuteChangeSet(StackArn stackArn, ChangeSetArn changeSetArn, bool waitForCompletion)
         {
-            Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
-            Guard.NotNull(changeSetArn, $"'{nameof(changeSetArn)}' cannot be null.");
+            // Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
+            // Guard.NotNull(changeSetArn, $"'{nameof(changeSetArn)}' cannot be null.");
 
             var client = await amazonCloudFormationClient.Value;
 
@@ -141,7 +141,7 @@ namespace Calamari.Aws.Deployment.CloudFormation
 
         public async Task DeleteByStackArn(StackArn stackArn, bool waitForCompletion)
         {
-            Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
+            //Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
 
             var client = await amazonCloudFormationClient.Value;
 
@@ -172,11 +172,11 @@ namespace Calamari.Aws.Deployment.CloudFormation
 
         public async Task<RunningChangeSet> CreateChangeSet(string changeSetName, CloudFormationTemplate cloudFormationTemplate, StackArn stackArn, string roleArn, IReadOnlyCollection<string> iamCapabilities)
         {
-            Guard.NotNullOrWhiteSpace(changeSetName, $"'{nameof(changeSetName)}' cannot be null or white space.");
-            Guard.NotNull(cloudFormationTemplate, $"'{nameof(cloudFormationTemplate)}' cannot be null.");
-            Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
-            Guard.NotNullOrWhiteSpace(roleArn, $"'{nameof(roleArn)}' cannot be null or white space.");
-            Guard.NotNull(iamCapabilities, $"'{nameof(iamCapabilities)}' cannot be null.");
+            // Guard.NotNullOrWhiteSpace(changeSetName, $"'{nameof(changeSetName)}' cannot be null or white space.");
+            // Guard.NotNull(cloudFormationTemplate, $"'{nameof(cloudFormationTemplate)}' cannot be null.");
+            // Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
+            // Guard.NotNullOrWhiteSpace(roleArn, $"'{nameof(roleArn)}' cannot be null or white space.");
+            // Guard.NotNull(iamCapabilities, $"'{nameof(iamCapabilities)}' cannot be null.");
 
             var client = await amazonCloudFormationClient.Value;
 
@@ -240,8 +240,8 @@ namespace Calamari.Aws.Deployment.CloudFormation
 
         public async Task<IReadOnlyCollection<Change>> GetChangeSet(StackArn stackArn, ChangeSetArn changeSetArn)
         {
-            Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
-            Guard.NotNull(changeSetArn, $"'{nameof(changeSetArn)}' cannot be null.");
+            // Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
+            // Guard.NotNull(changeSetArn, $"'{nameof(changeSetArn)}' cannot be null.");
 
             return await WithAmazonServiceExceptionHandling(async () =>
             {
@@ -268,10 +268,10 @@ namespace Calamari.Aws.Deployment.CloudFormation
         public async Task<string> Deploy(CloudFormationTemplate cloudFormationTemplate, StackArn stackArn, string roleArn,
             IReadOnlyCollection<string> iamCapabilities, bool isRollbackDisabled, bool waitForCompletion)
         {
-            Guard.NotNull(cloudFormationTemplate, $"'{nameof(cloudFormationTemplate)}' cannot be null.");
-            Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
-            Guard.NotNullOrWhiteSpace(roleArn, $"'{nameof(roleArn)}' cannot be null or white space.");
-            Guard.NotNull(iamCapabilities, $"'{nameof(iamCapabilities)}' cannot be null.");
+            // Guard.NotNull(cloudFormationTemplate, $"'{nameof(cloudFormationTemplate)}' cannot be null.");
+            // Guard.NotNull(stackArn, $"'{nameof(stackArn)}' cannot be null.");
+            // Guard.NotNullOrWhiteSpace(roleArn, $"'{nameof(roleArn)}' cannot be null or white space.");
+            // Guard.NotNull(iamCapabilities, $"'{nameof(iamCapabilities)}' cannot be null.");
 
             var client = await amazonCloudFormationClient.Value;
 
