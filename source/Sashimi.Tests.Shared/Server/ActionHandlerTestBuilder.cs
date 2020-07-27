@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using Autofac;
-using Calamari;
-using Calamari.Tests.Shared;
+using Calamari.Common;
 using FluentAssertions;
+using Octopus.Diagnostics;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 
@@ -12,14 +12,14 @@ namespace Sashimi.Tests.Shared.Server
 {
     public static class ActionHandlerTestBuilder
     {
-        public static ActionHandlerTestBuilder<TCalamari> Create<TActionHandler, TCalamari>() 
+        public static ActionHandlerTestBuilder<TCalamari> Create<TActionHandler, TCalamari>()
             where TActionHandler : IActionHandler
             where TCalamari : CalamariFlavourProgram
         {
             return new ActionHandlerTestBuilder<TCalamari>(typeof(TActionHandler));
         }
-        
-        public static ActionHandlerTestBuilder<TCalamari> Create<TCalamari>(Type actionHandlerType) 
+
+        public static ActionHandlerTestBuilder<TCalamari> Create<TCalamari>(Type actionHandlerType)
             where TCalamari : CalamariFlavourProgram
         {
             return new ActionHandlerTestBuilder<TCalamari>(actionHandlerType);
@@ -35,8 +35,8 @@ namespace Sashimi.Tests.Shared.Server
             return context;
         }
     }
-    
-    public class ActionHandlerTestBuilder<TCalamariProgram> 
+
+    public class ActionHandlerTestBuilder<TCalamariProgram>
         where TCalamariProgram : CalamariFlavourProgram
     {
         readonly List<Action<TestActionHandlerContext<TCalamariProgram>>> arrangeActions;
@@ -67,12 +67,11 @@ namespace Sashimi.Tests.Shared.Server
             builder.RegisterAssemblyModules(actionHandlerType.Assembly);
             builder.RegisterModule<ServerModule>();
             var container = builder.Build();
-            var commandBuilder = new TestCalamariCommandBuilder<TCalamariProgram>();
-            var context = new TestActionHandlerContext<TCalamariProgram>(commandBuilder, container.Resolve<Octopus.Diagnostics.ILog>());
+            var context = new TestActionHandlerContext<TCalamariProgram>(container.Resolve<ILog>());
 
             foreach (var arrangeAction in arrangeActions)
             {
-                arrangeAction?.Invoke(context);    
+                arrangeAction?.Invoke(context);
             }
 
             TestActionHandlerResult result;
@@ -80,14 +79,14 @@ namespace Sashimi.Tests.Shared.Server
             {
                 var actionHandler = (IActionHandler) container.Resolve(actionHandlerType);
 
-                commandBuilder.SetVariables(context.Variables);
-
                 result = (TestActionHandlerResult) actionHandler.Execute(context);
+
+                Console.WriteLine(result.FullLog);
             }
 
             if (assertWasSuccess)
             {
-                result.WasSuccessful.Should().BeTrue($"{actionHandlerType} execute result was unsuccessful");
+                result.WasSuccessful.Should().BeTrue($"{actionHandlerType} execute result was unsuccessful.");
             }
             assertAction?.Invoke(result);
 

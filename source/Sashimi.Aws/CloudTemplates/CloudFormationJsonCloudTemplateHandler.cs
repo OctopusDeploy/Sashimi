@@ -8,7 +8,7 @@ using Sashimi.Server.Contracts.CloudTemplates;
 
 namespace Sashimi.Aws.CloudTemplates
 {
-    public class CloudFormationJsonCloudTemplateHandler : ICloudTemplateHandler
+    class CloudFormationJsonCloudTemplateHandler : ICloudTemplateHandler
     {
         readonly IFormatIdentifier formatIdentifier;
 
@@ -76,7 +76,7 @@ namespace Sashimi.Aws.CloudTemplates
             return parameters ?? new Dictionary<string, JToken>();
         }
 
-        private OptionsMetadata GetOptions(JToken value)
+        OptionsMetadata GetOptions(JToken value)
         {
             var values = value.SelectToken("AllowedValues");
             if (values == null)

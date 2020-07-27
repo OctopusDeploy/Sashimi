@@ -7,13 +7,14 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
+    <PackageProjectUrl>https://github.com/OctopusDeploy/Sashimi/</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Calamari.Tests.Shared\Calamari.Tests.Shared.csproj" />
     <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
-    <PackageReference Include="Calamari.Common" Version="13.0.5" />
+    <PackageReference Include="Calamari.Common" Version="14.0.2" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Octostache" Version="2.7.0" />
   </ItemGroup>

@@ -24,13 +24,13 @@ namespace Sashimi.AzureCloudService
             yield return ("PublicKey", "accounts/{id}/pk");
             yield return ("StorageAccounts", "accounts/{id}/storageAccounts");
             yield return ("WebSites", "accounts/{id}/websites");
-            yield return ("WebSiteSlots", "accounts/{id}/{{resourceGroupName}}/websites/{{webSiteName}}/slots");
+            yield return ("WebSiteSlots", "accounts/{id}/{resourceGroupName}/websites/{webSiteName}/slots");
         }
 
         public override IEnumerable<Variable> ContributeVariables()
         {
             yield return new Variable(SpecialVariables.Action.Azure.SubscriptionId, SubscriptionNumber);
-            yield return new Variable(SpecialVariables.Action.Azure.CertificateBytes, CertificateBytes!.Value, VariableType.Sensitive);
+            yield return new Variable(SpecialVariables.Action.Azure.CertificateBytes, CertificateBytes);
             yield return new Variable(SpecialVariables.Action.Azure.CertificateThumbprint, CertificateThumbprint);
 
             if (!String.IsNullOrWhiteSpace(AzureEnvironment))

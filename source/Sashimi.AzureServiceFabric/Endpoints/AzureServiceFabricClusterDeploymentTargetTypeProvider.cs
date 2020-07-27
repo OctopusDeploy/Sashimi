@@ -11,7 +11,7 @@ using Sashimi.Server.Contracts.Endpoints;
 
 namespace Sashimi.AzureServiceFabric.Endpoints
 {
-    internal class AzureServiceFabricClusterDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
+    class AzureServiceFabricClusterDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
     {
         public DeploymentTargetType DeploymentTargetType =>
             AzureServiceFabricClusterEndpoint.AzureServiceFabricClusterDeploymentTargetType;
@@ -20,7 +20,7 @@ namespace Sashimi.AzureServiceFabric.Endpoints
         public Type ApiType => typeof(ServiceFabricEndpointResource);
         public IValidator Validator => new AzureServiceFabricClusterEndpointValidator();
 
-        public IActionHandler HealthCheckActionHandlerForTargetType()
+        public IActionHandler? HealthCheckActionHandlerForTargetType()
         {
             return new AzureServiceFabricAppHealthCheckActionHandler();
         }
@@ -35,7 +35,7 @@ namespace Sashimi.AzureServiceFabric.Endpoints
             builder.Map<ServiceFabricEndpointResource, AzureServiceFabricClusterEndpoint>();
         }
 
-        public IEnumerable<(string key, object value)> GetMetric(IEndpointMetricContext context)
+        public IEnumerable<(string key, object value)> GetFeatureUsage(IEndpointMetricContext context)
         {
             var serviceFabricEndpoints = context.GetEndpoints<AzureServiceFabricClusterEndpoint>().ToArray();
             var total = serviceFabricEndpoints.Length;

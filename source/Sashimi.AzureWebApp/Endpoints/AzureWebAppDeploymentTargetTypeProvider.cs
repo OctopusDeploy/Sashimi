@@ -11,7 +11,7 @@ using Sashimi.Server.Contracts.Endpoints;
 
 namespace Sashimi.AzureWebApp.Endpoints
 {
-    internal class AzureWebAppDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
+    class AzureWebAppDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
     {
         public DeploymentTargetType DeploymentTargetType => AzureWebAppEndpoint.AzureWebAppDeploymentTargetType;
         public Type DomainType => typeof(AzureWebAppEndpoint);
@@ -28,12 +28,12 @@ namespace Sashimi.AzureWebApp.Endpoints
             builder.Map<AzureWebAppEndpointResource, AzureWebAppEndpoint>();
         }
 
-        public IActionHandler HealthCheckActionHandlerForTargetType()
+        public IActionHandler? HealthCheckActionHandlerForTargetType()
         {
             return new AzureWebAppHealthCheckActionHandler();
         }
 
-        public IEnumerable<(string key, object value)> GetMetric(IEndpointMetricContext context)
+        public IEnumerable<(string key, object value)> GetFeatureUsage(IEndpointMetricContext context)
         {
             var total = context.GetEndpoints<AzureWebAppEndpoint>().Count();
 

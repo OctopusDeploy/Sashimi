@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Calamari.Commands.Support;
-using Calamari.Common.Variables;
-using Calamari.Integration.FileSystem;
+using Calamari.Common;
+using Calamari.Common.Commands;
+using Calamari.Common.Plumbing.FileSystem;
+using Calamari.Common.Plumbing.Logging;
+using Calamari.Common.Plumbing.Variables;
 using Calamari.Tests.Shared.Helpers;
 using Calamari.Tests.Shared.LogParser;
 using FluentAssertions;
@@ -39,7 +41,7 @@ namespace Calamari.Tests.Shared
     public class CommandTestBuilder<TCalamariProgram>
     {
         readonly string command;
-        List<Action<CommandTestBuilderContext>>? arrangeActions;
+        readonly List<Action<CommandTestBuilderContext>> arrangeActions;
         Action<TestCalamariCommandResult>? assertAction;
 
         internal CommandTestBuilder(string command)
@@ -50,7 +52,7 @@ namespace Calamari.Tests.Shared
 
         public CommandTestBuilder<TCalamariProgram> WithArrange(Action<CommandTestBuilderContext> arrange)
         {
-            arrangeActions!.Add(arrange);
+            arrangeActions.Add(arrange);
             return this;
         }
 
@@ -66,7 +68,7 @@ namespace Calamari.Tests.Shared
 
             List<string> GetArgs(string workingPath)
             {
-                var args = new List<string> {command!};
+                var args = new List<string> {command};
 
                 var varPath = Path.Combine(workingPath, "variables.json");
 
@@ -128,7 +130,7 @@ namespace Calamari.Tests.Shared
                 var instance = (TCalamariProgram) constructor.Invoke(new object?[]
                 {
                     inMemoryLog
-                })!;
+                });
 
                 var methodInfo =
                     typeof(CalamariFlavourProgram).GetMethod("Run", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -137,7 +139,7 @@ namespace Calamari.Tests.Shared
                     throw new Exception("CalamariFlavourProgram.Run method was not found.");
                 }
 
-                var exitCode = (int) methodInfo.Invoke(instance, new object?[] {args.ToArray()})!;
+                var exitCode = (int) methodInfo.Invoke(instance, new object?[] {args.ToArray()});
                 var serverInMemoryLog = new ServerInMemoryLog();
 
                 var outputFilter = new ScriptOutputFilter(serverInMemoryLog);
@@ -157,9 +159,9 @@ namespace Calamari.Tests.Shared
                     serverInMemoryLog.ToString());
             }
 
-            foreach (var arrangeAction in arrangeActions!)
+            foreach (var arrangeAction in arrangeActions)
             {
-                arrangeAction?.Invoke(context);
+                arrangeAction.Invoke(context);
             }
 
             TestCalamariCommandResult result;

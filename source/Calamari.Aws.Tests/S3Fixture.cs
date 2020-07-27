@@ -1,13 +1,13 @@
-﻿using System.Linq;
+﻿#if AWS
+using System.Linq;
 using System.Threading.Tasks;
 using Calamari.Aws.Util;
 using Calamari.CloudAccounts;
-using Calamari.Deployment.Conventions;
-using Calamari.Integration.Packages;
-using Calamari.Integration.Substitutions;
+using Calamari.Common.Features.Packages;
+using Calamari.Common.Features.Substitutions;
+using Calamari.Common.Plumbing.FileSystem;
 using Calamari.Tests.Shared.Helpers;
-using Calamari.Variables;
-#if AWS
+using Calamari.Common.Plumbing.Variables;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,7 +17,6 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Calamari.Aws.Integration.S3;
 using Calamari.Aws.Serialization;
-using Calamari.Integration.FileSystem;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -28,7 +27,7 @@ namespace Calamari.Aws.Tests
     [TestFixture, Explicit]
     public class S3Fixture
     {
-        private const string BucketName = "octopus-e2e-tests";
+        const string BucketName = "octopus-e2e-tests";
 
         static JsonSerializerSettings GetEnrichedSerializerSettings()
         {
@@ -48,14 +47,14 @@ namespace Calamari.Aws.Tests
             {
                 new S3MultiFileSelectionProperties
                 {
-                    Pattern = "Content/**/*", 
+                    Pattern = "Content/**/*",
                     Type = S3FileSelectionTypes.MultipleFiles,
                     StorageClass = "STANDARD",
                     CannedAcl = "private"
                 },
                 new S3SingleFileSelectionProperties
                 {
-                    Path = "Extra/JavaScript.js", 
+                    Path = "Extra/JavaScript.js",
                     Type = S3FileSelectionTypes.SingleFile,
                     StorageClass = "STANDARD",
                     CannedAcl = "private",
@@ -81,7 +80,7 @@ namespace Calamari.Aws.Tests
             {
                 new S3MultiFileSelectionProperties
                 {
-                    Pattern = "**/Things/*", 
+                    Pattern = "**/Things/*",
                     Type = S3FileSelectionTypes.MultipleFiles,
                     StorageClass = "STANDARD",
                     CannedAcl = "private"
@@ -115,7 +114,7 @@ namespace Calamari.Aws.Tests
             {"Content-Type", "some-content"},
             {"Expires", "2020-01-02T00:00:00.000Z"},
             {"x-amz-website-redirect-location", "/anotherPage.html"},
-            
+
             //Locking requires a bucket with versioning
 //            {"x-amz-object-lock-mode", "GOVERNANCE"},
 //            {"x-amz-object-lock-retain-until-date", DateTime.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffK")},

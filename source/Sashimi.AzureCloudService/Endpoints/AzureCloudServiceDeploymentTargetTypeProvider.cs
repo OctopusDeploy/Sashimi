@@ -10,7 +10,7 @@ using Sashimi.Server.Contracts.Endpoints;
 
 namespace Sashimi.AzureCloudService.Endpoints
 {
-    internal class AzureCloudServiceDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
+    class AzureCloudServiceDeploymentTargetTypeProvider : IDeploymentTargetTypeProvider
     {
         public DeploymentTargetType DeploymentTargetType =>
             AzureCloudServiceEndpoint.AzureCloudServiceDeploymentTargetType;
@@ -29,12 +29,12 @@ namespace Sashimi.AzureCloudService.Endpoints
             builder.Map<CloudServiceEndpointResource, AzureCloudServiceEndpoint>();
         }
 
-        public IActionHandler HealthCheckActionHandlerForTargetType()
+        public IActionHandler? HealthCheckActionHandlerForTargetType()
         {
             return new AzureCloudServiceHealthCheckActionHandler();
         }
 
-        public IEnumerable<(string key, object value)> GetMetric(IEndpointMetricContext context)
+        public IEnumerable<(string key, object value)> GetFeatureUsage(IEndpointMetricContext context)
         {
             var total = context.GetEndpoints<AzureCloudServiceEndpoint>().Count();
 
