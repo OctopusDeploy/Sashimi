@@ -1,4 +1,7 @@
-﻿namespace Sashimi.Server.Contracts.ActionHandlers
+﻿using FluentValidation;
+using Sashimi.Server.Contracts.ActionHandlers.Validation;
+
+namespace Sashimi.Server.Contracts.ActionHandlers
 {
     /// <summary>
     /// Implementors of this interface must not keep state so that they can be reusable between steps and deployments
@@ -15,5 +18,7 @@
         ActionHandlerCategory[] Categories { get; }
 
         IActionHandlerResult Execute(IActionHandlerContext context);
+
+        IValidator<DeploymentActionValidationContext>? Validator { get; } 
     }
 }

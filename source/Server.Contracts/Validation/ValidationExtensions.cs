@@ -31,14 +31,6 @@ namespace Sashimi.Server.Contracts.Validation
             return ruleBuilder.SetValidator(new SerializedPropertyValidator<TNested>(property, validator, deserialize ?? SerializedPropertyValidator<TNested>.GetDefaultDeserializer()));
         }
 
-        public static IRuleBuilderOptions<T, TProperty> WhenActionTypeIs<T, TProperty>(
-            this IRuleBuilderOptions<T,TProperty> rule,
-            string actionType)
-            where T : DeploymentActionValidationContext
-        {
-            return rule.When(a => a.ActionType == actionType);
-        }
-
         class SerializedPropertyValidator<TNested> : AbstractValidator<PropertiesDictionary>
         {
             public SerializedPropertyValidator() { }
