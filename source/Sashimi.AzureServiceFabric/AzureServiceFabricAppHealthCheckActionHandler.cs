@@ -5,7 +5,7 @@ namespace Sashimi.AzureServiceFabric
 {
     class AzureServiceFabricAppHealthCheckActionHandler : IActionHandlerWithAccount
     {
-        static readonly CalamariFlavour CalamariServiceFabric = new CalamariFlavour("Calamari.AzureServiceFabric");
+        static readonly CalamariFlavour CalamariServiceFabric = new CalamariFlavour("Calamari.AzureServiceFabric", WindowsNetFramework.Net452, WindowsNetFramework.Net452, NetCoreSupport.NotSupported);
 
         public string Id => SpecialVariables.Action.ServiceFabric.AppHealthCheckActionTypeName;
         public string Name => "HealthCheck an Azure ServiceFabric cluster";
