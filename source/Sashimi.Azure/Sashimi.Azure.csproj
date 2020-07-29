@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Octopus.Server.Extensibility" Version="10.0.5-enh-nancyparams0025" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="10.0.6-enh-nancyparams0030" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.33.0" />
   </ItemGroup>
 

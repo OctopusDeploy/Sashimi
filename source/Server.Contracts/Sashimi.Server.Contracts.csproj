@@ -16,7 +16,7 @@
     <PackageReference Include="Octopus.Data" Version="5.1.3" />
     <PackageReference Include="Octopus.TinyTypes" Version="0.1.21" />
     <PackageReference Include="Octopus.Diagnostics" Version="1.3.5" />
-    <PackageReference Include="Octopus.Server.Extensibility" Version="10.0.5-enh-nancyparams0025" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="10.0.6-enh-nancyparams0030" />
     <PackageReference Include="Octostache" Version="2.7.0" />
   </ItemGroup>
 

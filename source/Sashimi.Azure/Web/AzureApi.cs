@@ -8,9 +8,9 @@ namespace Sashimi.Azure.Web
     {
         public const string AzureEnvironmentsPath = "/api/accounts/azureenvironments";
 
-        public AzureApi(Func<SecuredAsyncActionInvoker<AzureEnvironmentsListAction>> azureEnvironmentsListInvokerFactory)
+        public AzureApi()
         {
-            Add(HttpMethod.Get.ToString(), AzureEnvironmentsPath, azureEnvironmentsListInvokerFactory().ExecuteAsync);
+            Add<SecuredAsyncActionInvoker<AzureEnvironmentsListAction>>(HttpMethod.Get.ToString(), AzureEnvironmentsPath);
         }
     }
 }
