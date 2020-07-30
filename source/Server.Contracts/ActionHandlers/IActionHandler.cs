@@ -1,4 +1,7 @@
-﻿namespace Sashimi.Server.Contracts.ActionHandlers
+﻿using System.Collections.Generic;
+using Sashimi.Server.Contracts.ActionHandlers.Validation;
+
+namespace Sashimi.Server.Contracts.ActionHandlers
 {
     /// <summary>
     /// Implementors of this interface must not keep state so that they can be reusable between steps and deployments
@@ -14,6 +17,9 @@
         bool CanRunOnDeploymentTarget { get; }
         ActionHandlerCategory[] Categories { get; }
 
+        bool RequiresAccount(IReadOnlyDictionary<string, string> properties);
+        string GetAccountIdOrExpression(IReadOnlyDictionary<string, string> properties);
+        
         IActionHandlerResult Execute(IActionHandlerContext context);
     }
 }
