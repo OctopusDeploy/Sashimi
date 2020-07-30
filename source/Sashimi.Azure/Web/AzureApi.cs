@@ -6,7 +6,7 @@ namespace Sashimi.Azure.Web
 {
     class AzureApi : RegistersEndpoints
     {
-        public const string AzureEnvironmentsPath = "/accounts/azureenvironments";
+        public const string AzureEnvironmentsPath = "/api/accounts/azureenvironments";
 
         public AzureApi()
         {
