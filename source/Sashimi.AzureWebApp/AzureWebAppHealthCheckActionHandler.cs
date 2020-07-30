@@ -6,7 +6,7 @@ namespace Sashimi.AzureWebApp
 {
     class AzureWebAppHealthCheckActionHandler : IActionHandlerWithAccount
     {
-        static readonly CalamariFlavour CalamariAzure = new CalamariFlavour("Calamari.AzureWebApp", WindowsNetFramework.Net452, WindowsNetFramework.Net452, NetCoreSupport.Supported);
+        static readonly CalamariFlavour CalamariAzure = new CalamariFlavour("Calamari.AzureWebApp");
 
         public string Id => SpecialVariables.Action.Azure.WebAppHealthCheckActionTypeName;
         public string Name => "HealthCheck an Azure Web App";

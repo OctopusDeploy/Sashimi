@@ -6,7 +6,7 @@ namespace Sashimi.AzureCloudService
 {
     class AzureCloudServiceHealthCheckActionHandler : IActionHandlerWithAccount
     {
-        static readonly CalamariFlavour CalamariAzure = new CalamariFlavour("Calamari.AzureCloudService", WindowsNetFramework.Net452, WindowsNetFramework.Net452, NetCoreSupport.NotSupported);
+        static readonly CalamariFlavour CalamariAzure = new CalamariFlavour("Calamari.AzureCloudService");
 
         public string Id => SpecialVariables.Action.Azure.CloudServiceHealthCheckActionTypeName;
         public string Name => "HealthCheck an Azure CloudService";
