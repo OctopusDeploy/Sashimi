@@ -10,7 +10,7 @@ namespace Sashimi.Azure.Web
 
         public AzureApi()
         {
-            Add<AnonymousAsyncActionInvoker<AzureEnvironmentsListAction>>(HttpMethod.Get.ToString(), AzureEnvironmentsPath);
+            Add<AzureEnvironmentsListAction>(HttpMethod.Get.ToString(), AzureEnvironmentsPath, new AnonymousEndpointInvocation());;
         }
     }
 }
