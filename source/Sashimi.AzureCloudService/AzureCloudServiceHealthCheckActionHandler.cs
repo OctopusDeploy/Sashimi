@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
 
@@ -16,6 +17,20 @@ namespace Sashimi.AzureCloudService
         public bool WhenInAChildStepRunInTheContextOfTheTargetMachine => false;
         public bool CanRunOnDeploymentTarget => false;
         public ActionHandlerCategory[] Categories => new[] { ActionHandlerCategory.BuiltInStep, ActionHandlerCategory.Azure };
+
+        public bool RequiresAccount(IReadOnlyDictionary<string, string> properties)
+        {
+            return properties.ContainsKey(SpecialVariables.Action.Azure.AccountId) || properties.ContainsKey(SpecialVariables.Action.Azure.IsLegacyMode);
+        }
+
+        public string GetAccountIdOrExpression(IReadOnlyDictionary<string, string> properties)
+        {
+            if (properties.ContainsKey(SpecialVariables.Action.Azure.AccountId) && !string.IsNullOrEmpty(properties[SpecialVariables.Action.Azure.AccountId]))
+                return properties[SpecialVariables.Action.Azure.AccountId];
+
+            return properties[SpecialVariables.Action.Azure.AccountId];
+        }
+
         public string[] StepBasedVariableNameForAccountIds { get; } = {SpecialVariables.Action.Azure.AccountId};
 
         public IActionHandlerResult Execute(IActionHandlerContext context)

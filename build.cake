@@ -174,7 +174,7 @@ Task("PackSashimi")
 });
 
 Task("CopyToLocalPackages")
-    .IsDependentOn("Test")
+    //.IsDependentOn("Test")
     .IsDependentOn("PackSashimi")
     .WithCriteria(BuildSystem.IsLocalBuild)
     .Does(() =>

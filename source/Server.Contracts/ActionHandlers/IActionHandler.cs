@@ -17,9 +17,6 @@ namespace Sashimi.Server.Contracts.ActionHandlers
         bool CanRunOnDeploymentTarget { get; }
         ActionHandlerCategory[] Categories { get; }
 
-        bool RequiresAccount(IReadOnlyDictionary<string, string> properties);
-        string GetAccountIdOrExpression(IReadOnlyDictionary<string, string> properties);
-        
         IActionHandlerResult Execute(IActionHandlerContext context);
     }
 }

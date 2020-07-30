@@ -23,6 +23,7 @@ namespace Sashimi.AzureCloudService
                 public static readonly string StorageEndPointSuffix = "Octopus.Action.Azure.StorageEndpointSuffix";
                 public static readonly string CloudServiceHealthCheckActionTypeName = "Octopus.HealthCheck.AzureCloudService";
                 public static readonly string AccountId = "Octopus.Action.Azure.AccountId";
+                public static readonly string IsLegacyMode = "Octopus.Action.Azure.IsLegacyMode";
             }
         }
     }

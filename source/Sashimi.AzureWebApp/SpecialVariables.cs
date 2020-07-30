@@ -15,6 +15,7 @@ namespace Sashimi.AzureWebApp
                 public static readonly string ResourceGroupName = "Octopus.Action.Azure.ResourceGroupName";
                 public static readonly string AccountId = "Octopus.Action.Azure.AccountId";
                 public static readonly string WebAppHealthCheckActionTypeName = "Octopus.HealthCheck.AzureWebApp";
+                public static readonly string IsLegacyMode = "Octopus.Action.Azure.IsLegacyMode";
             }
         }
     }
