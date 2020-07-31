@@ -2,7 +2,7 @@
 
 namespace Sashimi.Server.Contracts.Endpoints
 {
-    public class IEndpointWithServerCertificates
+    public interface IEndpointWithServerCertificates
     {
         IEnumerable<string> ServerCertificateIds { get; }
     }
