@@ -1,4 +1,6 @@
-﻿using Sashimi.Server.Contracts.ActionHandlers;
+﻿using FluentValidation;
+using Sashimi.Server.Contracts.ActionHandlers;
+using Sashimi.Server.Contracts.ActionHandlers.Validation;
 using Sashimi.Server.Contracts.Calamari;
 
 namespace Sashimi.AzureServiceFabric
@@ -16,6 +18,7 @@ namespace Sashimi.AzureServiceFabric
         public bool CanRunOnDeploymentTarget => false;
         public ActionHandlerCategory[] Categories => new[] { ActionHandlerCategory.BuiltInStep, ActionHandlerCategory.Azure };
         public string[] StepBasedVariableNameForAccountIds { get; } = {SpecialVariables.Action.AccountId};
+        public IValidator<DeploymentActionValidationContext>? Validator { get; } = null;
 
         public IActionHandlerResult Execute(IActionHandlerContext context)
         {
