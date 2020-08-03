@@ -11,11 +11,13 @@ namespace Sashimi.AzureWebApp
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<AzureWebAppDeploymentTargetTypeProvider>()
-                .As<IDeploymentTargetTypeProvider>()
-                .As<IContributeMappings>()
-                .SingleInstance();
+                   .As<IDeploymentTargetTypeProvider>()
+                   .As<IContributeMappings>()
+                   .SingleInstance();
             builder.RegisterType<AzureWebAppHealthCheckActionHandler>().As<IActionHandler>().AsSelf()
-                .InstancePerLifetimeScope();
+                   .InstancePerLifetimeScope();
+            builder.RegisterType<AzureWebAppServiceMessageHandler>().AsSelf()
+                   .InstancePerLifetimeScope();
         }
     }
 }
