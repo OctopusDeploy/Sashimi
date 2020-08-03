@@ -66,6 +66,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calamari.AzureCloudService.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calamari.AzureWebApp.Tests", "Calamari.AzureWebApp.Tests\Calamari.AzureWebApp.Tests.csproj", "{5EB8506B-0DDB-490C-A3B7-BCA6098FA4AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sashimi.Azure.Accounts.Tests", "Sashimi.Azure.Accounts.Tests\Sashimi.Azure.Accounts.Tests.csproj", "{8F446BB8-26D6-480C-BAFC-FD2D75A70655}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sashimi.Aws.Accounts.Tests", "Sashimi.Aws.Accounts.Tests\Sashimi.Aws.Accounts.Tests.csproj", "{ABC25247-2CA6-4497-9EDF-97C8B236EF00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -156,6 +160,14 @@ Global
 		{5EB8506B-0DDB-490C-A3B7-BCA6098FA4AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EB8506B-0DDB-490C-A3B7-BCA6098FA4AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EB8506B-0DDB-490C-A3B7-BCA6098FA4AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F446BB8-26D6-480C-BAFC-FD2D75A70655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F446BB8-26D6-480C-BAFC-FD2D75A70655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F446BB8-26D6-480C-BAFC-FD2D75A70655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F446BB8-26D6-480C-BAFC-FD2D75A70655}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABC25247-2CA6-4497-9EDF-97C8B236EF00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABC25247-2CA6-4497-9EDF-97C8B236EF00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABC25247-2CA6-4497-9EDF-97C8B236EF00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABC25247-2CA6-4497-9EDF-97C8B236EF00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,8 +188,8 @@ Global
 		{5EB8506B-0DDB-490C-A3B7-BCA6098FA4AD} = {3E14A387-C500-4486-A7AE-BA0C5F95B344}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		{54EF951A-AA50-4ED2-BB79-C9CBC70BCA65} = {6288E064-DE6F-4012-B887-64B364482B5C}
-		{E79F91CA-CD16-4068-8170-C66804533720} = {6288E064-DE6F-4012-B887-64B364482B5C}
 		SolutionGuid = {F8108764-E787-43A4-A43A-2BB5540615E8}
+		{E79F91CA-CD16-4068-8170-C66804533720} = {6288E064-DE6F-4012-B887-64B364482B5C}
+		{54EF951A-AA50-4ED2-BB79-C9CBC70BCA65} = {6288E064-DE6F-4012-B887-64B364482B5C}
 	EndGlobalSection
 EndGlobal
