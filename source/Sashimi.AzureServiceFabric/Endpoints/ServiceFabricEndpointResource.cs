@@ -1,4 +1,5 @@
-﻿using Octopus.Data.Resources;
+﻿#nullable disable
+using Octopus.Data.Resources;
 using Octopus.Data.Resources.Attributes;
 using Sashimi.Server.Contracts.Endpoints;
 
@@ -8,45 +9,47 @@ namespace Sashimi.AzureServiceFabric.Endpoints
     {
         public override CommunicationStyle CommunicationStyle => CommunicationStyle.AzureServiceFabricCluster;
 
-        [Trim] [Writeable] public string ConnectionEndpoint { get; set; } = string.Empty;
+        [Trim]
+        [Writeable]
+        public string ConnectionEndpoint { get; set; }
 
         [Trim]
         [Writeable]
-        public AzureServiceFabricSecurityMode SecurityMode { get; set; } = default(AzureServiceFabricSecurityMode);
+        public AzureServiceFabricSecurityMode SecurityMode { get; set; }
 
         [Trim]
         [Writeable]
-        public string? ServerCertThumbprint { get; set; }
+        public string ServerCertThumbprint { get; set; }
 
         [Trim]
         [Writeable]
-        public string? ClientCertVariable { get; set; }
+        public string ClientCertVariable { get; set; }
 
         [Trim]
         [Writeable]
-        public string? CertificateStoreLocation { get; set; }
+        public string CertificateStoreLocation { get; set; }
 
         [Trim]
         [Writeable]
-        public string? CertificateStoreName { get; set; }
+        public string CertificateStoreName { get; set; }
 
         [Trim]
         [Writeable]
-        public AzureServiceFabricCredentialType? AadCredentialType { get; set; }
+        public AzureServiceFabricCredentialType AadCredentialType { get; set; }
 
         [Trim]
         [Writeable]
-        public string? AadClientCredentialSecret { get; set; }
+        public string AadClientCredentialSecret { get; set; }
 
         [Trim]
         [Writeable]
-        public string? AadUserCredentialUsername { get; set; }
+        public string AadUserCredentialUsername { get; set; }
 
         [Writeable]
-        public SensitiveValue? AadUserCredentialPassword { get; set; }
+        public SensitiveValue AadUserCredentialPassword { get; set; }
 
         [Trim]
         [Writeable]
-        public string DefaultWorkerPoolId { get; set; } = string.Empty;
+        public string DefaultWorkerPoolId { get; set; }
     }
 }
