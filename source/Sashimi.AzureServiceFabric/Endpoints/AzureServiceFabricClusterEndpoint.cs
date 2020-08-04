@@ -7,7 +7,7 @@ using Sashimi.Server.Contracts.Variables;
 
 namespace Sashimi.AzureServiceFabric.Endpoints
 {
-    public class AzureServiceFabricClusterEndpoint : Endpoint, IEndpointWithExpandableCertificate, IRunsOnAWorker
+    public class AzureServiceFabricClusterEndpoint : Endpoint, IEndpointWithCertificates, IEndpointWithExpandableCertificate, IRunsOnAWorker
     {
         public static readonly DeploymentTargetType AzureServiceFabricClusterDeploymentTargetType = new DeploymentTargetType("AzureServiceFabricCluster", "Azure Service Fabric Cluster");
 
@@ -23,8 +23,14 @@ namespace Sashimi.AzureServiceFabric.Endpoints
         public AzureServiceFabricCredentialType? AadCredentialType { get; set; }
         public string? AadClientCredentialSecret { get; set; }
         public string? AadUserCredentialUsername { get; set; }
-
         public SensitiveString? AadUserCredentialPassword { get; set; }
+        public IReadOnlyCollection<string> CertificateIds
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(ClientCertVariable) ? new[] { ClientCertVariable } : new string[0];
+            }
+        }
 
         public override IEnumerable<Variable> ContributeVariables()
         {
