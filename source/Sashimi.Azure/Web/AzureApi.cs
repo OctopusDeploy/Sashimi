@@ -6,11 +6,11 @@ namespace Sashimi.Azure.Web
 {
     class AzureApi : RegistersEndpoints
     {
-        public const string AzureEnvironmentsPath = "/accounts/azureenvironments";
+        public const string AzureEnvironmentsPath = "/api/accounts/azureenvironments";
 
         public AzureApi()
         {
-            Add<AzureEnvironmentsListAction>(HttpMethod.Get.ToString(), AzureEnvironmentsPath, RouteCategory.Api, new AnonymousEndpointInvocation());;
+            Add<AzureEnvironmentsListAction>(HttpMethod.Get.ToString(), AzureEnvironmentsPath, RouteCategory.Raw, new SecuredEndpointInvocation());;
         }
     }
 }
