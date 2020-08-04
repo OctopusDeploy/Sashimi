@@ -9,12 +9,16 @@
     <Nullable>enable</Nullable>
     <PackageProjectUrl>https://github.com/OctopusDeploy/Sashimi/</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <WarningsAsErrors>true</WarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net452' ">
+    <NoWarn>CS8600;CS8601;CS8602;CS8603;CS8604</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Calamari.Tests.Shared\Calamari.Tests.Shared.csproj" />
     <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
-    <PackageReference Include="Calamari.Common" Version="14.0.2" />
+    <PackageReference Include="Calamari.Common" Version="14.1.1" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Octostache" Version="2.7.0" />
   </ItemGroup>
