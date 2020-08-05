@@ -10,7 +10,7 @@ namespace Sashimi.Azure.Web
 
         public AzureApi()
         {
-            Add<AzureEnvironmentsListAction>(HttpMethod.Get.ToString(), AzureEnvironmentsPath, RouteCategory.Raw, new SecuredEndpointInvocation(), "Lists the Azure Environments provided by the SDK");
+            Add<AzureEnvironmentsListAction>(HttpMethod.Get.ToString(), AzureEnvironmentsPath, RouteCategory.Raw, new SecuredEndpointInvocation(), "Lists the Azure Environments provided by the SDK", "Accounts");
         }
     }
 }
