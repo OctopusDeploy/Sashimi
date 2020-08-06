@@ -24,7 +24,7 @@ namespace Sashimi.AzureServiceFabric
             if (!isLegacyAction && context.DeploymentTargetType.Some())
             {
                 if (context.DeploymentTargetType.Value != AzureServiceFabricClusterEndpoint.AzureServiceFabricClusterDeploymentTargetType)
-                    throw new InvalidOperationException($"The machine {context.DeploymentTargetName.SomeOr("<unknown>")} will not be deployed to because it is not an {AzureServiceFabricClusterEndpoint.AzureServiceFabricClusterDeploymentTargetType.DisplayName} target.");
+                    throw new ControlledActionFailedException($"The machine {context.DeploymentTargetName.SomeOr("<unknown>")} will not be deployed to because it is not an {AzureServiceFabricClusterEndpoint.AzureServiceFabricClusterDeploymentTargetType.DisplayName} target.");
             }
 
             return context.CalamariCommand(Constants.CalamariServiceFabric, "deploy-azure-service-fabric-app")
