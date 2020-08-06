@@ -1,8 +1,7 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Calamari.Azure.ServiceFabric.Util;
 using Calamari.Common.Commands;
 using Calamari.Common.Features.EmbeddedResources;
 using Calamari.Common.Features.Processes;
@@ -11,11 +10,10 @@ using Calamari.Common.Features.Scripts;
 using Calamari.Common.Plumbing.FileSystem;
 using Calamari.Common.Plumbing.Logging;
 using Calamari.Common.Plumbing.Variables;
-using Calamari.Deployment;
 
-namespace Calamari.Azure.ServiceFabric.Integration
+namespace Calamari.AzureServiceFabric.Integration
 {
-    public class AzureServiceFabricPowerShellContext : IScriptWrapper
+    public class AzureServiceFabricPowershellScriptWrapper : IScriptWrapper
     {
         readonly ICalamariFileSystem fileSystem;
         readonly ICalamariEmbeddedResources embeddedResources;
@@ -23,7 +21,7 @@ namespace Calamari.Azure.ServiceFabric.Integration
 
         readonly ScriptSyntax[] supportedScriptSyntax = {ScriptSyntax.PowerShell};
 
-        public AzureServiceFabricPowerShellContext(IVariables variables)
+        public AzureServiceFabricPowershellScriptWrapper(IVariables variables)
         {
             this.fileSystem = new WindowsPhysicalFileSystem();
             this.embeddedResources = new AssemblyEmbeddedResources();
@@ -102,7 +100,7 @@ namespace Calamari.Azure.ServiceFabric.Integration
         {
             // We don't bundle the standard Azure PS module for Service Fabric work. We do however need
             // a certain Active Directory library that is bundled with Calamari.
-            SetOutputVariable("OctopusFabricActiveDirectoryLibraryPath", Path.GetDirectoryName(typeof(AzureServiceFabricPowerShellContext).Assembly.Location), variables);
+            SetOutputVariable("OctopusFabricActiveDirectoryLibraryPath", Path.GetDirectoryName(typeof(AzureServiceFabricPowershellScriptWrapper).Assembly.Location), variables);
         }
 
         static void SetOutputVariable(string name, string value, IVariables variables)

@@ -1,7 +1,7 @@
-﻿﻿using System;
+﻿using System;
 using Calamari.Common.Plumbing.Retry;
 
-namespace Calamari.Azure.ServiceFabric.Util
+namespace Calamari.AzureServiceFabric.Util
 {
     public static class AzureRetryTracker
     {

@@ -1,30 +1,37 @@
-﻿﻿using Calamari.Common.Commands;
+﻿using System;
+using System.Threading.Tasks;
+using Calamari.Common.Commands;
 using Calamari.Common.Features.Substitutions;
 using Calamari.Common.Plumbing.FileSystem;
-using Calamari.Deployment;
-using Calamari.Deployment.Conventions;
-using Calamari.Integration.FileSystem;
+using Calamari.Common.Plumbing.Pipeline;
 
-namespace Calamari.Azure.ServiceFabric.Deployment.Conventions
+namespace Calamari.AzureServiceFabric.Deployment.Conventions
 {
-    public class SubstituteVariablesInAzureServiceFabricPackageConvention : IInstallConvention
+    public class SubstituteVariablesInAzureServiceFabricPackageBehaviour : IDeployBehaviour
     {
-        private readonly ICalamariFileSystem fileSystem;
+        readonly ICalamariFileSystem fileSystem;
         readonly IFileSubstituter substituter;
 
-        public SubstituteVariablesInAzureServiceFabricPackageConvention(ICalamariFileSystem fileSystem, IFileSubstituter substituter)
+        public SubstituteVariablesInAzureServiceFabricPackageBehaviour(ICalamariFileSystem fileSystem, IFileSubstituter substituter)
         {
             this.fileSystem = fileSystem;
             this.substituter = substituter;
         }
 
-        public void Install(RunningDeployment deployment)
+        public bool IsEnabled(RunningDeployment context)
         {
-            var configurationFiles = fileSystem.EnumerateFilesRecursively(deployment.CurrentDirectory, "*.config", "*.xml");
+            return true;
+        }
+
+        public Task Execute(RunningDeployment context)
+        {
+            var configurationFiles = fileSystem.EnumerateFilesRecursively(context.CurrentDirectory, "*.config", "*.xml");
             foreach (var configurationFile in configurationFiles)
             {
-                substituter.PerformSubstitution(configurationFile, deployment.Variables);
+                substituter.PerformSubstitution(configurationFile, context.Variables);
             }
+
+            return this.CompletedTask();
         }
     }
 }

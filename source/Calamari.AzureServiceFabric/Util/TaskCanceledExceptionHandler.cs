@@ -1,9 +1,10 @@
-﻿﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Calamari.Common.Plumbing.Logging;
 using Octopus.CoreUtilities.Extensions;
 
-namespace Calamari.Azure.ServiceFabric.Util
+namespace Calamari.AzureServiceFabric.Util
 {
     /// <summary>
     /// A service for dealing with task cancelled exceptions.

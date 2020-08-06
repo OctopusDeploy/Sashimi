@@ -1,4 +1,6 @@
-﻿﻿namespace Calamari.Azure.ServiceFabric.Integration
+﻿﻿using System;
+
+ namespace Calamari.AzureServiceFabric.Integration
 {
     public static class DefaultVariables
     {
