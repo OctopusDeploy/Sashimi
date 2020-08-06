@@ -1,28 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Calamari.Common.Commands;
 using Calamari.Common.Plumbing.Extensions;
 using Calamari.Common.Plumbing.Logging;
+using Calamari.Common.Plumbing.Pipeline;
 using Calamari.Common.Plumbing.Variables;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Calamari.AzureServiceFabric
 {
     [Command("health-check", Description = "Run a health check on a DeploymentTargetType")]
-    public class HealthCheckCommand : ICommand
+    public class HealthCheckCommand : PipelineCommand
+    {
+        protected override IEnumerable<IDeployBehaviour> Deploy(DeployResolver resolver)
+        {
+            yield return resolver.Create<HealthCheckBehaviour>();
+        }
+    }
+
+    class HealthCheckBehaviour: IDeployBehaviour
     {
         readonly IVariables variables;
         readonly ILog log;
 
-        public HealthCheckCommand(IVariables variables, ILog log)
+        public HealthCheckBehaviour(IVariables variables, ILog log)
         {
             this.variables = variables;
             this.log = log;
         }
 
-        public int Execute()
+        public bool IsEnabled(RunningDeployment context)
+        {
+            return true;
+        }
+
+        public async Task Execute(RunningDeployment context)
         {
             if (!ServiceFabricHelper.IsServiceFabricSdkKeyInRegistry())
             {
@@ -120,15 +136,13 @@ namespace Calamari.AzureServiceFabric
 
             try
             {
-                fabricClient.ClusterManager.GetClusterManifestAsync().GetAwaiter().GetResult();
+                await fabricClient.ClusterManager.GetClusterManifestAsync();
                 log.Verbose("Successfully received a response from the Service Fabric client");
             }
             finally
             {
                 fabricClient.Dispose();
             }
-
-            return 0;
         }
 
         #region Auth helpers
