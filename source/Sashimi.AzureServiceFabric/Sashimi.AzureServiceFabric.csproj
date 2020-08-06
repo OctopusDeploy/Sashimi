@@ -10,11 +10,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Sashimi.AzureScripting\Sashimi.AzureScripting.csproj" />
       <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
     </ItemGroup>
-
     <ItemGroup>
-        <None Include="..\..\artifacts\Calamari.AzureServiceFabric.zip" LinkBase="tools" Pack="true" PackagePath="tools/" />
+        <None Include="..\..\artifacts\Calamari.AzureServiceFabric.zip">
+            <Visible>false</Visible>
+            <LinkBase>tools</LinkBase>
+            <Pack>true</Pack>
+            <PackagePath>tools/</PackagePath>
+        </None>
     </ItemGroup>
-
 </Project>

@@ -1,3 +1,5 @@
+using Sashimi.Server.Contracts.Calamari;
+
 namespace Sashimi.AzureServiceFabric
 {
     //TODO: This is duplicated from Server while we sort out a way for Sashimi to contribute special variables.
@@ -36,9 +38,18 @@ namespace Sashimi.AzureServiceFabric
                 #endregion
 
                 public static readonly string AppHealthCheckActionTypeName = "Octopus.HealthCheck.AzureServiceFabricApp";
+
+                public static readonly string ServiceFabricAppActionTypeName = "Octopus.AzureServiceFabricApp";
+
+                public static readonly string ServiceFabricPowerShellActionTypeName = "Octopus.AzureServiceFabricPowerShell";
             }
 
             public static readonly string AccountId = "Octopus.Action.Azure.AccountId";
         }
+    }
+
+    static class Constants
+    {
+        public static readonly CalamariFlavour CalamariServiceFabric = new CalamariFlavour("Calamari.AzureServiceFabric");
     }
 }
