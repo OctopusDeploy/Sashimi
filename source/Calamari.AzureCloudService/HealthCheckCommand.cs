@@ -1,32 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Calamari.Common.Commands;
-using Calamari.Common.Plumbing.Variables;
+using Calamari.Common.Plumbing.Pipeline;
 using Hyak.Common;
 using Microsoft.WindowsAzure.Management.Compute;
 
 namespace Calamari.AzureCloudService
 {
     [Command("health-check", Description = "Run a health check on a DeploymentTargetType")]
-    public class HealthCheckCommand : ICommand
+    public class HealthCheckCommand : PipelineCommand
     {
-        readonly IVariables variables;
-
-        public HealthCheckCommand(IVariables variables)
+        protected override IEnumerable<IDeployBehaviour> Deploy(DeployResolver resolver)
         {
-            this.variables = variables;
+            yield return resolver.Create<HealthCheckBehaviour>();
+        }
+    }
+
+    class HealthCheckBehaviour : IDeployBehaviour
+    {
+        public bool IsEnabled(RunningDeployment context)
+        {
+            return true;
         }
 
-        public int Execute()
+        public async Task Execute(RunningDeployment context)
         {
-            var account = new AzureAccount(variables);
-            var cloudServiceName = variables.Get(SpecialVariables.Action.Azure.CloudServiceName);
+            var account = new AzureAccount(context.Variables);
+            var cloudServiceName = context.Variables.Get(SpecialVariables.Action.Azure.CloudServiceName);
             var certificate = CalamariCertificateStore.GetOrAdd(account.CertificateThumbprint, account.CertificateBytes);
 
             using (var azureClient = account.CreateComputeManagementClient(certificate))
             {
                 try
                 {
-                    azureClient.HostedServices.Get(cloudServiceName);
+                    await azureClient.HostedServices.GetAsync(cloudServiceName);
                 }
                 catch (CloudException e)
                 {
@@ -38,8 +46,6 @@ namespace Calamari.AzureCloudService
                     throw;
                 }
             }
-
-            return 0;
         }
     }
 }
