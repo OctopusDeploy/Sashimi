@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Calamari.AzureServiceFabric.Deployment.Conventions;
+using Calamari.AzureServiceFabric.Behaviours;
 using Calamari.Common.Commands;
 using Calamari.Common.Features.Behaviours;
 using Calamari.Common.Plumbing.Pipeline;
@@ -17,9 +17,9 @@ namespace Calamari.AzureServiceFabric.Commands
 
         protected override IEnumerable<IDeployBehaviour> Deploy(DeployResolver resolver)
         {
-            yield return resolver.Create<SubstituteVariablesInAzureServiceFabricPackageConvention>();
-            yield return resolver.Create<EnsureCertificateInstalledInStoreConvention>();
-            yield return resolver.Create<DeployAzureServiceFabricAppConvention>();
+            yield return resolver.Create<SubstituteVariablesInAzureServiceFabricPackageBehaviour>();
+            yield return resolver.Create<EnsureCertificateInstalledInStoreBehaviour>();
+            yield return resolver.Create<DeployAzureServiceFabricAppBehaviour>();
         }
     }
 }

@@ -5,9 +5,9 @@ using Calamari.Common.Commands;
 using Calamari.Common.Plumbing.Pipeline;
 using Calamari.Common.Plumbing.Variables;
 
-namespace Calamari.AzureServiceFabric.Deployment.Conventions
+namespace Calamari.AzureServiceFabric.Behaviours
 {
-    class EnsureCertificateInstalledInStoreConvention : IDeployBehaviour
+    class EnsureCertificateInstalledInStoreBehaviour : IDeployBehaviour
     {
         readonly string certificateIdVariableName = SpecialVariables.Action.ServiceFabric.ClientCertVariable;
         readonly string storeLocationVariableName = SpecialVariables.Action.ServiceFabric.CertificateStoreLocation;

@@ -5,14 +5,14 @@ using Calamari.Common.Features.Substitutions;
 using Calamari.Common.Plumbing.FileSystem;
 using Calamari.Common.Plumbing.Pipeline;
 
-namespace Calamari.AzureServiceFabric.Deployment.Conventions
+namespace Calamari.AzureServiceFabric.Behaviours
 {
-    class SubstituteVariablesInAzureServiceFabricPackageConvention : IDeployBehaviour
+    class SubstituteVariablesInAzureServiceFabricPackageBehaviour : IDeployBehaviour
     {
         readonly ICalamariFileSystem fileSystem;
         readonly IFileSubstituter substituter;
 
-        public SubstituteVariablesInAzureServiceFabricPackageConvention(ICalamariFileSystem fileSystem, IFileSubstituter substituter)
+        public SubstituteVariablesInAzureServiceFabricPackageBehaviour(ICalamariFileSystem fileSystem, IFileSubstituter substituter)
         {
             this.fileSystem = fileSystem;
             this.substituter = substituter;

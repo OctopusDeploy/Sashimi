@@ -4,7 +4,7 @@ using Calamari.Common.Commands;
 using Calamari.Common.Features.Behaviours;
 using Calamari.Common.Plumbing.Pipeline;
 
-namespace Calamari.AzureServiceFabric.Deployment.Conventions
+namespace Calamari.AzureServiceFabric.Behaviours
 {
     class CheckSdkInstalledBehaviour : IBeforePackageExtractionBehaviour
     {

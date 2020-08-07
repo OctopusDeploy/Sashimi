@@ -11,9 +11,9 @@ using Calamari.Common.Plumbing.Pipeline;
 using Calamari.Common.Plumbing.Variables;
 using Calamari.Common.Util;
 
-namespace Calamari.AzureServiceFabric.Deployment.Conventions
+namespace Calamari.AzureServiceFabric.Behaviours
 {
-    class DeployAzureServiceFabricAppConvention : IDeployBehaviour
+    class DeployAzureServiceFabricAppBehaviour : IDeployBehaviour
     {
         readonly ILog log;
         readonly ICalamariFileSystem fileSystem;
@@ -21,7 +21,7 @@ namespace Calamari.AzureServiceFabric.Deployment.Conventions
         readonly IScriptEngine scriptEngine;
         readonly ICommandLineRunner commandLineRunner;
 
-        public DeployAzureServiceFabricAppConvention(
+        public DeployAzureServiceFabricAppBehaviour(
             ILog log,
             ICalamariFileSystem fileSystem,
             ICalamariEmbeddedResources embeddedResources,
