@@ -10,7 +10,7 @@ using Microsoft.WindowsAzure.Packaging;
 
 namespace Calamari.AzureCloudService
 {
-    public class EnsureCloudServicePackageIsCtpFormatBehaviour : IAfterPackageExtractionBehaviour
+    public class EnsureCloudServicePackageIsCtpFormatBehaviour : IBeforePackageExtractionBehaviour
     {
         readonly ILog log;
         readonly ICalamariFileSystem fileSystem;
@@ -50,7 +50,7 @@ namespace Calamari.AzureCloudService
 
         void ConvertPackage(string packagePath)
         {
-            string newPackagePath = Path.Combine(Path.GetDirectoryName(packagePath), Path.GetFileNameWithoutExtension(packagePath) + "_new.cspkg");
+            var newPackagePath = Path.Combine(Path.GetDirectoryName(packagePath), Path.GetFileNameWithoutExtension(packagePath) + "_new.cspkg");
             using (var packageStore = new OpcPackageStore(newPackagePath, FileMode.CreateNew, FileAccess.ReadWrite))
             using (var fileStream = fileSystem.OpenFile(packagePath, FileMode.Open))
             {

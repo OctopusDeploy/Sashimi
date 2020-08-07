@@ -5,10 +5,17 @@ namespace Sashimi.AzureCloudService
     {
         public static readonly string AccountType = "Octopus.Account.AccountType";
 
+        public static class Account
+        {
+            public static readonly string Id = "Octopus.Account.Id";
+        }
+
         public static class Action
         {
             public static class Azure
             {
+                public static readonly string CloudServiceActionTypeName = "Octopus.AzureCloudService";
+
                 public static readonly string CloudServiceName = "Octopus.Action.Azure.CloudServiceName";
                 public static readonly string StorageAccountName = "Octopus.Action.Azure.StorageAccountName";
                 public static readonly string Slot = "Octopus.Action.Azure.Slot";
@@ -23,6 +30,8 @@ namespace Sashimi.AzureCloudService
                 public static readonly string StorageEndPointSuffix = "Octopus.Action.Azure.StorageEndpointSuffix";
                 public static readonly string CloudServiceHealthCheckActionTypeName = "Octopus.HealthCheck.AzureCloudService";
                 public static readonly string AccountId = "Octopus.Action.Azure.AccountId";
+
+                public static readonly string IsLegacyMode = "Octopus.Action.Azure.IsLegacyMode";
             }
         }
     }

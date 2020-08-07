@@ -11,12 +11,12 @@ namespace Calamari.AzureCloudService
         protected override IEnumerable<IBeforePackageExtractionBehaviour> BeforePackageExtraction(BeforePackageExtractionResolver resolver)
         {
             yield return resolver.Create<SwapAzureDeploymentBehaviour>();
+            yield return resolver.Create<FindCloudServicePackageBehaviour>();
+            yield return resolver.Create<EnsureCloudServicePackageIsCtpFormatBehaviour>();
         }
 
         protected override IEnumerable<IAfterPackageExtractionBehaviour> AfterPackageExtraction(AfterPackageExtractionResolver resolver)
         {
-            yield return resolver.Create<FindCloudServicePackageBehaviour>();
-            yield return resolver.Create<EnsureCloudServicePackageIsCtpFormatBehaviour>();
             yield return resolver.Create<ExtractAzureCloudServicePackageBehaviour>();
             yield return resolver.Create<ChooseCloudServiceConfigurationFileBehaviour>();
         }

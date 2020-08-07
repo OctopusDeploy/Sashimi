@@ -15,6 +15,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Azure.Common\Sashimi.Azure.Common.csproj" />
+        <ProjectReference Include="..\Sashimi.AzureScripting\Sashimi.AzureScripting.csproj" />
         <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
         <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
