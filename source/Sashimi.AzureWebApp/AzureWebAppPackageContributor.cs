@@ -7,11 +7,11 @@ namespace Sashimi.AzureWebApp
 {
     class AzureWebAppPackageContributor : IContributeToPackageDeployment
     {
-        public PackageContributionResult Contribute(DeploymentTargetType deploymentTargetType, IActionHandlerContext context)
+        public ActionContributionResult Contribute(DeploymentTargetType deploymentTargetType, IActionHandlerContext context)
         {
             return deploymentTargetType == AzureWebAppEndpoint.AzureWebAppDeploymentTargetType
-                ? PackageContributionResult.RedirectToHandler<AzureWebAppActionHandler>()
-                : PackageContributionResult.DoDefaultPackageDeployment();
+                ? ActionContributionResult.RedirectToHandler<AzureWebAppActionHandler>()
+                : ActionContributionResult.DoDefaultDeployment();
         }
     }
 }
