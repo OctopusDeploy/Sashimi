@@ -24,8 +24,8 @@ namespace Sashimi.AzureWebApp
                             .As<IActionHandler>()
                             .AsSelf()
                             .InstancePerLifetimeScope();
-                     builder.RegisterType<AzureWebAppPackageContributor>()
-                            .As<IContributeToPackageDeployment>()
+                     builder.RegisterType<AzureWebAppPackageActionOverride>()
+                            .As<IPackageActionOverride>()
                             .InstancePerLifetimeScope();
               }
        }
