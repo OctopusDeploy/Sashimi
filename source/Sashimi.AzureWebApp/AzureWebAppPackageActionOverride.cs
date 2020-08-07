@@ -7,7 +7,7 @@ namespace Sashimi.AzureWebApp
 {
     class AzureWebAppPackageActionOverride : IPackageActionOverride
     {
-        public ActionOverrideResult ShouldOverride(DeploymentTargetType deploymentTargetType)
+        public ActionOverrideResult ShouldOverride(DeploymentTargetType deploymentTargetType, IActionHandlerContext context)
         {
             return deploymentTargetType == AzureWebAppEndpoint.AzureWebAppDeploymentTargetType
                 ? ActionOverrideResult.RedirectToHandler<AzureWebAppActionHandler>()
