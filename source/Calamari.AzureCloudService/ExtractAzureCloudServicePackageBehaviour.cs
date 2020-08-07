@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Calamari.AzureCloudService.CloudServicePackage;
 using Calamari.AzureCloudService.CloudServicePackage.ManifestSchema;
 using Calamari.Common.Commands;
-using Calamari.Common.Features.Behaviours;
 using Calamari.Common.Plumbing.FileSystem;
 using Calamari.Common.Plumbing.Logging;
 using Calamari.Common.Plumbing.Pipeline;
@@ -14,7 +13,7 @@ using Calamari.Common.Util;
 
 namespace Calamari.AzureCloudService
 {
-    public class ExtractAzureCloudServicePackageBehaviour : IAfterPackageExtractionBehaviour
+    public class ExtractAzureCloudServicePackageBehaviour : IPackageExtractionBehaviour
     {
         readonly ILog log;
         readonly ICalamariFileSystem fileSystem;

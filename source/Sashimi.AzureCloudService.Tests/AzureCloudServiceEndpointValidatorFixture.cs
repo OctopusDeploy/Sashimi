@@ -1,5 +1,4 @@
 using System;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Calamari.Tests.Shared;
 using FluentAssertions;

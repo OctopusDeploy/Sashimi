@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Calamari.Common.Commands;
-using Calamari.Common.Features.Behaviours;
 using Calamari.Common.Plumbing.Pipeline;
 
 namespace Calamari.AzureCloudService
@@ -15,9 +14,13 @@ namespace Calamari.AzureCloudService
             yield return resolver.Create<EnsureCloudServicePackageIsCtpFormatBehaviour>();
         }
 
-        protected override IEnumerable<IAfterPackageExtractionBehaviour> AfterPackageExtraction(AfterPackageExtractionResolver resolver)
+        protected override IEnumerable<IPackageExtractionBehaviour> PackageExtraction(PackageExtractionResolver resolver)
         {
             yield return resolver.Create<ExtractAzureCloudServicePackageBehaviour>();
+        }
+
+        protected override IEnumerable<IAfterPackageExtractionBehaviour> AfterPackageExtraction(AfterPackageExtractionResolver resolver)
+        {
             yield return resolver.Create<ChooseCloudServiceConfigurationFileBehaviour>();
         }
 

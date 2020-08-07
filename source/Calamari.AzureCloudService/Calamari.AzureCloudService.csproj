@@ -11,7 +11,7 @@
         <PackageReference Include="Calamari.Common" Version="14.7.0" />
         <PackageReference Include="Calamari.Common" Version="14.6.0" />
         <Reference Include="WindowsBase" />
-        <PackageReference Include="Calamari.Common" Version="14.3.0" />
+        <PackageReference Include="Calamari.Common" Version="14.4.0" />
         <PackageReference Include="Hyak.Common" Version="1.2.2" />
         <PackageReference Include="Microsoft.Azure.Common" Version="2.2.1" />
         <PackageReference Include="Microsoft.WindowsAzure.Management.Compute" Version="14.0.0" />
