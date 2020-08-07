@@ -13,7 +13,7 @@ using Calamari.Common.Util;
 
 namespace Calamari.AzureCloudService
 {
-    public class ExtractAzureCloudServicePackageBehaviour : IPackageExtractionBehaviour
+    public class ExtractAzureCloudServicePackageBehaviour : IAfterPackageExtractionBehaviour
     {
         readonly ILog log;
         readonly ICalamariFileSystem fileSystem;

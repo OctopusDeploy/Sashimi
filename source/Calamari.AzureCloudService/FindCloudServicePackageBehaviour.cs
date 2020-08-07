@@ -8,7 +8,7 @@ using Calamari.Common.Plumbing.Pipeline;
 
 namespace Calamari.AzureCloudService
 {
-    public class FindCloudServicePackageBehaviour : IBeforePackageExtractionBehaviour
+    public class FindCloudServicePackageBehaviour : IAfterPackageExtractionBehaviour
     {
         readonly ICalamariFileSystem fileSystem;
 

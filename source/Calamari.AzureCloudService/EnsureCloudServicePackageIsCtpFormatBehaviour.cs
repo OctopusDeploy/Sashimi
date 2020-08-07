@@ -9,7 +9,7 @@ using Microsoft.WindowsAzure.Packaging;
 
 namespace Calamari.AzureCloudService
 {
-    public class EnsureCloudServicePackageIsCtpFormatBehaviour : IBeforePackageExtractionBehaviour
+    public class EnsureCloudServicePackageIsCtpFormatBehaviour : IAfterPackageExtractionBehaviour
     {
         readonly ILog log;
         readonly ICalamariFileSystem fileSystem;
