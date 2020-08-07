@@ -1,37 +1,35 @@
-﻿﻿using System;
+﻿using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Calamari.Common.Commands;
+using Calamari.Common.Plumbing.Pipeline;
 using Calamari.Common.Plumbing.Variables;
-using Calamari.Integration.Certificates;
 
-namespace Calamari.Deployment.Conventions
+namespace Calamari.AzureServiceFabric.Deployment.Conventions
 {
-    public class EnsureCertificateInstalledInStoreConvention : IInstallConvention
+    class EnsureCertificateInstalledInStoreConvention : IDeployBehaviour
     {
-        private readonly ICertificateStore certificateStore;
-        private readonly string certificateIdVariableName;
-        private readonly string? storeLocationVariableName;
-        private readonly string? storeNameVariableName;
+        readonly string certificateIdVariableName = SpecialVariables.Action.ServiceFabric.ClientCertVariable;
+        readonly string storeLocationVariableName = SpecialVariables.Action.ServiceFabric.CertificateStoreLocation;
+        readonly string storeNameVariableName = SpecialVariables.Action.ServiceFabric.CertificateStoreName;
 
-        public EnsureCertificateInstalledInStoreConvention(
-            ICertificateStore certificateStore,
-            string certificateIdVariableName, string? storeLocationVariableName = null, string? storeNameVariableName = null)
+
+        public bool IsEnabled(RunningDeployment context)
         {
-            this.certificateStore = certificateStore;
-            this.certificateIdVariableName = certificateIdVariableName;
-            this.storeLocationVariableName = storeLocationVariableName;
-            this.storeNameVariableName = storeNameVariableName;
+            throw new NotImplementedException();
         }
 
-        public void Install(RunningDeployment deployment)
+        public Task Execute(RunningDeployment context)
         {
-            var variables = deployment.Variables;
+            var variables = context.Variables;
 
             var clientCertVariable = variables.Get(certificateIdVariableName);
             if (!string.IsNullOrEmpty(clientCertVariable))
             {
                 EnsureCertificateInStore(variables, clientCertVariable);
             }
+
+            return this.CompletedTask();
         }
 
         void EnsureCertificateInStore(IVariables variables, string certificateVariable)
@@ -43,7 +41,7 @@ namespace Calamari.Deployment.Conventions
             if (!string.IsNullOrWhiteSpace(storeNameVariableName) && Enum.TryParse(variables.Get(storeNameVariableName, StoreName.My.ToString()), out StoreName storeNameOverride))
                 storeName = storeNameOverride;
 
-            certificateStore.GetOrAdd(variables, certificateVariable, storeName, storeLocation);
+            CalamariCertificateStore.GetOrAdd(variables, certificateVariable, storeName, storeLocation);
         }
     }
 }

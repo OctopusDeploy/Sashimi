@@ -1,20 +1,19 @@
-﻿﻿using System;
+﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Calamari.Common.Commands;
 using Calamari.Common.Features.EmbeddedResources;
 using Calamari.Common.Features.Processes;
 using Calamari.Common.Features.Scripting;
 using Calamari.Common.Plumbing.FileSystem;
 using Calamari.Common.Plumbing.Logging;
+using Calamari.Common.Plumbing.Pipeline;
 using Calamari.Common.Plumbing.Variables;
 using Calamari.Common.Util;
-using Calamari.Deployment;
-using Calamari.Deployment.Conventions;
-using Calamari.Util;
 
-namespace Calamari.Azure.ServiceFabric.Deployment.Conventions
+namespace Calamari.AzureServiceFabric.Deployment.Conventions
 {
-    public class DeployAzureServiceFabricAppConvention : IInstallConvention
+    class DeployAzureServiceFabricAppConvention : IDeployBehaviour
     {
         readonly ILog log;
         readonly ICalamariFileSystem fileSystem;
@@ -36,9 +35,15 @@ namespace Calamari.Azure.ServiceFabric.Deployment.Conventions
             this.commandLineRunner = commandLineRunner;
         }
 
-        public void Install(RunningDeployment deployment)
+
+        public bool IsEnabled(RunningDeployment context)
         {
-            var variables = deployment.Variables;
+            return true;
+        }
+
+        public Task Execute(RunningDeployment context)
+        {
+            var variables = context.Variables;
 
             // Set output variables for our script to access.
             log.SetOutputVariable("PublishProfileFile", variables.Get(SpecialVariables.Action.ServiceFabric.PublishProfileFile, "PublishProfiles\\Cloud.xml"), variables);
@@ -55,18 +60,18 @@ namespace Calamari.Azure.ServiceFabric.Deployment.Conventions
             var targetPath = Path.Combine(Environment.CurrentDirectory, "staging");
             log.SetOutputVariable("ApplicationPackagePath", targetPath, variables);
 
-            if (deployment.Variables.GetFlag(SpecialVariables.Action.ServiceFabric.LogExtractedApplicationPackage))
-                LogExtractedPackage(deployment.CurrentDirectory);
+            if (context.Variables.GetFlag(SpecialVariables.Action.ServiceFabric.LogExtractedApplicationPackage))
+                LogExtractedPackage(context.CurrentDirectory);
 
             // The user may supply the script, to override behaviour.
-            var scriptFile = Path.Combine(deployment.CurrentDirectory, "DeployToServiceFabric.ps1");
+            var scriptFile = Path.Combine(context.CurrentDirectory, "DeployToServiceFabric.ps1");
             if (!fileSystem.FileExists(scriptFile))
             {
                 // Use our bundled version.
                 fileSystem.OverwriteFile(scriptFile, embeddedResources.GetEmbeddedResourceText(GetType().Assembly, $"{GetType().Assembly.GetName().Name}.Scripts.DeployAzureServiceFabricApplication.ps1"));
             }
 
-            var result = scriptEngine.Execute(new Script(scriptFile), deployment.Variables, commandLineRunner);
+            var result = scriptEngine.Execute(new Script(scriptFile), context.Variables, commandLineRunner);
 
             fileSystem.DeleteFile(scriptFile, FailureOptions.IgnoreFailure);
 
@@ -75,6 +80,8 @@ namespace Calamari.Azure.ServiceFabric.Deployment.Conventions
                 throw new CommandException(string.Format("Script '{0}' returned non-zero exit code: {1}", scriptFile,
                     result.ExitCode));
             }
+
+            return this.CompletedTask();
         }
 
         void SetRegisterApplicationTypeTimeout(IVariables variables)

@@ -20,7 +20,7 @@ namespace Calamari.AzureServiceFabric
             GetOrAdd(variables, certificateVariable, name, location);
         }
 
-        static void GetOrAdd(IVariables variables, string certificateVariable, StoreName storeName, StoreLocation storeLocation = StoreLocation.CurrentUser)
+        public static void GetOrAdd(IVariables variables, string certificateVariable, StoreName storeName, StoreLocation storeLocation = StoreLocation.CurrentUser)
         {
             var pfxBytes = Convert.FromBase64String(variables.Get($"{certificateVariable}.{CertificateVariables.Properties.Pfx}"));
             var thumbprint = variables.Get($"{certificateVariable}.{CertificateVariables.Properties.Thumbprint}");

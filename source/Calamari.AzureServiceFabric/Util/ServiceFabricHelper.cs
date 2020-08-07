@@ -1,6 +1,7 @@
-﻿﻿using Microsoft.Win32;
+﻿﻿using System;
+ using Microsoft.Win32;
 
-namespace Calamari.Azure.ServiceFabric.Util
+ namespace Calamari.AzureServiceFabric.Util
 {
     public static class ServiceFabricHelper
     {

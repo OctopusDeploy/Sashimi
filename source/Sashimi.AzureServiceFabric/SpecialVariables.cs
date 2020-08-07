@@ -36,6 +36,10 @@ namespace Sashimi.AzureServiceFabric
                 #endregion
 
                 public static readonly string AppHealthCheckActionTypeName = "Octopus.HealthCheck.AzureServiceFabricApp";
+
+                public static readonly string ServiceFabricAppActionTypeName = "Octopus.AzureServiceFabricApp";
+
+                public static readonly string ServiceFabricPowerShellActionTypeName = "Octopus.AzureServiceFabricPowerShell";
             }
 
             public static readonly string AccountId = "Octopus.Action.Azure.AccountId";

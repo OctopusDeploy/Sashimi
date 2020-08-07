@@ -1,8 +1,7 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Calamari.Azure.ServiceFabric.Util;
 using Calamari.Common.Commands;
 using Calamari.Common.Features.EmbeddedResources;
 using Calamari.Common.Features.Processes;
@@ -11,9 +10,8 @@ using Calamari.Common.Features.Scripts;
 using Calamari.Common.Plumbing.FileSystem;
 using Calamari.Common.Plumbing.Logging;
 using Calamari.Common.Plumbing.Variables;
-using Calamari.Deployment;
 
-namespace Calamari.Azure.ServiceFabric.Integration
+namespace Calamari.AzureServiceFabric.Integration
 {
     public class AzureServiceFabricPowerShellContext : IScriptWrapper
     {
@@ -50,7 +48,7 @@ namespace Calamari.Azure.ServiceFabric.Integration
                     "This script wrapper hook is not enabled, and should not have been run");
             }
 
-            if (!ServiceFabricHelper.IsServiceFabricSdkKeyInRegistry())
+            if (!Util.ServiceFabricHelper.IsServiceFabricSdkKeyInRegistry())
                 throw new Exception("Could not find the Azure Service Fabric SDK on this server. This SDK is required before running Service Fabric commands.");
 
             var workingDirectory = Path.GetDirectoryName(script.File);
@@ -63,7 +61,7 @@ namespace Calamari.Azure.ServiceFabric.Integration
             // Read thumbprint from our client cert variable (if applicable).
             var securityMode = variables.Get(SpecialVariables.Action.ServiceFabric.SecurityMode);
             var clientCertThumbprint = string.Empty;
-            if (securityMode == AzureServiceFabricSecurityMode.SecureClientCertificate.ToString())
+            if (securityMode == Util.AzureServiceFabricSecurityMode.SecureClientCertificate.ToString())
             {
                 var certificateVariable = GetMandatoryVariable(variables, SpecialVariables.Action.ServiceFabric.ClientCertVariable);
                 clientCertThumbprint = variables.Get($"{certificateVariable}.{CertificateVariables.Properties.Thumbprint}");

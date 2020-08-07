@@ -1,0 +1,37 @@
+﻿using System;
+using System.Threading.Tasks;
+using Calamari.Common.Commands;
+using Calamari.Common.Features.Substitutions;
+using Calamari.Common.Plumbing.FileSystem;
+using Calamari.Common.Plumbing.Pipeline;
+
+namespace Calamari.AzureServiceFabric.Deployment.Conventions
+{
+    class SubstituteVariablesInAzureServiceFabricPackageConvention : IDeployBehaviour
+    {
+        readonly ICalamariFileSystem fileSystem;
+        readonly IFileSubstituter substituter;
+
+        public SubstituteVariablesInAzureServiceFabricPackageConvention(ICalamariFileSystem fileSystem, IFileSubstituter substituter)
+        {
+            this.fileSystem = fileSystem;
+            this.substituter = substituter;
+        }
+
+        public bool IsEnabled(RunningDeployment context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Execute(RunningDeployment context)
+        {
+            var configurationFiles = fileSystem.EnumerateFilesRecursively(context.CurrentDirectory, "*.config", "*.xml");
+            foreach (var configurationFile in configurationFiles)
+            {
+                substituter.PerformSubstitution(configurationFile, context.Variables);
+            }
+
+            return this.CompletedTask();
+        }
+    }
+}
