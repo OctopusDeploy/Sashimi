@@ -12,6 +12,7 @@
       <PackageReference Include="Calamari.Common" Version="14.7.0" />
       <PackageReference Include="Calamari.Common" Version="14.6.0" />
       <PackageReference Include="Calamari.Common" Version="14.4.0" />
+      <PackageReference Include="Calamari.Common" Version="14.4.1-john-remove-clou0006" />
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="Scripts\*" />
