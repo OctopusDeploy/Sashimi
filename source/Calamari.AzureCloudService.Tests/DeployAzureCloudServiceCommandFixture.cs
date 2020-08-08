@@ -22,6 +22,7 @@ namespace Calamari.AzureCloudService.Tests
         X509Certificate2 managementCertificate;
         string subscriptionId;
         string certificate;
+        string pathToPackage;
 
         [OneTimeSetUp]
         public async Task Setup()
@@ -32,6 +33,7 @@ namespace Calamari.AzureCloudService.Tests
             managementCertificate = CreateManagementCertificate(certificate);
             subscriptionCloudCredentials = new CertificateCloudCredentials(subscriptionId, managementCertificate);
             storageClient = new StorageManagementClient(subscriptionCloudCredentials);
+            pathToPackage = TestEnvironment.GetTestPath("Packages", "Octopus.Sample.AzureCloudService.5.8.2.nupkg");
 
             await storageClient.StorageAccounts.CreateAsync(new StorageAccountCreateParameters(storageName, "test")
             {
@@ -72,11 +74,8 @@ namespace Calamari.AzureCloudService.Tests
                                                          context.Variables.Add(SpecialVariables.Action.Azure.UseCurrentInstanceCount, bool.FalseString);
                                                          context.Variables.Add(SpecialVariables.Action.Azure.DeploymentLabel, "v1.0.0");
 
-                                                         var pathToPackage = TestEnvironment.GetTestPath("Packages", "Octopus.Sample.AzureCloudService.5.8.2.nupkg");
-
                                                          context.WithPackage(pathToPackage, "Octopus.Sample.AzureCloudService", "5.8.2");
                                                      })
-                                        .WithAssert(result => result.WasSuccessful.Should().BeTrue())
                                         .Execute();
             }
             finally
@@ -108,11 +107,9 @@ namespace Calamari.AzureCloudService.Tests
                                                          context.Variables.Add(SpecialVariables.Action.Azure.UseCurrentInstanceCount, bool.FalseString);
                                                          context.Variables.Add(SpecialVariables.Action.Azure.DeploymentLabel, "v1.0.0");
 
-                                                         var pathToPackage = TestEnvironment.GetTestPath("Packages", "Octopus.Sample.AzureCloudService.5.8.2.nupkg");
 
                                                          context.WithPackage(pathToPackage, "Octopus.Sample.AzureCloudService", "5.8.2");
                                                      })
-                                        .WithAssert(result => result.WasSuccessful.Should().BeTrue())
                                         .Execute();
 
                 await CommandTestBuilder.CreateAsync<DeployAzureCloudServiceCommand, Program>()
@@ -128,11 +125,8 @@ namespace Calamari.AzureCloudService.Tests
                                                          context.Variables.Add(SpecialVariables.Action.Azure.UseCurrentInstanceCount, bool.FalseString);
                                                          context.Variables.Add(SpecialVariables.Action.Azure.DeploymentLabel, "v1.0.0");
 
-                                                         var pathToPackage = TestEnvironment.GetTestPath("Packages", "Octopus.Sample.AzureCloudService.5.8.2.nupkg");
-
                                                          context.WithPackage(pathToPackage, "Octopus.Sample.AzureCloudService", "5.8.2");
                                                      })
-                                        .WithAssert(result => result.WasSuccessful.Should().BeTrue())
                                         .Execute();
 
                 Func<Task> act = async () => await client.Deployments.GetBySlotAsync(serviceName, DeploymentSlot.Staging);

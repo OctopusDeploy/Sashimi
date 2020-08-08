@@ -15,9 +15,9 @@ namespace Calamari.AzureCloudService
 
         protected override IEnumerable<IAfterPackageExtractionBehaviour> AfterPackageExtraction(AfterPackageExtractionResolver resolver)
         {
-            yield return resolver.Create<ExtractAzureCloudServicePackageBehaviour>();
             yield return resolver.Create<FindCloudServicePackageBehaviour>();
             yield return resolver.Create<EnsureCloudServicePackageIsCtpFormatBehaviour>();
+            yield return resolver.Create<ExtractAzureCloudServicePackageBehaviour>();
             yield return resolver.Create<ChooseCloudServiceConfigurationFileBehaviour>();
         }
 

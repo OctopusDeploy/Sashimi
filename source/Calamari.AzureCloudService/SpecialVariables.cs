@@ -17,7 +17,6 @@
                 public static readonly string PackageExtractionPath = "Octopus.Action.Azure.PackageExtractionPath";
                 public static readonly string CloudServiceConfigurationFileRelativePath = "Octopus.Action.Azure.CloudServiceConfigurationFileRelativePath";
                 public static readonly string UseCurrentInstanceCount = "Octopus.Action.Azure.UseCurrentInstanceCount";
-                public static readonly string Environment = "Octopus.Action.Azure.Environment";
                 public static readonly string StorageEndPointSuffix = "Octopus.Action.Azure.StorageEndpointSuffix";
                 public static readonly string UploadedPackageUri = "Octopus.Action.Azure.UploadedPackageUri";
                 public static readonly string DeploymentLabel = "Octopus.Action.Azure.DeploymentLabel";
