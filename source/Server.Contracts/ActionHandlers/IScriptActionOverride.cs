@@ -4,7 +4,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
 {
     public interface IScriptActionOverride
     {
-        ScriptActionOverrideResult ShouldOverride(DeploymentTargetType? deploymentTargetType, IActionHandlerContext context);
+        ScriptActionOverrideResult ShouldOverride(DeploymentTargetType deploymentTargetType, IActionHandlerContext context);
     }
 
     public abstract class ScriptActionOverrideResult
