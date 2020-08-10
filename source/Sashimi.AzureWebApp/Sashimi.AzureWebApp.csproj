@@ -7,14 +7,24 @@
         <Nullable>enable</Nullable>
         <PackageProjectUrl>https://github.com/OctopusDeploy/Sashimi/</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <NoDefaultExcludes>true</NoDefaultExcludes>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Azure.Common\Sashimi.Azure.Common.csproj" />
-      <ProjectReference Include="..\Sashimi.Azure.Accounts\Sashimi.Azure.Accounts.csproj" />
-      <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
+        <ProjectReference Include="..\Azure.Common\Sashimi.Azure.Common.csproj" />
+        <ProjectReference Include="..\Sashimi.Azure.Accounts\Sashimi.Azure.Accounts.csproj" />
+        <ProjectReference Include="..\Sashimi.AzureScripting\Sashimi.AzureScripting.csproj" />
+        <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="..\..\artifacts\Calamari.AzureWebApp.zip" LinkBase="tools" Pack="true" PackagePath="tools/" />
+        <None Include="..\..\artifacts\Calamari.AzureWebApp.zip">
+            <Visible>false</Visible>
+            <LinkBase>tools</LinkBase>
+            <Pack>true</Pack>
+            <PackagePath>tools/</PackagePath>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Octopus.Configuration" Version="2.1.0" />
     </ItemGroup>
 </Project>
