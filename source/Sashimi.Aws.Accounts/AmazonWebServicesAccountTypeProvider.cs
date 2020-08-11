@@ -30,10 +30,15 @@ namespace Sashimi.Aws.Accounts
             builder.Map<AmazonWebServicesAccountResource, AmazonWebServicesAccountDetails>();
         }
 
-        public IEnumerable<WellKnownVariable> GetWellKnownVariables()
+        public IEnumerable<string> GetUserVisibleWellKnownVariables()
         {
             yield return KnownVariables.Action.Aws.AccessKey;
             yield return KnownVariables.Action.Aws.SecretKey;
+        }
+
+        public IEnumerable<WellKnownVariableAliasMapping> GetVariablesWithAliases()
+        {
+            yield break;
         }
     }
 }

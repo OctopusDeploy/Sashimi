@@ -36,7 +36,12 @@ namespace Sashimi.Azure.Accounts
             builder.Map<AzureServicePrincipalAccountResource, AzureServicePrincipalAccountDetails>();
         }
 
-        public IEnumerable<WellKnownVariable> GetWellKnownVariables()
+        public IEnumerable<string> GetUserVisibleWellKnownVariables()
+        {
+            yield break;
+        }
+
+        public IEnumerable<WellKnownVariableAliasMapping> GetVariablesWithAliases()
         {
             yield break;
         }

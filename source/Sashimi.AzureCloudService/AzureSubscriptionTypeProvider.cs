@@ -30,7 +30,12 @@ namespace Sashimi.AzureCloudService
             builder.Map<AzureSubscriptionAccountResource, AzureSubscriptionDetails>();
         }
 
-        public IEnumerable<WellKnownVariable> GetWellKnownVariables()
+        public IEnumerable<string> GetUserVisibleWellKnownVariables()
+        {
+            yield break;
+        }
+
+        public IEnumerable<WellKnownVariableAliasMapping> GetVariablesWithAliases()
         {
             yield break;
         }
