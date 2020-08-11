@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Octopus.Data.Resources;
 using Octopus.Data.Resources.Attributes;
+using Sashimi.Azure.Accounts;
 using Sashimi.Server.Contracts.Accounts;
 
 namespace Sashimi.AzureCloudService

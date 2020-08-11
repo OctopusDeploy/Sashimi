@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Octopus.Data.Model;
+using Sashimi.Azure.Accounts;
 using Sashimi.Azure.Common.Variables;
 using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.Variables;

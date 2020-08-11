@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using FluentValidation;
 using Octopus.Server.Extensibility.HostServices.Mapping;
+using Sashimi.Azure.Accounts;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Accounts;

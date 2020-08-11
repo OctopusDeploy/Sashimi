@@ -15,10 +15,15 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Azure.Common\Sashimi.Azure.Common.csproj" />
+        <ProjectReference Include="..\Sashimi.Azure.Accounts\Sashimi.Azure.Accounts.csproj" />
         <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
         <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
         <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Web" />
     </ItemGroup>
 
 </Project>
