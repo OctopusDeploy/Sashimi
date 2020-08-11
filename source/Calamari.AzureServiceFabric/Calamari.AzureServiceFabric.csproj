@@ -13,6 +13,7 @@
         <PackageReference Include="Calamari.Common" Version="14.6.0" />
         <PackageReference Include="Calamari.Common" Version="14.4.0" />
         <PackageReference Include="Calamari.Common" Version="14.4.1-john-remove-clou0006" />
+        <PackageReference Include="Calamari.Common" Version="14.8.0" />
         <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.8" />
         <PackageReference Include="Microsoft.ServiceFabric" Version="5.4.145" />
         <PackageReference Include="Microsoft.DotNet.Analyzers.Compatibility" Version="0.2.12-alpha">
