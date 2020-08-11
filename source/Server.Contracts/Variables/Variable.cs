@@ -4,8 +4,18 @@ namespace Sashimi.Server.Contracts.Variables
 {
     public class Variable
     {
+        public Variable(WellKnownVariable wellKnownVariable, string? value)
+            : this(wellKnownVariable.Name, value, VariableType.String)
+        {
+        }
+
         public Variable(string name, string? value)
             : this(name, value, VariableType.String)
+        {
+        }
+
+        public Variable(WellKnownVariable wellKnownVariable, string? value, VariableType type)
+            : this(wellKnownVariable.Name, value, type)
         {
         }
 
@@ -14,6 +24,11 @@ namespace Sashimi.Server.Contracts.Variables
             Name = name;
             Value = value;
             Type = type;
+        }
+
+        public Variable(WellKnownVariable wellKnownVariable, SensitiveString? value)
+            : this(wellKnownVariable.Name, value)
+        {
         }
 
         public Variable(string name, SensitiveString? value)
