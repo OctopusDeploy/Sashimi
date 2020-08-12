@@ -6,19 +6,15 @@ using Microsoft.Azure.Management.WebSites;
 using Octopus.Diagnostics;
 using Octopus.Extensibility.Actions.Sashimi;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
-using Sashimi.Azure.Accounts;
 using Sashimi.Server.Contracts.Accounts;
-using AccountTypes = Sashimi.Azure.Accounts.AccountTypes;
-using BadRequestRegistration = Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api.BadRequestRegistration;
 
-namespace Octopus.Server.Web.Api.Actions
+namespace Sashimi.Azure.Accounts.Web
 {
-    public class AzureWebSitesSlotListAction : AzureWebSiteActionBase, IAccountDetailsEndpoint
+    class AzureWebSitesSlotListAction : AzureActionBase, IAccountDetailsEndpoint
     {
         static readonly IResponderPathParameter<string> ResourceGroupName = new RequiredPathParameterProperty<string>("resourceGroupName", "Azure resource group name");
         static readonly IResponderPathParameter<string> WebsiteName = new RequiredPathParameterProperty<string>("webSiteName", "Website name");
-        static readonly BadRequestRegistration UnsupportedType = new BadRequestRegistration("Unsupported account type");
-        static readonly BadRequestRegistration ManagementCertsUnsupportedType = new BadRequestRegistration("Azure Management Certificate accounts not supported");
+        static readonly BadRequestRegistration OnlyServicePrincipalSupported = new BadRequestRegistration("Account must be an Azure Service Principal Account.");
         static readonly OctopusJsonRegistration<ICollection<AzureWebSiteSlotResource>> Results = new OctopusJsonRegistration<ICollection<AzureWebSiteSlotResource>>();
 
         readonly IOctopusHttpClientFactory httpClientFactory;
@@ -43,20 +39,17 @@ namespace Octopus.Server.Web.Api.Actions
                 var targetSite = GetAzureTargetSite(websiteName, string.Empty);
                 var siteName = targetSite.Site;
 
-                if (accountDetails.AccountType == AccountTypes.AzureServicePrincipalAccountType)
-                {
-                    var servicePrincipalAccount = (AzureServicePrincipalAccountDetails) accountDetails;
+                if (accountDetails.AccountType != AccountTypes.AzureServicePrincipalAccountType)
+                    return OnlyServicePrincipalSupported.Response();
 
-                    using (var webSiteClient = servicePrincipalAccount.CreateWebSiteManagementClient(httpClientFactory.HttpClientHandler))
-                    {
-                        var slots = (await GetSlots(webSiteClient, resourceGroupName, siteName)).OrderBy(s => s.Name).ToArray();
-                        return Results.Response(slots);
-                    }
+                var servicePrincipalAccount = (AzureServicePrincipalAccountDetails) accountDetails;
+
+                using (var webSiteClient = servicePrincipalAccount.CreateWebSiteManagementClient(httpClientFactory.HttpClientHandler))
+                {
+                    var slots = (await GetSlots(webSiteClient, resourceGroupName, siteName)).OrderBy(s => s.Name).ToArray();
+                    return Results.Response(slots);
                 }
 
-                if (accountDetails.AccountType == AccountTypes.AzureSubscriptionAccountType)
-                    return ManagementCertsUnsupportedType.Response();
-                return UnsupportedType.Response();
             });
         }
 

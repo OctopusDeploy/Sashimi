@@ -1,7 +1,7 @@
 using Autofac;
 using Octopus.Extensibility.Actions.Sashimi;
 using Octopus.Server.Extensibility.Extensions.Mappings;
-using Octopus.Server.Web.Api.Actions;
+using Sashimi.Azure.Accounts.Web;
 using Sashimi.Server.Contracts.Accounts;
 
 namespace Sashimi.Azure.Accounts

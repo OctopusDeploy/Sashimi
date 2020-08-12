@@ -4,9 +4,9 @@
 
 using System;
 
-namespace Octopus.Core.Resources
+namespace Sashimi.Azure.Accounts.Web
 {
-    public class AzureStorageAccountResource
+    class AzureStorageAccountResource
     {
         public string Name { get; set; }
         public string Location { get; set; }

@@ -1,10 +1,13 @@
 // CS8618 Non-nullable field {0} is uninitialized
 // Remove this when this class is converted to initialize all required properties via the constructor
+
+using System;
+
 #pragma warning disable 8618
 
-namespace Octopus.Core.Resources
+namespace Sashimi.Azure.Accounts.Web
 {
-    public class AzureResourceGroupResource
+    class AzureResourceGroupResource
     {
         public string Id { get; set; }
         public string Name { get; set; }

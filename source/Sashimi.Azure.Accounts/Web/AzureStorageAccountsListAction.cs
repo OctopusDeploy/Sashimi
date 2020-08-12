@@ -1,22 +1,18 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Octopus.Core.Resources;
 using System.Threading.Tasks;
 using Octopus.Diagnostics;
 using Octopus.Extensibility.Actions.Sashimi;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
-using Sashimi.Azure.Accounts;
 using Sashimi.Server.Contracts.Accounts;
-using AccountTypes = Sashimi.Azure.Accounts.AccountTypes;
-using BadRequestRegistration = Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api.BadRequestRegistration;
 
-namespace Octopus.Server.Web.Api.Actions
+namespace Sashimi.Azure.Accounts.Web
 {
-    public class AzureStorageAccountsListAction : AzureWebSiteActionBase, IAccountDetailsEndpoint
+    class AzureStorageAccountsListAction : AzureActionBase, IAccountDetailsEndpoint
     {
-        static readonly BadRequestRegistration UnsupportedType = new BadRequestRegistration("Account must be an Azure account.");
-        static readonly BadRequestRegistration ManagementCertsUnsupportedType = new BadRequestRegistration("This operation is not supported using Azure Management Certificate authentication. Please try again using an Azure Service Account.");
-        static readonly Extensibility.Extensions.Infrastructure.Web.Api.OctopusJsonRegistration<ICollection<AzureStorageAccountResource>> Results = new Extensibility.Extensions.Infrastructure.Web.Api.OctopusJsonRegistration<ICollection<AzureStorageAccountResource>>();
+        static readonly BadRequestRegistration OnlyServicePrincipalSupported = new BadRequestRegistration("Account must be an Azure Service Principal Account.");
+        static readonly OctopusJsonRegistration<ICollection<AzureStorageAccountResource>> Results = new OctopusJsonRegistration<ICollection<AzureStorageAccountResource>>();
 
         readonly IOctopusHttpClientFactory httpClientFactory;
 
@@ -31,16 +27,11 @@ namespace Octopus.Server.Web.Api.Actions
 
         public async Task<IOctoResponseProvider> Respond(IOctoRequest request, string accountName, AccountDetails accountDetails)
         {
-            if (accountDetails.AccountType == AccountTypes.AzureServicePrincipalAccountType)
-            {
-                var storageAccounts = await GetStorageAccountsAsync(accountName, (AzureServicePrincipalAccountDetails) accountDetails);
-                return Results.Response(storageAccounts);
-            }
+            if (accountDetails.AccountType != AccountTypes.AzureServicePrincipalAccountType)
+                return OnlyServicePrincipalSupported.Response();
 
-            if (accountDetails.AccountType == AccountTypes.AzureSubscriptionAccountType)
-                return ManagementCertsUnsupportedType.Response();
-
-            return UnsupportedType.Response();
+            var storageAccounts = await GetStorageAccountsAsync(accountName, (AzureServicePrincipalAccountDetails) accountDetails);
+            return Results.Response(storageAccounts);
         }
 
         Task<AzureStorageAccountResource[]> GetStorageAccountsAsync(string accountName, AzureServicePrincipalAccountDetails accountDetails)

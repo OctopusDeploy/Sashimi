@@ -5,18 +5,14 @@ using System.Threading.Tasks;
 using Octopus.Diagnostics;
 using Octopus.Extensibility.Actions.Sashimi;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
-using Sashimi.Azure.Accounts;
 using Sashimi.Server.Contracts.Accounts;
-using AccountTypes = Sashimi.Azure.Accounts.AccountTypes;
-using BadRequestRegistration = Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api.BadRequestRegistration;
 
-namespace Octopus.Server.Web.Api.Actions
+namespace Sashimi.Azure.Accounts.Web
 {
-    public class AzureWebSitesListAction : AzureWebSiteActionBase, IAccountDetailsEndpoint
+    class AzureWebSitesListAction : AzureActionBase, IAccountDetailsEndpoint
     {
-        static readonly BadRequestRegistration UnsupportedType = new BadRequestRegistration("Unsupported account type");
-        static readonly BadRequestRegistration ManagementCertsUnsupportedType = new BadRequestRegistration("Azure Management Certificate accounts not supported");
-        static readonly Extensibility.Extensions.Infrastructure.Web.Api.OctopusJsonRegistration<ICollection<AzureWebSiteResource>> Results = new Extensibility.Extensions.Infrastructure.Web.Api.OctopusJsonRegistration<ICollection<AzureWebSiteResource>>();
+        static readonly BadRequestRegistration OnlyServicePrincipalSupported = new BadRequestRegistration("Account must be an Azure Service Principal Account.");
+        static readonly OctopusJsonRegistration<ICollection<AzureWebSiteResource>> Results = new OctopusJsonRegistration<ICollection<AzureWebSiteResource>>();
 
         readonly IOctopusHttpClientFactory httpClientFactory;
         public AzureWebSitesListAction(ILog log, IOctopusHttpClientFactory httpClientFactory)
@@ -31,11 +27,8 @@ namespace Octopus.Server.Web.Api.Actions
 
         public async Task<IOctoResponseProvider> Respond(IOctoRequest request, string accountName, AccountDetails accountDetails)
         {
-            if (accountDetails.AccountType == AccountTypes.AzureSubscriptionAccountType)
-                return ManagementCertsUnsupportedType.Response();
-
             if (accountDetails.AccountType != AccountTypes.AzureServicePrincipalAccountType)
-                return UnsupportedType.Response();
+                return OnlyServicePrincipalSupported.Response();
 
             var sites = (await GetSites(accountName, (AzureServicePrincipalAccountDetails) accountDetails))
                 .OrderBy(x => x.Name).ThenBy(x => x.Region).ToArray();
