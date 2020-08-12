@@ -15,6 +15,7 @@ namespace Sashimi.AzureCloudService.Tests
         {
             get
             {
+                yield return typeof(AccountTypes);
                 yield return typeof(AzureSubscriptionDetails);
                 yield return typeof(AzureCloudServiceEndpoint);
                 yield return typeof(CloudServiceEndpointResource);
