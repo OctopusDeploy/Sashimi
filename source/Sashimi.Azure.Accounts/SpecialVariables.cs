@@ -1,3 +1,5 @@
+using Sashimi.Server.Contracts.Variables;
+
 namespace Sashimi.Azure.Accounts
 {
     class SpecialVariables

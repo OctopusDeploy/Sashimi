@@ -5,6 +5,7 @@ using FluentValidation;
 using Octopus.Server.Extensibility.HostServices.Mapping;
 using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.ServiceMessages;
+using Sashimi.Server.Contracts.Variables;
 
 namespace Sashimi.Aws.Accounts
 {
@@ -27,6 +28,12 @@ namespace Sashimi.Aws.Accounts
         public void BuildMappings(IResourceMappingsBuilder builder)
         {
             builder.Map<AmazonWebServicesAccountResource, AmazonWebServicesAccountDetails>();
+        }
+
+        public IEnumerable<WellKnownVariable> GetWellKnownVariables()
+        {
+            yield return KnownVariables.Action.Aws.AccessKey;
+            yield return KnownVariables.Action.Aws.SecretKey;
         }
     }
 }
