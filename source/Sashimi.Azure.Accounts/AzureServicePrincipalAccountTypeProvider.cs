@@ -6,6 +6,7 @@ using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
 using Octopus.Server.Extensibility.HostServices.Mapping;
 using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.ServiceMessages;
+using Sashimi.Server.Contracts.Variables;
 
 namespace Sashimi.Azure.Accounts
 {
@@ -33,6 +34,16 @@ namespace Sashimi.Azure.Accounts
         public void BuildMappings(IResourceMappingsBuilder builder)
         {
             builder.Map<AzureServicePrincipalAccountResource, AzureServicePrincipalAccountDetails>();
+        }
+
+        public IEnumerable<string> GetUserVisibleWellKnownVariables()
+        {
+            yield break;
+        }
+
+        public IEnumerable<WellKnownVariableAliasMapping> GetVariablesWithAliases()
+        {
+            yield break;
         }
     }
 }

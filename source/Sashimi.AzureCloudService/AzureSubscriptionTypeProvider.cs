@@ -5,6 +5,7 @@ using FluentValidation;
 using Octopus.Server.Extensibility.HostServices.Mapping;
 using Sashimi.Server.Contracts.Accounts;
 using Sashimi.Server.Contracts.ServiceMessages;
+using Sashimi.Server.Contracts.Variables;
 
 namespace Sashimi.AzureCloudService
 {
@@ -27,6 +28,16 @@ namespace Sashimi.AzureCloudService
         public void BuildMappings(IResourceMappingsBuilder builder)
         {
             builder.Map<AzureSubscriptionAccountResource, AzureSubscriptionDetails>();
+        }
+
+        public IEnumerable<string> GetUserVisibleWellKnownVariables()
+        {
+            yield break;
+        }
+
+        public IEnumerable<WellKnownVariableAliasMapping> GetVariablesWithAliases()
+        {
+            yield break;
         }
     }
 }
