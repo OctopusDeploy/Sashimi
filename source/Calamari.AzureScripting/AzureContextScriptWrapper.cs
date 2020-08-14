@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,14 +22,16 @@ namespace Calamari.AzureScripting
 
         readonly ICalamariFileSystem fileSystem;
         readonly ICalamariEmbeddedResources embeddedResources;
+        readonly ILog log;
         readonly IVariables variables;
         readonly ScriptSyntax[] supportedScriptSyntax = {ScriptSyntax.PowerShell, ScriptSyntax.Bash};
 
-        public AzureContextScriptWrapper(IVariables variables, ICalamariFileSystem fileSystem, ICalamariEmbeddedResources embeddedResources)
+        public AzureContextScriptWrapper(IVariables variables, ICalamariFileSystem fileSystem, ICalamariEmbeddedResources embeddedResources, ILog log)
         {
             this.variables = variables;
             this.fileSystem = fileSystem;
             this.embeddedResources = embeddedResources;
+            this.log = log;
         }
 
         public int Priority => ScriptWrapperPriorities.CloudAuthenticationPriority;
@@ -47,32 +49,31 @@ namespace Calamari.AzureScripting
             variables.Set("OctopusAzureTargetScript", script.File);
             variables.Set("OctopusAzureTargetScriptParameters", script.Parameters);
 
-            SetOutputVariable("OctopusAzureSubscriptionId", variables.Get(SpecialVariables.Action.Azure.SubscriptionId), variables);
-            SetOutputVariable("OctopusAzureStorageAccountName", variables.Get(SpecialVariables.Action.Azure.StorageAccountName), variables);
+            SetOutputVariable("OctopusAzureSubscriptionId", variables.Get(SpecialVariables.Action.Azure.SubscriptionId));
+            SetOutputVariable("OctopusAzureStorageAccountName", variables.Get(SpecialVariables.Action.Azure.StorageAccountName));
             var azureEnvironment = variables.Get(SpecialVariables.Action.Azure.Environment, DefaultAzureEnvironment);
             if (azureEnvironment != DefaultAzureEnvironment)
             {
-                Log.Info("Using Azure Environment override - {0}", azureEnvironment);
+                log.InfoFormat("Using Azure Environment override - {0}", azureEnvironment);
             }
-            SetOutputVariable("OctopusAzureEnvironment", azureEnvironment, variables);
+            SetOutputVariable("OctopusAzureEnvironment", azureEnvironment);
 
-            SetOutputVariable("OctopusAzureExtensionsDirectory",
-                variables.Get(SpecialVariables.Action.Azure.ExtensionsDirectory), variables);
+            SetOutputVariable("OctopusAzureExtensionsDirectory", variables.Get(SpecialVariables.Action.Azure.ExtensionsDirectory));
 
             using (new TemporaryFile(Path.Combine(workingDirectory, "AzureProfile.json")))
             using (var contextScriptFile = new TemporaryFile(CreateContextScriptFile(workingDirectory, scriptSyntax)))
             {
                 if (variables.Get(SpecialVariables.Account.AccountType) == "AzureServicePrincipal")
                 {
-                    SetOutputVariable("OctopusUseServicePrincipal", true.ToString(), variables);
-                    SetOutputVariable("OctopusAzureADTenantId", variables.Get(SpecialVariables.Action.Azure.TenantId), variables);
-                    SetOutputVariable("OctopusAzureADClientId", variables.Get(SpecialVariables.Action.Azure.ClientId), variables);
+                    SetOutputVariable("OctopusUseServicePrincipal", bool.TrueString);
+                    SetOutputVariable("OctopusAzureADTenantId", variables.Get(SpecialVariables.Action.Azure.TenantId));
+                    SetOutputVariable("OctopusAzureADClientId", variables.Get(SpecialVariables.Action.Azure.ClientId));
                     variables.Set("OctopusAzureADPassword", variables.Get(SpecialVariables.Action.Azure.Password));
                     return NextWrapper.ExecuteScript(new Script(contextScriptFile.FilePath), scriptSyntax, commandLineRunner, environmentVars);
                 }
 
                 //otherwise use management certificate
-                SetOutputVariable("OctopusUseServicePrincipal", false.ToString(), variables);
+                SetOutputVariable("OctopusUseServicePrincipal", false.ToString());
                 using (new TemporaryFile(CreateAzureCertificate(workingDirectory)))
                 {
                     return NextWrapper.ExecuteScript(new Script(contextScriptFile.FilePath), scriptSyntax, commandLineRunner, environmentVars);
@@ -116,11 +117,11 @@ namespace Calamari.AzureScripting
             return certificateFilePath;
         }
 
-        static void SetOutputVariable(string name, string value, IVariables variables)
+        void SetOutputVariable(string name, string value)
         {
             if (variables.Get(name) != value)
             {
-                Log.SetOutputVariable(name, value, variables);
+                log.SetOutputVariable(name, value, variables);
             }
         }
 
