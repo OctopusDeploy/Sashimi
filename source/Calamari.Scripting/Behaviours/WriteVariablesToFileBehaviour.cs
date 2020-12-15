@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Calamari.Common.Commands;
-using Calamari.Common.Features.Behaviours;
 using Calamari.Common.Features.Scripting;
 using Calamari.Common.Features.Scripts;
 using Calamari.Common.Plumbing.Extensions;
@@ -97,7 +96,7 @@ namespace Calamari.Scripting
             return false;
         }
 
-        bool WasProvided(string value)
+        bool WasProvided(string? value)
         {
             return !string.IsNullOrEmpty(value);
         }
