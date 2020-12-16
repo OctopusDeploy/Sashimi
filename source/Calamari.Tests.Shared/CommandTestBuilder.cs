@@ -178,16 +178,14 @@ namespace Calamari.Tests.Shared
                 if (!context.withStagedPackageArgument)
                 {
                     var packageId = context.Variables.GetRaw("Octopus.Test.PackagePath");
-                    if (packageId == null)
-                        throw new InvalidOperationException("Octopus.Test.PackagePath variable value could not be found.");
                     if (File.Exists(packageId))
                     {
-                        var fileName = new FileInfo(packageId).Name;
-                        File.Copy(packageId, Path.Combine(workingPath, fileName));
+                        var fileName = new FileInfo(packageId!).Name;
+                        File.Copy(packageId!, Path.Combine(workingPath, fileName));
                     }
                     else if (Directory.Exists(packageId))
                     {
-                        Copy(packageId, workingPath);
+                        Copy(packageId!, workingPath);
                     }
                 }
             }
