@@ -17,5 +17,6 @@
       <ProjectReference Include="..\Calamari.Scripting\Calamari.Scripting.csproj" />
       <ProjectReference Include="..\Calamari.Tests.Shared\Calamari.Tests.Shared.csproj" />
       <ProjectReference Include="..\Server.Contracts\Sashimi.Server.Contracts.csproj" />
+      <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
     </ItemGroup>
 </Project>
