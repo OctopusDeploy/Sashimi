@@ -64,7 +64,7 @@ namespace Sashimi.Tests.Shared.Server
             throw new NotImplementedException();
         }
 
-        public ICalamariCommandBuilder WithArgument(string name, string value)
+        public ICalamariCommandBuilder WithArgument(string name, string? value)
         {
             throw new NotImplementedException();
         }
@@ -110,7 +110,7 @@ namespace Sashimi.Tests.Shared.Server
             return this;
         }
 
-        public ICalamariCommandBuilder WithVariable(string name, string value, bool isSensitive = false)
+        public ICalamariCommandBuilder WithVariable(string name, string? value, bool isSensitive = false)
         {
             throw new NotImplementedException();
         }
