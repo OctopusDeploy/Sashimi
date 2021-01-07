@@ -98,7 +98,7 @@ namespace Sashimi.Tests.Shared.Server
             builder.RegisterAssemblyModules(actionHandlerType.Assembly);
             builder.RegisterModule<ServerModule>();
             var container = builder.Build();
-            var context = new TestActionHandlerContext<TCalamariProgram>(container.Resolve<ILog>());
+            var context = new TestActionHandlerContext<TCalamariProgram>(container.Resolve<ITaskLog>());
 
             foreach (var arrangeAction in arrangeActions)
             {

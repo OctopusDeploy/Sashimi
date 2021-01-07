@@ -11,14 +11,14 @@ namespace Sashimi.Tests.Shared.Server
 {
     public class TestActionHandlerContext<TCalamariProgram> : IActionHandlerContext
     {
-        readonly ILog log;
+        readonly ITaskLog log;
 
-        internal TestActionHandlerContext(ILog log)
+        internal TestActionHandlerContext(ITaskLog log)
         {
             this.log = log;
         }
 
-        ILog IActionHandlerContext.Log => log;
+        ITaskLog IActionHandlerContext.Log => log;
         public Maybe<DeploymentTargetType> DeploymentTargetType { get; set; } = Maybe<DeploymentTargetType>.None;
         public Maybe<string> DeploymentTargetName { get; set; } = Maybe<string>.None;
         IActionAndTargetScopedVariables IActionHandlerContext.Variables => Variables;

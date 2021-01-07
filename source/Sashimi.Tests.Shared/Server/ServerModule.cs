@@ -13,7 +13,7 @@ namespace Sashimi.Tests.Shared.Server
 
             builder.RegisterType<TestCloudTemplateHandlerFactory>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<TestFormatIdentifier>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterInstance(new ServerInMemoryLog()).As<ILog>().As<ILogWithContext>().SingleInstance();
+            builder.RegisterInstance(new ServerInMemoryLog()).As<ITaskLog>().SingleInstance();
         }
     }
 }
