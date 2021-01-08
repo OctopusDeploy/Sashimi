@@ -19,7 +19,7 @@
         <PackageReference Include="NUnit" Version="3.13.1" />
         <PackageReference Include="Octopus.Diagnostics" Version="1.3.5" />
         <PackageReference Include="NUnit" Version="3.12.0" />
-        <PackageReference Include="Octopus.Diagnostics" Version="1.4.2-enh-logwithconte0003" />
+        <PackageReference Include="Octopus.Diagnostics" Version="1.4.2-enh-logwithconte0006" />
     </ItemGroup>
 
 </Project>

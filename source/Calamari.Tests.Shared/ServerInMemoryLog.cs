@@ -9,11 +9,11 @@ namespace Calamari.Tests.Shared
     {
         readonly StringBuilder log = new StringBuilder();
 
+        public string CorrelationId { get; } = Guid.NewGuid().ToString();
+
         public void Dispose()
         {
         }
-
-        public ITaskLogContext Context { get; } = new NullLogContext();
 
         public bool IsVerboseEnabled { get; }
         public bool IsErrorEnabled { get; }
@@ -33,6 +33,14 @@ namespace Calamari.Tests.Shared
         public List<(string?, Exception?)> FatalLog { get; } = new List<(string?, Exception?)>();
         public List<(string?, Exception?)> TraceLog { get; } = new List<(string?, Exception?)>();
         public List<(string?, Exception?)> VerboseLog { get; } = new List<(string?, Exception?)>();
+
+        public void WithSensitiveValues(string[] sensitiveValues)
+        {
+        }
+
+        public void WithSensitiveValue(string sensitiveValue)
+        {
+        }
 
         public void Trace(string messageText)
         {
@@ -247,32 +255,27 @@ namespace Calamari.Tests.Shared
         {
         }
 
-        public ITaskLog OpenBlock(string messageText)
+        public ITaskLog CreateBlock(string messageText)
         {
             return new ServerInMemoryLog();
         }
 
-        public ITaskLog OpenBlock(string messageFormat, params object[] args)
+        public ITaskLog CreateBlock(string messageFormat, params object[] args)
         {
             return new ServerInMemoryLog();
         }
 
-        public ITaskLogContext PlanGroupedBlock(string messageText)
+        public ITaskLog PlanGroupedBlock(string messageText)
         {
-            return Context;
+            return new ServerInMemoryLog();
         }
 
-        public ITaskLogContext PlanFutureBlock(string messageText)
+        public ITaskLog PlanFutureBlock(string messageText)
         {
-            return Context;
+            return new ServerInMemoryLog();
         }
 
-        public ITaskLogContext PlanFutureBlock(string messageFormat, params object[] args)
-        {
-            return Context;
-        }
-
-        public ITaskLog WithinBlock(ITaskLogContext logContext)
+        public ITaskLog PlanFutureBlock(string messageFormat, params object[] args)
         {
             return new ServerInMemoryLog();
         }
@@ -306,35 +309,6 @@ namespace Calamari.Tests.Shared
         {
             log.AppendLine(message);
             list.Add((message, error));
-        }
-
-        class NullLogContext : ITaskLogContext
-        {
-            public void SafeSanitize(string raw, Action<string> action)
-            {
-            }
-
-            public ITaskLogContext CreateChild(string[]? sensitiveValues = null)
-            {
-                return this;
-            }
-
-            public ITaskLogContext WithSensitiveValues(string[] sensitiveValues)
-            {
-                return this;
-            }
-
-            public ITaskLogContext WithSensitiveValue(string sensitiveValue)
-            {
-                return this;
-            }
-
-            public void Flush()
-            {
-            }
-
-            public string CorrelationId { get; } = Guid.NewGuid().ToString();
-            public string[] SensitiveValues { get; } = new string[0];
         }
     }
 }
