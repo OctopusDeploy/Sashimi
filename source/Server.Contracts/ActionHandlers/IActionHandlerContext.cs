@@ -8,7 +8,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
 {
     public interface IActionHandlerContext
     {
-        ITaskLog Log { get; }
+        ITaskLog TaskLog { get; }
         Maybe<DeploymentTargetType> DeploymentTargetType { get; }
         Maybe<string> DeploymentTargetName { get; }
         IActionAndTargetScopedVariables Variables { get; }

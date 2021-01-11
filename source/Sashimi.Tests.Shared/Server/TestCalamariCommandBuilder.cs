@@ -22,8 +22,8 @@ using Sashimi.Server.Contracts.Calamari;
 using Sashimi.Server.Contracts.CommandBuilders;
 using Sashimi.Server.Contracts.DeploymentTools;
 using Octopus.CoreUtilities;
-using Sashimi.Server.Contracts.Actions;
 using Sashimi.Tests.Shared.Extensions;
+using ILog = Calamari.Common.Plumbing.Logging.ILog;
 
 namespace Sashimi.Tests.Shared.Server
 {
@@ -128,7 +128,7 @@ namespace Sashimi.Tests.Shared.Server
         public string Describe()
             => throw new NotImplementedException();
 
-        public IActionHandlerResult Execute()
+        public IActionHandlerResult Execute(ITaskLog taskLog)
         {
             using var working = TemporaryDirectory.Create();
             var workingPath = working.DirectoryPath;

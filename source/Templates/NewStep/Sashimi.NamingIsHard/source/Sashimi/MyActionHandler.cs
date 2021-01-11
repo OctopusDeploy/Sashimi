@@ -8,7 +8,7 @@ namespace Sashimi.NamingIsHard
         public IActionHandlerResult Execute(IActionHandlerContext context)
         {
             return context.CalamariCommand(new CalamariFlavour("Calamari.NamingIsHard"), "my-command-name")
-                .Execute();
+                .Execute(context.TaskLog);
         }
 
         public string Id { get; } = SpecialVariables.MyActionHandlerTypeName;
