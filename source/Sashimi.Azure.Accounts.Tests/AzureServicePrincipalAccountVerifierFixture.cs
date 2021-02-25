@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Calamari.Tests.Shared;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using NSubstitute;
 using NUnit.Framework;
 using Octopus.Data.Model;
