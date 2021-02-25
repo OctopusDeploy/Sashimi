@@ -25,8 +25,12 @@ namespace Sashimi.Azure.Accounts.Tests
                 TenantId = ExternalVariables.Get(ExternalVariable.AzureSubscriptionTenantId),
                 Password = ExternalVariables.Get(ExternalVariable.AzureSubscriptionPassword).ToSensitiveString()
             };
+            var clientFactory = Substitute.For<IOctopusHttpClientFactory>();
+            clientFactory.HttpClientHandler.Returns(httpMessageHandler);
+            
+            var verifier = new AzureServicePrincipalAccountVerifier(new Lazy<IOctopusHttpClientFactory>(clientFactory));
 
-            Assert.DoesNotThrow(() => accountDetails.CreateResourceManagementClient(httpMessageHandler));
+            Assert.DoesNotThrow(() => verifier.Verify(accountDetails));
         }
 
         [Test]
@@ -40,29 +44,14 @@ namespace Sashimi.Azure.Accounts.Tests
                 TenantId = ExternalVariables.Get(ExternalVariable.AzureSubscriptionTenantId),
                 Password = ExternalVariables.Get(ExternalVariable.AzureSubscriptionPassword).ToSensitiveString()
             };
-            accountDetails.Password = "invalid password".ToSensitiveString();
-            Assert.That(() => accountDetails.CreateResourceManagementClient(httpMessageHandler), Throws.TypeOf<Microsoft.IdentityModel.Clients.ActiveDirectory.AdalServiceException>());
-        }
-
-        [Test]
-        public void Verify_ShouldNotRetrieveTokenFromCache()
-        {
-            var httpMessageHandler = new TestHttpClientHandler();
-            var accountDetails = new AzureServicePrincipalAccountDetails
-            {
-                SubscriptionNumber = ExternalVariables.Get(ExternalVariable.AzureSubscriptionId),
-                ClientId = ExternalVariables.Get(ExternalVariable.AzureSubscriptionClientId),
-                TenantId = ExternalVariables.Get(ExternalVariable.AzureSubscriptionTenantId),
-                Password = ExternalVariables.Get(ExternalVariable.AzureSubscriptionPassword).ToSensitiveString()
-            };
-
-            // Verify with a valid token once to fill the cache
-            using var cleanClient = accountDetails.CreateResourceManagementClient(httpMessageHandler);
-            cleanClient.ResourceGroups.ListWithHttpMessagesAsync().GetAwaiter().GetResult();
-
-            accountDetails.Password = "invalid password".ToSensitiveString();
-            accountDetails.InvalidateTokenCache(httpMessageHandler);
-            Assert.That(() => accountDetails.CreateResourceManagementClient(httpMessageHandler), Throws.TypeOf<Microsoft.IdentityModel.Clients.ActiveDirectory.AdalServiceException>());
+            accountDetails.Password = "InvalidPassword".ToSensitiveString();
+            
+            var clientFactory = Substitute.For<IOctopusHttpClientFactory>();
+            clientFactory.HttpClientHandler.Returns(httpMessageHandler);
+            
+            var verifier = new AzureServicePrincipalAccountVerifier(new Lazy<IOctopusHttpClientFactory>(clientFactory));
+            
+            Assert.That(() => verifier.Verify(accountDetails), Throws.TypeOf<Microsoft.IdentityModel.Clients.ActiveDirectory.AdalServiceException>());
         }
 
         [Test]
@@ -84,7 +73,7 @@ namespace Sashimi.Azure.Accounts.Tests
             verifier.Verify(accountDetails);
 
             accountDetails.Password = "InvalidPassword".ToSensitiveString();
-            verifier.Verify(accountDetails);
+            Assert.That(() => verifier.Verify(accountDetails), Throws.TypeOf<Microsoft.IdentityModel.Clients.ActiveDirectory.AdalServiceException>());
         }
     }
 
