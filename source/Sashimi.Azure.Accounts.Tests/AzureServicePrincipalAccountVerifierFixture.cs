@@ -30,9 +30,7 @@ namespace Sashimi.Azure.Accounts.Tests
                 Password = ExternalVariables.Get(ExternalVariable.AzureSubscriptionPassword).ToSensitiveString()
             };
            
-
-            var client = accountDetails.CreateResourceManagementClient(httpMessageHandler);
-            Assert.DoesNotThrow(() => client.ResourceGroups.ListWithHttpMessagesAsync().GetAwaiter().GetResult());
+            Assert.DoesNotThrow(() => accountDetails.CreateResourceManagementClient(httpMessageHandler));
         }
         
         [Test]
