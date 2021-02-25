@@ -40,30 +40,21 @@ namespace Sashimi.Azure.Accounts
 
         static string GetAuthorizationToken(AzureServicePrincipalAccountDetails account, HttpMessageHandler handler)
         {
-            var adDirectory = "https://login.windows.net/";
-            if (!string.IsNullOrWhiteSpace(account.ActiveDirectoryEndpointBaseUri))
-            {
-                adDirectory = account.ActiveDirectoryEndpointBaseUri;
-            }
-            var context = new AuthenticationContext(adDirectory + account.TenantId, true, TokenCache.DefaultShared, new HttpClientFactory(handler));
+            var context = new AuthenticationContext(account.Authority, true, TokenCache.DefaultShared, new HttpClientFactory(handler));
 
             var resourceManagementEndpointBaseUri = "https://management.core.windows.net/";
             if (!string.IsNullOrWhiteSpace(account.ResourceManagementEndpointBaseUri))
             {
                 resourceManagementEndpointBaseUri = account.ResourceManagementEndpointBaseUri;
             }
-            
+
             var result = context.AcquireTokenAsync(resourceManagementEndpointBaseUri, new ClientCredential(account.ClientId, account.Password?.Value)).GetAwaiter().GetResult();
             return result.AccessToken;
         }
-        
+
         public static void InvalidateTokenCache(this AzureServicePrincipalAccountDetails account, HttpClientHandler httpClientHandler)
         {
-            var adDirectory = !string.IsNullOrWhiteSpace(account.ActiveDirectoryEndpointBaseUri) 
-                ? account.ActiveDirectoryEndpointBaseUri 
-                : "https://login.windows.net/";
-            
-            var context = new AuthenticationContext(adDirectory + account.TenantId, true, TokenCache.DefaultShared, new HttpClientFactory(httpClientHandler));
+            var context = new AuthenticationContext(account.Authority, true, TokenCache.DefaultShared, new HttpClientFactory(httpClientHandler));
 
             var cachedToken = context.TokenCache.ReadItems().FirstOrDefault(z => z.ClientId == account.ClientId);
             if (cachedToken != null) context.TokenCache.DeleteItem(cachedToken);
