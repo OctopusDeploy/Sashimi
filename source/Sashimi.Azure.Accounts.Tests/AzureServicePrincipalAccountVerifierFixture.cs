@@ -14,10 +14,18 @@ namespace Sashimi.Azure.Accounts.Tests
     [TestFixture]
     public class AzureServicePrincipalAccountVerifierFixture
     {
+        static AzureServicePrincipalAccountVerifier GetAzureServicePrincipalAccountVerifier()
+        {
+            var httpMessageHandler = new TestHttpClientHandler();
+            var clientFactory = Substitute.For<IOctopusHttpClientFactory>();
+            clientFactory.HttpClientHandler.Returns(httpMessageHandler);
+
+            return new AzureServicePrincipalAccountVerifier(new Lazy<IOctopusHttpClientFactory>(clientFactory));
+        }
+
         [Test]
         public void Verify_ShouldSuccessWithValidCredential()
         {
-            var httpMessageHandler = new TestHttpClientHandler();
             var accountDetails = new AzureServicePrincipalAccountDetails
             {
                 SubscriptionNumber = ExternalVariables.Get(ExternalVariable.AzureSubscriptionId),
@@ -25,10 +33,8 @@ namespace Sashimi.Azure.Accounts.Tests
                 TenantId = ExternalVariables.Get(ExternalVariable.AzureSubscriptionTenantId),
                 Password = ExternalVariables.Get(ExternalVariable.AzureSubscriptionPassword).ToSensitiveString()
             };
-            var clientFactory = Substitute.For<IOctopusHttpClientFactory>();
-            clientFactory.HttpClientHandler.Returns(httpMessageHandler);
-            
-            var verifier = new AzureServicePrincipalAccountVerifier(new Lazy<IOctopusHttpClientFactory>(clientFactory));
+
+            var verifier = GetAzureServicePrincipalAccountVerifier();
 
             Assert.DoesNotThrow(() => verifier.Verify(accountDetails));
         }
@@ -36,28 +42,22 @@ namespace Sashimi.Azure.Accounts.Tests
         [Test]
         public void Verify_ShouldFailWithWrongCredential()
         {
-            var httpMessageHandler = new TestHttpClientHandler();
             var accountDetails = new AzureServicePrincipalAccountDetails
             {
                 SubscriptionNumber = ExternalVariables.Get(ExternalVariable.AzureSubscriptionId),
                 ClientId = ExternalVariables.Get(ExternalVariable.AzureSubscriptionClientId),
                 TenantId = ExternalVariables.Get(ExternalVariable.AzureSubscriptionTenantId),
-                Password = ExternalVariables.Get(ExternalVariable.AzureSubscriptionPassword).ToSensitiveString()
+                Password = "InvalidPassword".ToSensitiveString()
             };
-            accountDetails.Password = "InvalidPassword".ToSensitiveString();
-            
-            var clientFactory = Substitute.For<IOctopusHttpClientFactory>();
-            clientFactory.HttpClientHandler.Returns(httpMessageHandler);
-            
-            var verifier = new AzureServicePrincipalAccountVerifier(new Lazy<IOctopusHttpClientFactory>(clientFactory));
-            
+
+            var verifier = GetAzureServicePrincipalAccountVerifier();
+
             Assert.That(() => verifier.Verify(accountDetails), Throws.TypeOf<Microsoft.IdentityModel.Clients.ActiveDirectory.AdalServiceException>());
         }
 
         [Test]
         public void Verify_ShouldNotCacheClientCredentials()
         {
-            var httpMessageHandler = new TestHttpClientHandler();
             var accountDetails = new AzureServicePrincipalAccountDetails
             {
                 SubscriptionNumber = ExternalVariables.Get(ExternalVariable.AzureSubscriptionId),
@@ -66,10 +66,7 @@ namespace Sashimi.Azure.Accounts.Tests
                 Password = ExternalVariables.Get(ExternalVariable.AzureSubscriptionPassword).ToSensitiveString()
             };
 
-            var clientFactory = Substitute.For<IOctopusHttpClientFactory>();
-            clientFactory.HttpClientHandler.Returns(httpMessageHandler);
-
-            var verifier = new AzureServicePrincipalAccountVerifier(new Lazy<IOctopusHttpClientFactory>(clientFactory));
+            var verifier = GetAzureServicePrincipalAccountVerifier();
             verifier.Verify(accountDetails);
 
             accountDetails.Password = "InvalidPassword".ToSensitiveString();
