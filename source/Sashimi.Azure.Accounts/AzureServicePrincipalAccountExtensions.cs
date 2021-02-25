@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Azure.Management.ResourceManager;
@@ -51,8 +52,21 @@ namespace Sashimi.Azure.Accounts
             {
                 resourceManagementEndpointBaseUri = account.ResourceManagementEndpointBaseUri;
             }
+            
             var result = context.AcquireTokenAsync(resourceManagementEndpointBaseUri, new ClientCredential(account.ClientId, account.Password?.Value)).GetAwaiter().GetResult();
             return result.AccessToken;
+        }
+        
+        public static void InvalidateTokenCache(this AzureServicePrincipalAccountDetails account, HttpClientHandler httpClientHandler)
+        {
+            var adDirectory = !string.IsNullOrWhiteSpace(account.ActiveDirectoryEndpointBaseUri) 
+                ? account.ActiveDirectoryEndpointBaseUri 
+                : "https://login.windows.net/";
+            
+            var context = new AuthenticationContext(adDirectory + account.TenantId, true, TokenCache.DefaultShared, new HttpClientFactory(httpClientHandler));
+
+            var cachedToken = context.TokenCache.ReadItems().FirstOrDefault(z => z.ClientId == account.ClientId);
+            if (cachedToken != null) context.TokenCache.DeleteItem(cachedToken);
         }
 
         // We decided to "copy" the impl from https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/blob/af10dd15cdb082bc3dbe14b0c2c6d81f6ca5b541/src/Microsoft.IdentityModel.Clients.ActiveDirectory/Core/Http/HttpClientFactory.cs

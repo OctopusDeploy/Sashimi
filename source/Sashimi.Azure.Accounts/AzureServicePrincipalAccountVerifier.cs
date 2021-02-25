@@ -15,6 +15,7 @@ namespace Sashimi.Azure.Accounts
         public void Verify(AccountDetails account)
         {
             var typedAccount = (AzureServicePrincipalAccountDetails) account;
+            typedAccount.InvalidateTokenCache(httpClientFactoryLazy.Value.HttpClientHandler);
 
             using (var resourcesClient = typedAccount.CreateResourceManagementClient(httpClientFactoryLazy.Value.HttpClientHandler))
             {
