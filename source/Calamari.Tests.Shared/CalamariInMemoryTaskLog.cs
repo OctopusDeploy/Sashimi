@@ -5,12 +5,7 @@ using Octopus.Diagnostics;
 
 namespace Calamari.Tests.Shared
 {
-    public interface ITestTaskLog
-    {
-
-    }
-
-    public class CalamariInMemoryTaskLog : ITestTaskLog
+    public class CalamariInMemoryTaskLog
     {
         readonly StringBuilder log = new StringBuilder();
 
@@ -260,32 +255,32 @@ namespace Calamari.Tests.Shared
         {
         }
 
-        public ITestTaskLog CreateBlock(string messageText)
+        public CalamariInMemoryTaskLog CreateBlock(string messageText)
         {
             return new CalamariInMemoryTaskLog();
         }
 
-        public ITestTaskLog CreateBlock(string messageFormat, params object[] args)
+        public CalamariInMemoryTaskLog CreateBlock(string messageFormat, params object[] args)
         {
             return new CalamariInMemoryTaskLog();
         }
 
-        public ITestTaskLog ChildContext(string[] sensitiveValues)
+        public CalamariInMemoryTaskLog ChildContext(string[] sensitiveValues)
         {
             return new CalamariInMemoryTaskLog();
         }
 
-        public ITestTaskLog PlanGroupedBlock(string messageText)
+        public CalamariInMemoryTaskLog PlanGroupedBlock(string messageText)
         {
             return new CalamariInMemoryTaskLog();
         }
 
-        public ITestTaskLog PlanFutureBlock(string messageText)
+        public CalamariInMemoryTaskLog PlanFutureBlock(string messageText)
         {
             return new CalamariInMemoryTaskLog();
         }
 
-        public ITestTaskLog PlanFutureBlock(string messageFormat, params object[] args)
+        public CalamariInMemoryTaskLog PlanFutureBlock(string messageFormat, params object[] args)
         {
             return new CalamariInMemoryTaskLog();
         }
