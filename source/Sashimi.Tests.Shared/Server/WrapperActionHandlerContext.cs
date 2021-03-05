@@ -1,7 +1,5 @@
 ﻿using System;
-using Calamari.Tests.Shared;
 using Octopus.CoreUtilities;
-using Octopus.Diagnostics;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;
@@ -17,7 +15,6 @@ namespace Sashimi.Tests.Shared.Server
             Variables = variables;
         }
 
-        public ITaskLog TaskLog { get; } = new ServerInMemoryLog();
         public Maybe<DeploymentTargetType> DeploymentTargetType { get; } = Maybe<DeploymentTargetType>.None;
         public Maybe<string> DeploymentTargetName { get; } = Maybe<string>.None;
         public IActionAndTargetScopedVariables Variables { get; }

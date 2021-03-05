@@ -1,4 +1,4 @@
-﻿using Octopus.Diagnostics;
+﻿using Octopus.Server.Extensibility.HostServices.Diagnostics;
 using Sashimi.Server.Contracts.ActionHandlers;
 
 namespace Sashimi.Server.Contracts.CommandBuilders

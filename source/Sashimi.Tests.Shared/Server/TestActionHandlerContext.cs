@@ -1,6 +1,6 @@
 ﻿using System;
 using Octopus.CoreUtilities;
-using Octopus.Diagnostics;
+using Octopus.Server.Extensibility.HostServices.Diagnostics;
 using Sashimi.Server.Contracts;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.Calamari;

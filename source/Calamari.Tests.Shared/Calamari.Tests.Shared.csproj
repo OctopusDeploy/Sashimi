@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net452;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net461;netstandard2.1</TargetFrameworks>
         <Nullable>enable</Nullable>
         <PackageProjectUrl>https://github.com/OctopusDeploy/Sashimi/</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -20,6 +20,10 @@
         <PackageReference Include="Octopus.Diagnostics" Version="1.3.5" />
         <PackageReference Include="NUnit" Version="3.12.0" />
         <PackageReference Include="Octopus.Diagnostics" Version="1.4.2-enh-logwithconte0006" />
+        <PackageReference Include="Calamari.Common" Version="19.0.1-enh-logwithconte0002" />
+        <PackageReference Include="FluentAssertions" Version="5.10.3" />
+        <PackageReference Include="NUnit" Version="3.13.0" />
+        <PackageReference Include="Octopus.Diagnostics" Version="2.0.0" />
     </ItemGroup>
 
 </Project>

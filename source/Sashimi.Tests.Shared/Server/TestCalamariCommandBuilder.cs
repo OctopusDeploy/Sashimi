@@ -14,7 +14,6 @@ using Calamari.Common.Plumbing.FileSystem;
 using Calamari.Common.Plumbing.Logging;
 using Calamari.Common.Plumbing.Variables;
 using Calamari.Tests.Helpers;
-using Calamari.Tests.Shared;
 using Calamari.Tests.Shared.Helpers;
 using Calamari.Tests.Shared.LogParser;
 using Sashimi.Server.Contracts.ActionHandlers;
@@ -22,7 +21,10 @@ using Sashimi.Server.Contracts.Calamari;
 using Sashimi.Server.Contracts.CommandBuilders;
 using Sashimi.Server.Contracts.DeploymentTools;
 using Octopus.CoreUtilities;
+using Octopus.Server.Extensibility.HostServices.Diagnostics;
+using Sashimi.Server.Contracts.Actions;
 using Sashimi.Tests.Shared.Extensions;
+using Sashimi.Tests.Shared.LogParser;
 using ILog = Calamari.Common.Plumbing.Logging.ILog;
 
 namespace Sashimi.Tests.Shared.Server
@@ -315,7 +317,7 @@ namespace Sashimi.Tests.Shared.Server
                                                     return (int)methodInfo.Invoke(instance, new object?[] { args.ToArray() });
                                                 });
 
-            var serverInMemoryLog = new ServerInMemoryLog();
+            var serverInMemoryLog = new SashimiInMemoryTaskLog();
 
             var outputFilter = new ScriptOutputFilter(serverInMemoryLog);
             foreach (var text in inMemoryLog.StandardError)
@@ -371,7 +373,7 @@ namespace Sashimi.Tests.Shared.Server
 
                 var capturedOutput = calamariResult.CapturedOutput;
 
-                var serverInMemoryLog = new ServerInMemoryLog();
+                var serverInMemoryLog = new SashimiInMemoryTaskLog();
 
                 var outputFilter = new ScriptOutputFilter(serverInMemoryLog);
                 foreach (var text in capturedOutput.Errors)

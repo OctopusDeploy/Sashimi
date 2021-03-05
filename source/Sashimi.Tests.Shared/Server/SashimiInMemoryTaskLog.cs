@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using Octopus.Diagnostics;
+using Octopus.Server.Extensibility.HostServices.Diagnostics;
 
-namespace Calamari.Tests.Shared
+namespace Sashimi.Tests.Shared.Server
 {
-    public class ServerInMemoryLog : ITaskLog
+    public class SashimiInMemoryTaskLog : ITaskLog
     {
         readonly StringBuilder log = new StringBuilder();
 
@@ -257,27 +258,32 @@ namespace Calamari.Tests.Shared
 
         public ITaskLog CreateBlock(string messageText)
         {
-            return new ServerInMemoryLog();
+            return new SashimiInMemoryTaskLog();
         }
 
         public ITaskLog CreateBlock(string messageFormat, params object[] args)
         {
-            return new ServerInMemoryLog();
+            return new SashimiInMemoryTaskLog();
+        }
+
+        public ITaskLog ChildContext(string[] sensitiveValues)
+        {
+            return new SashimiInMemoryTaskLog();
         }
 
         public ITaskLog PlanGroupedBlock(string messageText)
         {
-            return new ServerInMemoryLog();
+            return new SashimiInMemoryTaskLog();
         }
 
         public ITaskLog PlanFutureBlock(string messageText)
         {
-            return new ServerInMemoryLog();
+            return new SashimiInMemoryTaskLog();
         }
 
         public ITaskLog PlanFutureBlock(string messageFormat, params object[] args)
         {
-            return new ServerInMemoryLog();
+            return new SashimiInMemoryTaskLog();
         }
 
         public void Abandon()

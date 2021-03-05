@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Octopus.Diagnostics;
+using Octopus.Server.Extensibility.HostServices.Diagnostics;
 using Sashimi.Server.Contracts.ActionHandlers;
 using Sashimi.Server.Contracts.DeploymentTools;
 

@@ -16,6 +16,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Calamari.Common" Version="18.1.0" />
+        <PackageReference Include="Calamari.Common" Version="19.0.1-enh-logwithconte0002" />
         <PackageReference Include="FSharp.Compiler.Tools" Version="4.0.0.1" />
         <PackageReference Include="scriptcs" Version="0.17.1" />
     </ItemGroup>
