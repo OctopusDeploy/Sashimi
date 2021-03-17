@@ -17,7 +17,7 @@
         <PackageReference Include="Calamari.Common" Version="19.0.1-enh-logwithconte0003" />
         <PackageReference Include="FluentAssertions" Version="5.10.3" />
         <PackageReference Include="NUnit" Version="3.13.1" />
-        <PackageReference Include="Octopus.Diagnostics" Version="2.0.0" />
+        <PackageReference Include="Octopus.Diagnostics" Version="2.1.0" />
     </ItemGroup>
 
 </Project>

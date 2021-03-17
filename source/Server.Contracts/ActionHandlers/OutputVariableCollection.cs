@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sashimi.Server.Contracts.ActionHandlers
 {
     public class OutputVariableCollection : ICollection<OutputVariable>, IReadOnlyDictionary<string, OutputVariable>
     {
         readonly Dictionary<string, OutputVariable> items = new Dictionary<string, OutputVariable>(StringComparer.OrdinalIgnoreCase);
-        
+
         public int Count => items.Count;
 
         public void Add(OutputVariable item)
@@ -20,7 +21,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
             return items.ContainsKey(name);
         }
 
-        public bool TryGetValue(string name, out OutputVariable value)
+        public bool TryGetValue(string name, [MaybeNullWhen(false)] out OutputVariable value)
         {
             return items.TryGetValue(name, out value);
         }
@@ -32,7 +33,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
         }
 
         public IEnumerable<string> Keys => items.Keys;
-        public IEnumerable<OutputVariable> Values => items.Values; 
+        public IEnumerable<OutputVariable> Values => items.Values;
 
         public void Clear()
         {
@@ -73,7 +74,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
         {
             return GetEnumerator();
         }
-        
-        bool ICollection<OutputVariable>.IsReadOnly => false; 
+
+        bool ICollection<OutputVariable>.IsReadOnly => false;
     }
 }

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Calamari;
 using Calamari.Common.Features.Processes;
 using Calamari.Common.Plumbing;
 using System.Threading.Tasks;
@@ -25,6 +24,7 @@ using Octopus.Server.Extensibility.HostServices.Diagnostics;
 using Sashimi.Server.Contracts.Actions;
 using Sashimi.Tests.Shared.Extensions;
 using Sashimi.Tests.Shared.LogParser;
+using AssemblyExtensions = Calamari.AssemblyExtensions;
 using ILog = Calamari.Common.Plumbing.Logging.ILog;
 
 namespace Sashimi.Tests.Shared.Server
@@ -185,7 +185,7 @@ namespace Sashimi.Tests.Shared.Server
                                          .SelectValueOr(package => package.BootstrapperModulePaths, Enumerable.Empty<string>())
                                          .Select(s => Path.Combine(toolPath, s)));
 
-                var toolPackagePath = Path.Combine(Path.GetDirectoryName(AssemblyExtensions.FullLocalPath(Assembly.GetExecutingAssembly())), $"{tool.Id}.nupkg");
+                var toolPackagePath = Path.Combine(Path.GetDirectoryName(AssemblyExtensions.FullLocalPath(Assembly.GetExecutingAssembly())) ?? string.Empty, $"{tool.Id}.nupkg");
                 if (!File.Exists(toolPackagePath))
                 {
                     throw new Exception($"{tool.Id}.nupkg missing.");
@@ -311,10 +311,10 @@ namespace Sashimi.Tests.Shared.Server
                                                 {
                                                     if (methodInfo.ReturnType.IsGenericType)
                                                     {
-                                                        return await (Task<int>)methodInfo.Invoke(instance, new object?[] { args.ToArray() });
+                                                        return await (Task<int>)methodInfo.Invoke(instance, new object?[] { args.ToArray() })!;
                                                     }
 
-                                                    return (int)methodInfo.Invoke(instance, new object?[] { args.ToArray() });
+                                                    return (int)methodInfo.Invoke(instance, new object?[] { args.ToArray() })!;
                                                 });
 
             var serverInMemoryLog = new SashimiInMemoryTaskLog();
@@ -409,7 +409,11 @@ namespace Sashimi.Tests.Shared.Server
         string GetOutProcCalamariExePath()
         {
             var calamariFlavour = typeof(TCalamariProgram).Assembly.GetName().Name;
+            if (calamariFlavour == null)
+                throw new ArgumentException("Unable to determine CalamariFlavour from assembly name");
             var sashimiTestFolder = Path.GetDirectoryName(AssemblyExtensions.FullLocalPath(typeof(TCalamariProgram).Assembly));
+            if (sashimiTestFolder == null)
+                throw new ArgumentException("Unable to retrieve Sashimi test folder");
 
             if (TestEnvironment.IsCI)
             {
