@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Sashimi.Server.Contracts.ActionHandlers
 {
@@ -21,7 +20,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
             return items.ContainsKey(name);
         }
 
-        public bool TryGetValue(string name, [MaybeNullWhen(false)] out OutputVariable value)
+        public bool TryGetValue(string name, out OutputVariable value)
         {
             return items.TryGetValue(name, out value);
         }
