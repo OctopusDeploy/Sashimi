@@ -170,7 +170,7 @@ Task("PublishCalamariProjects")
                 }
                 else
                 {
-                    RunPublish(null, "netfx");
+                    RunPublish(null, framework);
                 }
             }
             Verbose($"{publishDir}/{calamariFlavour}");
