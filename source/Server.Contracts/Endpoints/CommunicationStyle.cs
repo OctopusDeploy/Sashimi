@@ -1,4 +1,4 @@
-﻿namespace Sashimi.Server.Contracts.Endpoints
+namespace Sashimi.Server.Contracts.Endpoints
 {
     public enum CommunicationStyle
     {
@@ -27,7 +27,9 @@
         AzureServiceFabricCluster = 8,
 
         Kubernetes = 9,
-        
-        StepPackage = 10
+
+        StepPackage = 10,
+
+        GListeningTentacle = 11
     }
 }
