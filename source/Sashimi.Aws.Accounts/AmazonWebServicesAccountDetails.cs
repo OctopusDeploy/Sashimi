@@ -52,7 +52,7 @@ namespace Sashimi.Aws.Accounts
 
         public override NetworkCredential GetCredential()
         {
-            return new (AccessKey, SecretKey?.Value);
+            return new(AccessKey, SecretKey?.Value);
         }
     }
 }
