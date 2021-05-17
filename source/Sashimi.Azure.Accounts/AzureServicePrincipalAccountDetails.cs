@@ -105,7 +105,7 @@ namespace Sashimi.Azure.Accounts
 
         public override NetworkCredential GetCredential()
         {
-            return new(ClientId, Password?.Value);
+            return new NetworkCredential(ClientId, Password?.Value);
         }
     }
 }
