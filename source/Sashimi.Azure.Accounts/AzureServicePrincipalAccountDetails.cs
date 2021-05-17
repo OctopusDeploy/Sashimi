@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using Newtonsoft.Json;
 using Octopus.Data.Model;
 using Sashimi.Azure.Common.Variables;
@@ -103,9 +102,9 @@ namespace Sashimi.Azure.Accounts
             yield return ("ResourceManagementEndpointBaseUri", false);
         }
 
-        public override NetworkCredential GetCredential()
+        public override Credentials GetCredential()
         {
-            return new NetworkCredential(ClientId, Password?.Value);
+            return new Credentials(ClientId!, Password?.Value!);
         }
     }
 }

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Newtonsoft.Json;
 using Sashimi.Server.Contracts.Variables;
 
@@ -22,7 +21,7 @@ namespace Sashimi.Server.Contracts.Accounts
         }
 
         public abstract IEnumerable<Variable> ContributeVariables();
-        
-        public abstract NetworkCredential GetCredential();
+
+        public abstract Credentials GetCredential();
     }
 }

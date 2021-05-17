@@ -50,9 +50,9 @@ namespace Sashimi.Aws.Accounts
             yield return ("SecretKey", true);
         }
 
-        public override NetworkCredential GetCredential()
+        public override Credentials GetCredential()
         {
-            return new NetworkCredential(AccessKey, SecretKey?.Value);
+            return new Credentials(AccessKey!, SecretKey?.Value!);
         }
     }
 }
