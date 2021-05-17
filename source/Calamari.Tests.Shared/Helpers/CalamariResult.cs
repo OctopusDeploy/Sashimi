@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Calamari.Common.Plumbing.Extensions;
@@ -64,7 +64,6 @@ namespace Calamari.Tests.Helpers
             switch (name)
             {
                 case ServiceMessageNames.CalamariFoundPackage.Name:
-                    if (resolveConstraint == null) break;
                     Assert.That(captured.CalamariFoundPackage, resolveConstraint, message, args);
                     break;
                 case ServiceMessageNames.FoundPackage.Name:
@@ -127,7 +126,6 @@ namespace Calamari.Tests.Helpers
         {
             Assert.That(actual, Is.Not.Null);
             Assert.That(actual, Is.Not.Empty);
-            if (resolveConstraint == null) return;
             Assert.That(actual.Equals(expected), resolveConstraint,
                 "Expected property '{0}' to have value '{1}' but was actually '{2}'", property,
                 expected, actual);
