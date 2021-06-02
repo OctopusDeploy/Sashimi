@@ -1,13 +1,13 @@
 #nullable disable
 using Octopus.Server.MessageContracts;
 using Octopus.Server.MessageContracts.Attributes;
-using Sashimi.Server.Contracts.Accounts;
+using Octopus.Server.MessageContracts.Features.Accounts;
 
 namespace Sashimi.Aws.Accounts
 {
-    class AmazonWebServicesAccountResource : AccountDetailsResource
+    class AmazonWebServicesAccountResource : AccountResource
     {
-        public override AccountType AccountType => AccountTypes.AmazonWebServicesAccountType;
+        public override AccountType AccountType => AccountType.AmazonWebServicesAccount;
 
         [Trim]
         [Writeable]
