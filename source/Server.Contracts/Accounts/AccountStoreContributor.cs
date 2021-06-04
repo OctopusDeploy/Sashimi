@@ -1,24 +1,22 @@
-using Octopus.Server.MessageContracts.Features.Accounts;
-
 namespace Sashimi.Server.Contracts.Accounts
 {
     public abstract class AccountStoreContributor
     {
-        public virtual bool CanContribute(AccountResource resource)
+        public virtual bool CanContribute(AccountDetailsResource resource)
         {
             return false;
         }
 
-        public virtual ValidationResult ValidateResource(AccountResource resource)
+        public virtual ValidationResult ValidateResource(AccountDetailsResource resource)
         {
             return ValidationResult.Success;
         }
 
-        public virtual void ModifyResource(AccountResource accountResource, string name)
+        public virtual void ModifyResource(AccountDetailsResource accountResource, string name)
         {
         }
 
-        public virtual void ModifyModel(AccountResource resource, AccountDetails model, string name)
+        public virtual void ModifyModel(AccountDetailsResource resource, AccountDetails model, string name)
         {
         }
     }
