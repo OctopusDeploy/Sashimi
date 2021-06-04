@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Octopus.Server.MessageContracts" Version="0.1.233-enh-asymetry" />
+    <PackageReference Include="Octopus.Server.MessageContracts" Version="0.1.237-temp-asymetry" />
     <PackageReference Include="Octostache" Version="2.10.0" />
     <PackageReference Include="Octopus.TinyTypes" Version="0.1.562" />
     <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.5" />

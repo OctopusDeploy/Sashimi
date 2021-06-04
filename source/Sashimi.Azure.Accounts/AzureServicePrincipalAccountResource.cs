@@ -2,13 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using Octopus.Server.MessageContracts;
 using Octopus.Server.MessageContracts.Attributes;
-using Octopus.Server.MessageContracts.Features.Accounts;
+using Sashimi.Server.Contracts.Accounts;
 
 namespace Sashimi.Azure.Accounts
 {
-    class AzureServicePrincipalAccountResource : AccountResource
+    class AzureServicePrincipalAccountResource : AccountDetailsResource
     {
-        public override AccountType AccountType => AccountType.AzureServicePrincipal;
+        public override AccountType AccountType => AccountTypes.AzureServicePrincipalAccountType;
 
         [Trim]
         [Writeable]
