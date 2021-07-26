@@ -39,7 +39,7 @@ namespace Calamari.Scripting
                                            $"or a `{ScriptVariables.ScriptFileName}` variable.");
             }
 
-            if (WasProvided(scriptBody))
+            if (WasProvided(scriptBody) && relativeScriptFile is not null)
             {
                 var scriptFile = Path.GetFullPath(relativeScriptFile);
 
