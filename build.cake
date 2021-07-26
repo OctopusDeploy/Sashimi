@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // TOOLS
 //////////////////////////////////////////////////////////////////////
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
+#tool "dotnet:?package=GitVersion.Tool&version=5.3.6"
 #tool "nuget:?package=TeamCity.Dotnet.Integration&version=1.0.10"
 #addin "nuget:?package=SharpZipLib&version=1.2.0"
 #addin "nuget:?package=Cake.Compression&version=0.2.4"
