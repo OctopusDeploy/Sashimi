@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // TOOLS
 //////////////////////////////////////////////////////////////////////
+#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
 #tool "dotnet:?package=GitVersion.Tool&version=5.3.6"
 #tool "nuget:?package=TeamCity.Dotnet.Integration&version=1.0.10"
 #addin "nuget:?package=SharpZipLib&version=1.2.0"
