@@ -220,7 +220,6 @@ Task("PackSashimi")
 
 Task("PublishPackageArtifacts")
     .IsDependentOn("PackSashimi")
-    .IsDependentOn("CreateTemplatesPackage")
     .Does(() =>
 {
     var packages = GetFiles($"{artifactsDir}*.{nugetVersion}.nupkg");
