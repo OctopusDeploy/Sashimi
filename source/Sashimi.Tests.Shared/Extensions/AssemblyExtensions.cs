@@ -14,16 +14,16 @@ namespace Sashimi.Tests.Shared.Extensions
             using (var sr = new StreamReader(stream ?? throw new Exception($"Could not find the resource {name}")))
                 return sr.ReadToEnd();
         }
-        
+
         public static string FullLocalPath(this Assembly assembly)
         {
-            string str = Uri.UnescapeDataString(new UriBuilder(assembly.CodeBase ?? throw new ArgumentException("Assembly is null", nameof(assembly))).Path);
+            string str = Uri.UnescapeDataString(new UriBuilder(assembly.Location ?? throw new ArgumentException("Assembly is null", nameof(assembly))).Path);
             if (PlatformDetection.IsRunningOnWindows)
                 str = str.Replace("/", "\\");
             return str;
         }
     }
-    
+
     public static class PlatformDetection
     {
         public static bool IsRunningOnNix
