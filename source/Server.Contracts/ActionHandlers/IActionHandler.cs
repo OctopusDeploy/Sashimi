@@ -14,9 +14,14 @@ namespace Sashimi.Server.Contracts.ActionHandlers
         string? Keywords { get; }
         bool ShowInStepTemplatePickerUI { get; }
         bool WhenInAChildStepRunInTheContextOfTheTargetMachine { get; }
-        bool CanRunOnDeploymentTarget { get; }
         ActionHandlerCategory[] Categories { get; }
 
         IActionHandlerResult Execute(IActionHandlerContext context, ITaskLog taskLog);
+    }
+
+    public interface IActionHandlerForTarget : IActionHandler
+    {
+        DeploymentTargetType DeploymentTargetType { get; }
+        bool CanRunOnDeploymentTarget { get; }
     }
 }
