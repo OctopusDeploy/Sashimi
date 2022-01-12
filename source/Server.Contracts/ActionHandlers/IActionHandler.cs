@@ -14,6 +14,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
         string? Keywords { get; }
         bool ShowInStepTemplatePickerUI { get; }
         bool WhenInAChildStepRunInTheContextOfTheTargetMachine { get; }
+        bool CanRunOnDeploymentTarget { get; }
         ActionHandlerCategory[] Categories { get; }
 
         IActionHandlerResult Execute(IActionHandlerContext context, ITaskLog taskLog);
@@ -22,6 +23,8 @@ namespace Sashimi.Server.Contracts.ActionHandlers
     public interface IActionHandlerForTarget : IActionHandler
     {
         DeploymentTargetType DeploymentTargetType { get; }
-        bool CanRunOnDeploymentTarget { get; }
+
+        // Note: We have not moved CanRunOnDeploymentTarget into this abstraction as it does not have a correlation with the step being strongly associated
+        // Note: with a single deployment target type. An example are the Java steps - the can be run on the target, as the target is usually a VM of some kind.
     }
 }
