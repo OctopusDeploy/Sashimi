@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Octopus.Server.Extensibility.HostServices.Diagnostics;
+using Sashimi.Server.Contracts.Accounts;
 
 namespace Sashimi.Server.Contracts.ActionHandlers
 {
@@ -17,6 +20,7 @@ namespace Sashimi.Server.Contracts.ActionHandlers
         bool CanRunOnDeploymentTarget { get; }
         ActionHandlerCategory[] Categories { get; }
         DeploymentTargetType DeploymentTargetType => DeploymentTargetType.None;
+        IEnumerable<AccountType> SupportedAccountTypes => Enumerable.Empty<AccountType>();
 
         IActionHandlerResult Execute(IActionHandlerContext context, ITaskLog taskLog);
     }
